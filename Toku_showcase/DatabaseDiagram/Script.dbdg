@@ -1,0 +1,94 @@
+Table User {
+    UserId uint [primary key]
+    Name string
+    Password string
+    Email string
+    IsDeleted bool
+    CreatedTime datetime
+}
+
+Table Class {
+    ClassId uint [primary key]
+    Name string
+    Description string
+    IsDeleted bool
+    CreatedTime datetime
+}
+
+Table ClassOperation {
+    ClassOperationId uint [primary key]
+    UserId uint [ref: > User.UserId]
+    Description string
+    Operation string
+    CreatedTime datetime
+}
+
+Table Message {
+    MessageId uint [primary key]
+    Content string
+    SenderId uint [ref: > User.UserId]
+    IsDeleted bool
+    CreatedTime datetime
+}
+
+Table Conversation {
+    ConversationId uint [primary key]
+    User1Id uint [ref: > User.UserId]
+    User2Id uint [ref: > User.UserId]
+}
+
+Table PrivateClass {
+    ClassId uint [ref: > Class.ClassId]
+}
+
+Table PublicClass {
+    ClassId uint [ref: > Class.ClassId]
+    Password string
+}
+
+Table UserClass {
+    UserId uint [ref: > User.UserId]
+    ClassId uint [ref: > Class.ClassId]
+}
+
+
+
+Table ClassAdmin {
+    UserId uint [ref: > User.UserId]
+    ClassId uint [ref: > Class.ClassId]
+}
+
+Table ClassDescriber {
+    UserId uint [ref: > User.UserId]
+    ClassId uint [ref: > Class.ClassId]
+}
+
+Table ChatManager {
+    UserId uint [ref: > User.UserId]
+    ClassId uint [ref: > Class.ClassId]
+}
+
+Table ClassOperationsHistory {
+    ClassId uint [ref: > Class.ClassId]
+    ClassOperationId uint [ref: > ClassOperation.ClassOperationId]
+}
+
+Table ClassUsers {
+    ClassId uint [ref: > Class.ClassId]
+    UserId uint [ref: > User.UserId]
+}
+
+Table PrivateClassInvites {
+    ClassId uint [ref: > PrivateClass.ClassId]
+    UserId uint [ref: > User.UserId]
+}
+
+Table ClassMessages {
+    ClassId uint [ref: > Class.ClassId]
+    MessageId uint [ref: > Message.MessageId]
+}
+
+Table ConversationMessages {
+    ConversationId uint [ref: > Conversation.ConversationId]
+    MessageId uint [ref: > Message.MessageId]
+}
