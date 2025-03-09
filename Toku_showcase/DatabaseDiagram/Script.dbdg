@@ -175,6 +175,6 @@ Table FileOwners{
 
 
 // backendenum = uint translated by backend application
-// hash = hashed secret value
+// hash = hashed secret value (password)
 // hashpair = hashed combination for unique combination
 // uniqueidentifier = char(36) generated as UUID
