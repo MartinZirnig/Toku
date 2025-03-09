@@ -10,6 +10,14 @@ Table Users {
     DeletedTime datetime [null]
 }
 
+Table UserLogins {
+    RelationIdentifier uniqueidentifier [not null, primary key, default: `uuid_generate_v4()`]
+    UserId uint [not null, primary key, ref: > Users.UserId]
+
+    LoggedIn datetime [not null]
+    LoggedOut dateime [null]
+}
+
 Table Groups {
     GroupId uint [not null, primary key]
     CreatorId uint [not null, ref: > Users.UserId]
@@ -165,14 +173,8 @@ Table FileOwners{
     GroupOwner uint [null, ref: > Groups.GroupId]
 }
 
-Table UserLogins {
-    LogginId uint [not null, primary key]
-    UserId uint [not null, primary key, ref: > Users.UserId]
-    LoggedIn datetime [not null]
-    LoggedOut dateime [null]
-
-}
 
 // backendenum = uint translated by backend application
 // hash = hashed secret value
 // hashpair = hashed combination for unique combination
+// uniqueidentifier = char(36) generated as UUID
