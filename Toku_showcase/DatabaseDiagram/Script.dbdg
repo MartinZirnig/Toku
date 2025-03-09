@@ -1,96 +1,178 @@
-Table User {
-    UserId uint [primary key]
-    Name string
-    Password string
-    Email string
-    IsDeleted bool
-    CreatedTime datetime
+Table Users {
+    UserId uint [not null, primary key]
+    Picture uint [not null, ref: > Files.FileId]
+    Name string [not null, unique]
+    Password hash [not null]
+    Email string [not null, unique]
+    LastActive datetime [not null]
+
+    CreatedTime datetime [not null]
+    DeletedTime datetime [null]
 }
 
-Table Class {
-    ClassId uint [primary key]
-    Name string
-    Description string
-    IsDeleted bool
-    CreatedTime datetime
+Table Groups {
+    GroupId uint [not null, primary key]
+    CreatorId uint [not null, ref: > Users.UserId]
+    Picture uint [not null, ref: > Files.FileId]
+    Name string [not null]
+    Description string [not null]
+
+    CreatedTime datetime [not null]
+    DeletedTime datetime [null]
 }
 
-Table ClassOperation {
-    ClassOperationId uint [primary key]
-    UserId uint [ref: > User.UserId]
-    Description string
-    Operation string
-    CreatedTime datetime
+Table PrivateGroups {
+    GroupId uint [not null, ref: > Groups.GroupId]
 }
 
-Table Message {
-    MessageId uint [primary key]
-    Content string
-    FilePath string
-    SenderId uint [ref: > User.UserId]
-    IsDeleted bool
-    CreatedTime datetime
+Table PublicGroups {
+    GroupId uint [not null, ref: > Groups.GroupId]
+    Password hash [null]
 }
 
-Table Conversation {
-    ConversationId uint [primary key]
-    User1Id uint [ref: > User.UserId]
-    User2Id uint [ref: > User.UserId]
+Table GroupOperations {
+    GroupOperationId uint [not null, primary key]
+    GroupId uint [not null, ref: > Groups.GroupId]
+    EditorId uint [not null, ref: > Users.UserId]
+    TargetUserId uint [not null, ref: > Users.UserId]
+    Description string [not null]
+    OperationCode backendenum [not null]
+
+    CreatedTime datetime [not null]
 }
 
-Table PrivateClass {
-    ClassId uint [ref: > Class.ClassId]
+Table Messages {
+    MessageId uint [not null, primary key]
+    Content string [not null]
+    File uint [null, ref: > Files.FileId]
+    SenderId uint [not null, ref: > Users.UserId]
+    PinnedMessage uint [null, ref: > Messages.MessageId]
+   
+    CreatedTime datetime [not null]
+    DeletedTime datetime [null]
 }
 
-Table PublicClass {
-    ClassId uint [ref: > Class.ClassId]
-    Password string
+Table MessageStatuses {
+    MessageStatusId uint [not null, primary key]
+    MessageId uint [not null, ref: > Messages.MessageId]
+    UserId uint [not null, ref: > Users.UserId]
+    StatusCode backendenum [not null]
+    UpdatedTime datetime [not null]
 }
 
 
-
-
-Table ClassAdmins {
-    UserId uint [ref: > User.UserId]
-    ClassId uint [ref: > Class.ClassId]
+Table MessageReactions {
+    MessageId uint [not null, primary key, ref: > Messages.MessageId]
+    UserId uint [not null, primary key, ref: > Users.UserId]
+    Reaction string [not null]
+    CreatedTime datetime [not null]
 }
 
-Table ClassDescribers {
-    UserId uint [ref: > User.UserId]
-    ClassId uint [ref: > Class.ClassId]
+Table Notifications {
+    NotificationId uint [not null, primary key]
+    UserId uint [not null, ref: > Users.UserId]
+    Message string [not null]
+    ReceivedTime datetime [null]
+    CreatedTime datetime [not null]
+}
+
+Table MutedUsers {
+    GroupId uint [not null, primary key, ref: > Groups.GroupId]
+    UserId uint [not null, primary key, ref: > Users.UserId]
+  
+    CreatedTime datetime [not null]
+    DeletedTime datetime [null]
+}
+
+Table BannedUsers {
+    GroupId uint [not null, primary key, ref: > Groups.GroupId]
+    UserId uint [not null, primary key, ref: > Users.UserId]
+ 
+    CreatedTime datetime [not null]
+    DeletedTime datetime [null]
+}
+
+Table BlockedUsers {
+    BlockerId uint [not null, primary key, ref: > Users.UserId]
+    BlockedId uint [not null, primary key, ref: > Users.UserId]
+    IsVisible bool [not null]
+
+    CreatedTime datetime [not null]
+    DeletedTime datetime [null]
+}
+
+Table Conversations {
+    ConversationId uint [not null, primary key]
+    Picture uint [not null, ref: > Files.FileId]
+    User1Id uint [not null, ref: > Users.UserId]
+    User2Id uint [not null, ref: > Users.UserId]
+
+    CreatedTime datetime [not null]
+    DeletedTime datetime [null]
+}
+
+Table Files {
+    FileId uint [not null, primary key]
+    TypeCode backendenum [not null]
+    Description string [not null]
+    FilePath string [not null]
+}
+
+Table GroupAdmins {
+    UserId uint [not null, primary key, ref: > Users.UserId]
+    GroupId uint [not null, primary key, ref: > Groups.GroupId]
+}
+
+Table GroupDescribers {
+    UserId uint [not null, primary key, ref: > Users.UserId]
+    GroupId uint [not null, primary key, ref: > Groups.GroupId]
 }
 
 Table ChatManagers {
-    UserId uint [ref: > User.UserId]
-    ClassId uint [ref: > Class.ClassId]
+    UserId uint [not null, primary key, ref: > Users.UserId]
+    GroupId uint [not null, primary key, ref: > Groups.GroupId]
 }
 
-Table ClassOperationsHistory {
-    ClassId uint [ref: > Class.ClassId]
-    ClassOperationId uint [ref: > ClassOperation.ClassOperationId]
+Table GroupOperationsHistory {
+    GroupId uint [not null, primary key, ref: > Groups.GroupId]
+    GroupOperationId uint [not null, primary key, ref: > GroupOperations.GroupOperationId]
 }
 
-Table ClassUsers {
-    ClassId uint [ref: > Class.ClassId]
-    UserId uint [ref: > User.UserId]
+Table GroupUsers {
+    GroupId uint [not null, primary key, ref: > Groups.GroupId]
+    UserId uint [not null, primary key, ref: > Users.UserId]
 }
 
-Table PrivateClassInvites {
-    ClassId uint [ref: > PrivateClass.ClassId]
-    UserId uint [ref: > User.UserId]
+Table PrivateGroupInvites {
+    GroupId uint [not null, primary key, ref: > PrivateGroups.GroupId]
+    UserId uint [not null, primary key, ref: > Users.UserId]
 }
 
-Table ClassMessages {
-    ClassId uint [ref: > Class.ClassId]
-    MessageId uint [ref: > Message.MessageId]
+Table GroupMessages {
+    GroupId uint [not null, primary key, ref: > Groups.GroupId]
+    MessageId uint [not null, primary key, ref: > Messages.MessageId]
 }
 
 Table ConversationMessages {
-    ConversationId uint [ref: > Conversation.ConversationId]
-    MessageId uint [ref: > Message.MessageId]
+    ConversationId uint [not null, primary key, ref: > Conversations.ConversationId]
+    MessageId uint [not null, primary key, ref: > Messages.MessageId]
+} 
+
+Table FileOwners{
+    FileId uint [not null, primary key, ref: > Files.FileId]
+    UserOwner uint [null, ref: > Users.UserId]
+    ConversationOwner uint [null, ref: > Conversations.ConversationId]
+    GroupOwner uint [null, ref: > Groups.GroupId]
 }
 
+Table UserLogins {
+    LogginId uint [not null, primary key]
+    UserId uint [not null, primary key, ref: > Users.UserId]
+    LoggedIn datetime [not null]
+    LoggedOut dateime [null]
 
-Ref: "Message"."MessageId" < "Message"."FilePath"
+}
 
-Ref: "ConversationMessages"."ConversationId" < "ConversationMessages"."MessageId"
+// backendenum = uint translated by backend application
+// hash = hashed secret value
+// hashpair = hashed combination for unique combination
