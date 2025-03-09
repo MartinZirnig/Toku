@@ -26,6 +26,7 @@ Table ClassOperation {
 Table Message {
     MessageId uint [primary key]
     Content string
+    FilePath string
     SenderId uint [ref: > User.UserId]
     IsDeleted bool
     CreatedTime datetime
@@ -46,24 +47,20 @@ Table PublicClass {
     Password string
 }
 
-Table UserClass {
+
+
+
+Table ClassAdmins {
     UserId uint [ref: > User.UserId]
     ClassId uint [ref: > Class.ClassId]
 }
 
-
-
-Table ClassAdmin {
+Table ClassDescribers {
     UserId uint [ref: > User.UserId]
     ClassId uint [ref: > Class.ClassId]
 }
 
-Table ClassDescriber {
-    UserId uint [ref: > User.UserId]
-    ClassId uint [ref: > Class.ClassId]
-}
-
-Table ChatManager {
+Table ChatManagers {
     UserId uint [ref: > User.UserId]
     ClassId uint [ref: > Class.ClassId]
 }
@@ -92,3 +89,8 @@ Table ConversationMessages {
     ConversationId uint [ref: > Conversation.ConversationId]
     MessageId uint [ref: > Message.MessageId]
 }
+
+
+Ref: "Message"."MessageId" < "Message"."FilePath"
+
+Ref: "ConversationMessages"."ConversationId" < "ConversationMessages"."MessageId"
