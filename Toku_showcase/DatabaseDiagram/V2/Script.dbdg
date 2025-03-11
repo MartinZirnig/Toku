@@ -1,0 +1,133 @@
+Table Users {
+    UserId uint [not null, primary key]
+    Picture uint [not null, ref: > Files.FileId]
+    Name string [not null, unique]
+    Password hash [not null]
+    Email string [not null, unique]
+
+    CreatedTime datetime [not null]
+    DeletedTime datetime [null]
+}
+
+Table UserLogins {
+    SessionId uniqueidentifier [not null, primary key, default: `uuid_generate_v4()`]
+    UserId uint [not null, primary key, ref: > Users.UserId]
+
+    LoggedIn datetime [not null]
+    LoggedOut datetime [null]
+}
+
+Table Groups {
+    GroupId uint [not null, primary key]
+    CreatorId uint [not null, ref: > Clients.ClientId]
+    Picture uint [not null, ref: > Files.FileId]
+    Name string [not null]
+    Description string [not null]
+    GroupType backendenum [not null] 
+    TwoUserIdentifier hashpair [null] 
+    Password hash [null]
+
+    CreatedTime datetime [not null]
+    DeletedTime datetime [null]
+}
+
+Table GroupInvites {
+  InviteId uint [not null, primary key]
+  UserId uint [not null, ref: > Users.UserId]
+  GroupId uint [not null, ref: > Groups.GroupId]
+  InviteState backendenum [not null]
+}
+
+Table GroupOperations {
+    GroupOperationId uint [not null, primary key]
+    GroupId uint [not null, ref: > Groups.GroupId]
+    EditorId uint [not null, ref: > Clients.ClientId]
+    TargetUserId uint [not null, ref: > Clients.ClientId]
+    Description string [not null]
+    OperationCode backendenum [not null]
+
+    CreatedTime datetime [not null]
+}
+
+Table Messages {
+    MessageId uint [not null, primary key]
+    Content string [not null]
+    File uint [null, ref: > Files.FileId]
+    SenderId uint [not null, ref: > Users.UserId]
+    PinnedMessage uint [null, ref: > Messages.MessageId]
+   
+    CreatedTime datetime [not null]
+    DeletedTime datetime [null]
+}
+
+Table MessageStatuses {
+    MessageStatusId uint [not null, primary key]
+    MessageId uint [not null, ref: > Messages.MessageId]
+    ClientId uint [not null, ref: > Clients.ClientId]
+    StatusCode backendenum [not null]
+    UpdatedTime datetime [not null]
+}
+
+
+Table MessageReactions {
+    MessageId uint [not null, primary key, ref: > Messages.MessageId]
+    ClientId uint [not null, primary key, ref: > Clients.ClientId]
+    Reaction string [not null]
+    CreatedTime datetime [not null]
+}
+
+Table Notifications {
+    NotificationId uint [not null, primary key]
+    UserId uint [not null, ref: > Users.UserId]
+    Message string [not null]
+    ReceivedTime datetime [null]
+    CreatedTime datetime [not null]
+}
+
+Table Files {
+    FileId uint [not null, primary key]
+    TypeCode backendenum [not null]
+    Description string [not null]
+    FilePath string [not null]
+}
+
+
+Table GroupMessages {
+    GroupId uint [not null, primary key, ref: > Groups.GroupId]
+    MessageId uint [not null, primary key, ref: > Messages.MessageId]
+}
+
+Table FileOwners{
+    FileId uint [not null, primary key, ref: > Files.FileId]
+    UserOwner uint [null, ref: > Users.UserId]
+    ClientOwner uint [null, ref: > Clients.ClientId]
+    GroupOwner uint [null, ref: > Groups.GroupId]
+}
+
+Table Clients {
+  ClientId uint [not null, primary key]
+  UserId uint [not null, ref: > Users.UserId]
+  LocalPicture uint [null, ref: > Files.FileId]
+  LocalName string [null]
+  LocalPassword hash [null]
+}
+
+Table GroupClients {
+  GroupClientId uint [not null, primary key]
+  ClientId uint [not null, ref: > Clients.ClientId]
+  GroupId uint [not null, ref: > Groups.GroupId]
+  Permission backendenum [not null]
+}
+
+Table MessageStatusHistory {
+  RecordId uint [not null, primary key]
+  MessageStatuseId uint [not null, ref: > MessageStatuses.MessageStatusId]
+  StatusCode backendenum [not null]
+  Time datetime [not null]
+}
+
+
+// backendenum = uint translated by backend application
+// hash = hashed secret value (password)
+// hashpair = hashed combination for unique combination
+// uniqueidentifier = char(36) generated as UUID
