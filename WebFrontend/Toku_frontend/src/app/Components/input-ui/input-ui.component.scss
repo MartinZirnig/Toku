@@ -1,0 +1,61 @@
+        /* Dynamická barva placeholderu */
+        #chat-textarea::placeholder {
+            color: var(--placeholder-color);
+        }
+
+         /* Skrytí výchozího scrollbaru */
+         #chat-textarea {
+            scrollbar-width: none; /* Skrytí scrollbaru ve Firefoxu */
+        }
+
+        #chat-textarea::-webkit-scrollbar {
+            display: none; /* Skrytí scrollbaru v Webkit prohlížečích */
+        }
+
+        /* Vlastní scrollbar kontejner */
+        .custom-scrollbar-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Vlastní scrollbar track */
+        .custom-scrollbar-track {
+            position: absolute;
+            top: 8px; /* Padding shora */
+            right: 0;
+            bottom: 8px; /* Padding zdola */
+            width: 8px; /* Šířka scrollbaru */
+            background: radial-gradient(
+                circle at center,
+                #4b5563 2px,
+                transparent 2px
+            ); /* Kruhové tečky */
+            background-size: 8px 8px; /* Rozestup teček (8px vertikálně i horizontálně) */
+            border-radius: 4px; /* Zaoblené rohy */
+            opacity: 0; /* Výchozí stav: neviditelný */
+            transition: opacity 0.35s; /* Plynulejší změna viditelnosti */
+        }
+
+        /* Vlastní scrollbar thumb (kulička) */
+        .custom-scrollbar-thumb {
+            position: absolute;
+            right: -4px; /* Posun doprava o polovinu rozdílu šířky thumbu a tracku */
+            width: 16px; /* Šířka thumbu (větší) */
+            height: 16px; /* Výška thumbu (větší) */
+            background: #6b7280; /* Barva thumbu */
+            border-radius: 50%; /* Kulatý tvar */
+            transition: background 0.2s, opacity 0.35s; /* Plynulejší změna viditelnosti */
+            cursor: pointer; /* Kurzor myši */
+            opacity: 0; /* Výchozí stav: neviditelný */
+        }
+
+        .custom-scrollbar-thumb:hover {
+            background: #9ca3af; /* Barva thumbu při hoveru */
+        }
+
+        /* Zobrazení scrollbaru, když je potřeba posouvat */
+        .custom-scrollbar-container.scrollable .custom-scrollbar-track,
+        .custom-scrollbar-container.scrollable .custom-scrollbar-thumb {
+            opacity: 1; /* Viditelný */
+        }

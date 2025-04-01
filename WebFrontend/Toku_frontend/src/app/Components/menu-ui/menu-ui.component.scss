@@ -1,0 +1,31 @@
+
+  .animate-fade-in-down
+  {
+    animation: fadeInSlide 300ms ease-in forwards;
+  }
+  .animate-fade-out-up
+  {
+    animation: fadeOutSlide 300ms ease-out forwards;
+  }
+  @keyframes fadeInSlide {
+    from {
+      opacity: 0;
+      transform: translateY(-100px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes fadeOutSlide {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-100px);
+    }
+  }
+  

@@ -1,0 +1,25 @@
+.animate-fade-in-right
+{
+  animation: fadeInSlide 300ms ease-in forwards;
+}
+.animate-fade-out-left
+{
+  animation: fadeOutSlide 300ms ease-out forwards;
+}
+@keyframes fadeInSlide {
+  from {
+    transform: translateX(-100px);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeOutSlide {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100px);
+  }
+}

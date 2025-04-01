@@ -1,0 +1,13 @@
+/* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+.gradient-bg {
+    background: linear-gradient(
+        135deg,
+        rgb(50, 50, 50) 0%,          /* Tmavě šedá */
+        rgb(30, 30, 60) 20%,         /* Tmavě modro-šedá */
+        rgb(20, 20, 50) 40%,         /* Tmavě modrá */
+        rgb(10, 10, 40) 60%,         /* Velmi tmavá modrá */
+        rgb(5, 5, 30) 80%,           /* Téměř černá */
+        rgb(0, 0, 0) 100%           /* Černá */
+    );
+}
