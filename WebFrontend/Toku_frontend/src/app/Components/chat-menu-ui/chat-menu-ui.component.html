@@ -1,1 +1,59 @@
-<div class="bg-gray-700 h-56 w-56">aaa</div>
+<div class="chat-menu-container backdrop-blur-lg bg-opacity-80 rounded-lg shadow-lg p-4 w-80">
+  <div class="space-y-4">
+    <!-- Chat Item -->
+    <div class="chat-item flex items-center gap-4 p-3 rounded-lg cursor-pointer" (click)="onChatItemClick('Ondřej Šibrava')">
+      <div class="w-12 h-12 flex items-center justify-center bg-gray-600 rounded-full">
+        <svg class="w-8 h-8 text-white" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+        </svg>
+      </div>
+      <div class="flex-1">
+        <p class="font-semibold chat-item-text">Ondřej Šibrava</p>
+        <p class="text-sm chat-item-subtext">Last message preview...</p>
+      </div>
+      <span class="text-sm chat-item-time">3:26</span>
+    </div>
+
+    <!-- Chat Item -->
+    <div class="chat-item flex items-center gap-4 p-3 rounded-lg cursor-pointer" (click)="onChatItemClick('Pepa Zdepa')">
+      <div class="w-12 h-12 flex items-center justify-center bg-gray-600 rounded-full">
+        <svg class="w-8 h-8 text-white" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+        </svg>
+      </div>
+      <div class="flex-1">
+        <p class="font-semibold chat-item-text">Pepa Zdepa</p>
+        <p class="text-sm chat-item-subtext">Last message preview...</p>
+      </div>
+      <span class="text-sm chat-item-time">12:39</span>
+    </div>
+
+    <!-- Chat Item -->
+    <div class="chat-item flex items-center gap-4 p-3 rounded-lg cursor-pointer" (click)="onChatItemClick('P3.B sk.2')">
+      <div class="w-12 h-12 flex items-center justify-center bg-gray-600 rounded-full">
+        <svg class="w-8 h-8 text-white" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+        </svg>
+      </div>
+      <div class="flex-1">
+        <p class="font-semibold chat-item-text">P3.B sk.2</p>
+        <p class="text-sm chat-item-subtext">Last message preview...</p>
+      </div>
+      <span class="text-sm chat-item-time">15:23</span>
+    </div>
+
+    <!-- Chat Item -->
+    <div class="chat-item flex items-center gap-4 p-3 rounded-lg cursor-pointer" (click)="onChatItemClick('Máma')">
+      <div class="w-12 h-12 flex items-center justify-center bg-gray-600 rounded-full">
+        <svg class="w-8 h-8 text-white" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+        </svg>
+      </div>
+      <div class="flex-1">
+        <p class="font-semibold chat-item-text">Máma</p>
+        <p class="text-sm chat-item-subtext">Last message preview...</p>
+      </div>
+      <span class="text-sm chat-item-time">13:45</span>
+    </div>
+  </div>
+</div>

@@ -23,3 +23,23 @@
     transform: translateX(-100px);
   }
 }
+
+.chat-menu-container {
+  background-color: var(--blurred-background); // Keep only the background color
+}
+
+.chat-item {
+  background-color: var(--chat-item-background);
+  color: var(--chat-item-text-color);
+  &:hover {
+    background-color: var(--chat-item-hover-background);
+  }
+}
+
+.chat-item-subtext {
+  color: var(--chat-item-subtext-color);
+}
+
+.chat-item-time {
+  color: var(--chat-item-time-color);
+}

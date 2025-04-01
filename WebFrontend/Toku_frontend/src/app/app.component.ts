@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { IconComponent } from './Components/icon/icon.component';
-import { InputUIComponent } from './Components/input-ui/input-ui.component';
+import { InputUiComponent } from './Components/input-ui/input-ui.component';
 import { MenuUiComponent } from './Components/menu-ui/menu-ui.component';
 import { ChatMenuUiComponent } from './Components/chat-menu-ui/chat-menu-ui.component';
 
@@ -9,7 +9,7 @@ import { ChatMenuUiComponent } from './Components/chat-menu-ui/chat-menu-ui.comp
   selector: 'app-root',
   imports: [RouterOutlet,
             IconComponent,
-            InputUIComponent,
+            InputUiComponent,
             MenuUiComponent, 
             ChatMenuUiComponent],
   templateUrl: './app.component.html',

@@ -1,7 +1,16 @@
 import { Component, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { ChatMenuUiComponent } from '../chat-menu-ui/chat-menu-ui.component';
+import {
+  buttonBackground,
+  buttonHoverBackground,
+  textColor,
+  placeholderColor,
+  textareaBackground,
+  textareaFocusBackground,
+  iconColor,
+  iconHoverColor,
+} from '../../services/colors.service';
 
 @Component({
   selector: 'app-menu-ui',

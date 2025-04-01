@@ -159,6 +159,23 @@ export const textareaFocusBackground = colors.gray[700];
 export const iconColor = colors.gray[400];
 export const iconHoverColor = colors.white;
 
+// Přidání nových barev
+export const scrollbarTrackBackground = colors.gray[700]; // Světlejší pozadí tracku
+export const scrollbarThumbBackground = colors.gray[500]; // Světlejší kolečko
+export const scrollbarThumbHoverBackground = colors.gray[400]; // Ještě světlejší kolečko při hoveru
+export const pinButtonBackground = colors.gray[800];
+export const sendButtonBackground = colors.gray[800];
+
+export const pinButtonHoverBackground = colors.gray[700];
+export const sendButtonHoverBackground = colors.gray[700];
+
+export const chatItemBackground = colors.white[900];
+export const chatItemHoverBackground = colors.gray[600];
+export const chatItemTextColor = colors.white;
+export const chatItemSubTextColor = colors.gray[400];
+export const chatItemTimeColor = colors.gray[400];
+export const blurredBackground = colors.gray[800];
+
 @Injectable({
   providedIn: 'root'
 })

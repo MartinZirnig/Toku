@@ -2,6 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ChatMenuUiComponent } from './chat-menu-ui.component';
 
+import {  } from '../../services/colors.service';
+
 describe('ChatMenuUiComponent', () => {
   let component: ChatMenuUiComponent;
   let fixture: ComponentFixture<ChatMenuUiComponent>;
