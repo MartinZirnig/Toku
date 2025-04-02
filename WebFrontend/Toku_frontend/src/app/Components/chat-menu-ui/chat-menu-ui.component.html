@@ -1,4 +1,11 @@
 <div class="chat-menu-container backdrop-blur-lg bg-opacity-80 rounded-lg shadow-lg p-4 w-80">
+    <div style="background-color: red">
+    {{ menuService.isVisible }} {{ menuService.showDropdown }}
+  </div>
+
+  <div style="background-color: rgb(0, 255, 34)">
+    {{ menuService.visible$|async }} {{ menuService.dropdown$|async }}
+  </div>
   <div class="space-y-4">
     <!-- Chat Item -->
     <div class="chat-item flex items-center gap-4 p-3 rounded-lg cursor-pointer" (click)="onChatItemClick('Ondřej Šibrava')">
