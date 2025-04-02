@@ -24,8 +24,12 @@ export class MenuUiComponent {
   isVisible = false;
   active = false;
 
+  public constructor(public menuService: OpenAndcloseMenuService) {
+
+  }
+
   showMenu() {
-    
+    this.menuService.toggleDropdownMenu();
   }
 
 
