@@ -23,12 +23,10 @@ import {
   styleUrl: './chat-menu-ui.component.scss'
 })
 export class ChatMenuUiComponent {
-  showDropdown = false;
-  isVisible = false;
-  public toggleDropdownMenu() {
-      this.isVisible = !this.isVisible 
-      setTimeout( () => this.showDropdown = !this.showDropdown, 400)
+    public constructor(public menuService: OpenAndcloseMenuService) {
+
   }
+
 
   public onChatItemClick(chatName: string) {
     alert(`Clicked on chat: ${chatName}`);
