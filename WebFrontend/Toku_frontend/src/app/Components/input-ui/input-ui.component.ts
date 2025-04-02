@@ -39,9 +39,9 @@ export class InputUiComponent implements OnInit {
   }
 
   setupChatUI(): void {
-    const pinButton = document.getElementById("pin-button");
-    const sendButton = document.getElementById("send-button");
-    const textarea = this.textarea.nativeElement;
+    const pinButton = document.getElementById("pin-button");  
+    const sendButton = document.getElementById("send-button");  
+    const textarea = this.textarea.nativeElement; 
 
     if (!pinButton || !sendButton || !textarea) {
       console.error("Některé prvky UI nebyly nalezeny!");

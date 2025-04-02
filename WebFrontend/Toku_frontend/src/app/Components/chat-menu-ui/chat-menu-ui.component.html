@@ -1,66 +1,73 @@
-<div class="chat-menu-container backdrop-blur-lg bg-opacity-80 rounded-lg shadow-lg p-4 w-80">
-    <div style="background-color: red">
-    {{ menuService.isVisible }} {{ menuService.showDropdown }}
-  </div>
+<div #chatMenuContainer>
+    <div *ngIf="menuService.showDropdown"
+      [ngClass]="{
+        'animate-fade-in-right': menuService.isVisible,
+        'animate-fade-out-left': !menuService.isVisible
+                  }"
+      class="absolute top-2 left-0 h-[90vh] max-h-[85vh] w-full max-w-[400px] origin-top-right"
+      style="height: 99%; max-height: 100vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
+        <style>
+            /* Hide scrollbar for WebKit browsers */
+            div::-webkit-scrollbar {
+                display: none;
+            }
+        </style>
+      
+        
+        <!-- Search and Edit Section -->
+        <div class="flex items-center gap-2 mb-4 ml-5">
+            <!-- Edit Button -->
+            <button class="w-12 h-12 bg-black/30 hover:bg-black/50 transition-all duration-300 cursor-pointer rounded-full flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M14.06,9.02L15.03,10L5.5,19.5H4.5V18.5L14.06,9.02M17.66,3C17.41,3 17.15,3.1 16.96,3.29L15.13,5.12L18.88,8.87L20.71,7.04C21.1,6.65 21.1,6 20.71,5.62L18.37,3.29C18.18,3.1 17.92,3 17.66,3M15.13,6.54L4,17.67V21H7.33L18.46,9.87L15.13,6.54Z" />
+                </svg>
+            </button>
+            
 
-  <div style="background-color: rgb(0, 255, 34)">
-    {{ menuService.visible$|async }} {{ menuService.dropdown$|async }}
-  </div>
-  <div class="space-y-4">
-    <!-- Chat Item -->
-    <div class="chat-item flex items-center gap-4 p-3 rounded-lg cursor-pointer" (click)="onChatItemClick('Ondřej Šibrava')">
-      <div class="w-12 h-12 flex items-center justify-center bg-gray-600 rounded-full">
-        <svg class="w-8 h-8 text-white" viewBox="0 0 24 24">
-          <path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-        </svg>
-      </div>
-      <div class="flex-1">
-        <p class="font-semibold chat-item-text">Ondřej Šibrava</p>
-        <p class="text-sm chat-item-subtext">Last message preview...</p>
-      </div>
-      <span class="text-sm chat-item-time">3:26</span>
-    </div>
-
-    <!-- Chat Item -->
-    <div class="chat-item flex items-center gap-4 p-3 rounded-lg cursor-pointer" (click)="onChatItemClick('Pepa Zdepa')">
-      <div class="w-12 h-12 flex items-center justify-center bg-gray-600 rounded-full">
-        <svg class="w-8 h-8 text-white" viewBox="0 0 24 24">
-          <path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-        </svg>
-      </div>
-      <div class="flex-1">
-        <p class="font-semibold chat-item-text">Pepa Zdepa</p>
-        <p class="text-sm chat-item-subtext">Last message preview...</p>
-      </div>
-      <span class="text-sm chat-item-time">12:39</span>
-    </div>
-
-    <!-- Chat Item -->
-    <div class="chat-item flex items-center gap-4 p-3 rounded-lg cursor-pointer" (click)="onChatItemClick('P3.B sk.2')">
-      <div class="w-12 h-12 flex items-center justify-center bg-gray-600 rounded-full">
-        <svg class="w-8 h-8 text-white" viewBox="0 0 24 24">
-          <path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-        </svg>
-      </div>
-      <div class="flex-1">
-        <p class="font-semibold chat-item-text">P3.B sk.2</p>
-        <p class="text-sm chat-item-subtext">Last message preview...</p>
-      </div>
-      <span class="text-sm chat-item-time">15:23</span>
-    </div>
-
-    <!-- Chat Item -->
-    <div class="chat-item flex items-center gap-4 p-3 rounded-lg cursor-pointer" (click)="onChatItemClick('Máma')">
-      <div class="w-12 h-12 flex items-center justify-center bg-gray-600 rounded-full">
-        <svg class="w-8 h-8 text-white" viewBox="0 0 24 24">
-          <path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-        </svg>
-      </div>
-      <div class="flex-1">
-        <p class="font-semibold chat-item-text">Máma</p>
-        <p class="text-sm chat-item-subtext">Last message preview...</p>
-      </div>
-      <span class="text-sm chat-item-time">13:45</span>
+            <!-- Search Input -->
+            <div class="flex items-center bg-gray-200 rounded-full px-3" style="width: 65%;">
+                <input type="text" placeholder="Search..." class="flex-1 bg-transparent outline-none text-gray-800 p-2 rounded-full">
+            </div>
+            
+            <!-- Search Button -->
+            <button class="w-12 h-12 bg-black/30 hover:bg-black/50 transition-all duration-300 cursor-pointer rounded-full flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.5,12.6 14.59,13.81L20.39,19.61L19,21L13.21,15.21C12,16.12 10.5,16.62 9,16.62A6.5,6.5 0 0,1 2.5,10.12A6.5,6.5 0 0,1 9.5,3M9.5,5A4.5,4.5 0 0,0 5,9.5A4.5,4.5 0 0,0 9.5,14A4.5,4.5 0 0,0 14,9.5A4.5,4.5 0 0,0 9.5,5Z" />
+                </svg>
+            </button>
+        </div>
+        <div class="chat-menu-container backdrop-blur-lg rounded-tl-none rounded-tr-3xl rounded-bl-none rounded-br-none shadow-lg p-2 w-80 h-full flex flex-col">
+        <!-- Chat Items Section -->
+        <div class="flex-1 overflow-y-auto space-y-1">
+            <!-- Chat Item -->
+            <div class="chat-item flex items-center gap-4 p-3 rounded-lg cursor-pointer hover:bg-gray-700/50 transition-colors duration-200" (click)="onChatItemClick('Ondřej Šibrava')">
+                <div class="w-12 h-12 flex items-center justify-center rounded-full">
+                    <svg class="w-8 h-8 text-white" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <p class="font-semibold chat-item-text">Ondřej Šibrava</p>
+                    <p class="text-sm chat-item-subtext">Last message preview...</p>
+                </div>
+                <span class="text-sm chat-item-time">3:26</span>
+            </div>
+            
+            <!-- Chat Item -->
+            <div class="chat-item flex items-center gap-4 p-3 rounded-lg cursor-pointer hover:bg-gray-700/50 transition-colors duration-200" (click)="onChatItemClick('P3.B sk.2')">
+                <div class="w-12 h-12 flex items-center justify-center bg-gray-600 rounded-full">
+                    <svg class="w-8 h-8 text-white" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <p class="font-semibold chat-item-text">P3.B sk.2</p>
+                    <p class="text-sm chat-item-subtext">Last message preview...</p>
+                </div>
+                <span class="text-sm chat-item-time">15:23</span>
+            </div>
+        </div>
     </div>
   </div>
 </div>
+

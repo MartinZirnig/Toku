@@ -1,5 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap'); // Example: Roboto font
+@import url('https://fonts.googleapis.com/css2?family=Varela+Round&display=swap'); // Example: Varela Round font
+.text-custom-font {
+  font-family: "Varela Round", sans-serif;
+  font-weight: 800;
+  font-style: normal;
+}
 
-  .animate-fade-in-down
+.animate-fade-in-down
   {
     animation: fadeInSlide 300ms ease-in forwards;
   }
@@ -29,3 +36,36 @@
     }
   }
   
+
+
+
+.animate-fade-in-right
+{
+  animation: fadeInSlideRight 400ms ease-in forwards;
+}
+.animate-fade-out-left
+{
+  animation: fadeOutSlideLeft 400ms ease-out forwards;
+}
+@keyframes fadeInSlideRight {
+  from {
+    width: 100vw; /* Full viewport width */
+    right: 0;
+  }
+  to {
+    width: calc(100vw - 375px); /* Shrink by 350px */
+    right: 0;
+  }
+}
+
+@keyframes fadeOutSlideLeft {
+  from {
+    width: calc(100vw - 375px); /* Start at 350px less than full width */
+    right: 0;
+  }
+  to {
+    width: 100vw; /* Expand to full viewport width */
+    right: 0;
+  }
+}
+

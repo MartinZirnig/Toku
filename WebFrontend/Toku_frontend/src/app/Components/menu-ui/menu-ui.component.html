@@ -1,15 +1,25 @@
-<div class="fixed top-0 left-0 w-full h-15 flex justify-between items-center px-5 z-50">
+<div class="fixed top-0 right-0 h-15 flex items-center px-5 z-50 transition-all duration-400"
+     [ngClass]="{
+       'w-full animate-fade-out-left': !isVisible_menu,
+       'w-4/5 animate-fade-in-right': isVisible_menu
+     }">
     <!-- Levé tlačítko -->
-    <button class="w-12 h-12 rounded-full flex items-center justify-center bg-black/30 hover:bg-black/50 transition-all duration-300"
+    <button class="w-12 h-12 rounded-full flex items-center justify-center bg-black/30 hover:bg-black/50 transition-all duration-300 cursor-pointer"
             (click)="showMenu()">
       <svg class="w-8 h-8 text-white" viewBox="0 0 24 24">
         <path fill="currentColor" d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
       </svg>
     </button>
 
+    <!-- Ikona a text -->
+    <div class="flex items-center ml-4 space-x-0">
+      <app-icon></app-icon>
+      <span class="text-white text-lg  text-custom-font">oku</span>
+    </div>
+
     <!-- Pravé tlačítko s dropdown -->
-    <div class="relative">
-      <button class="w-12 h-12 rounded-full flex items-center justify-center bg-black/30 hover:bg-black/50 transition-all duration-300"
+    <div class="relative ml-auto">
+      <button class="w-12 h-12 rounded-full flex items-center justify-center bg-black/30 hover:bg-black/50 transition-all duration-300 cursor-pointer"
               (click)="toggleDropdown()">
         <svg class="w-8 h-8 text-white" viewBox="0 0 24 24">
           <path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
@@ -17,14 +27,14 @@
       </button>
 
       <!-- Dropdown s animací -->
-      <div *ngIf="showDropdown"
+      <div *ngIf="showDropdown_user"
            [ngClass]="{
-             'animate-fade-in-down': isVisible,
-             'animate-fade-out-up': !isVisible
+             'animate-fade-in-down': isVisible_user,
+             'animate-fade-out-up': !isVisible_user
            }"
            class="absolute right-0 mt-2 w-56 bg-gray-800/90 rounded-lg shadow-lg py-1 transition-all duration-200 origin-top">
-        <a class="block px-4 py-2 text-white hover:bg-gray-700/50">Upravit profil</a>
-        <a class="block px-4 py-2 text-white hover:bg-gray-700/50">Odhlásit se</a>
+        <a class="block px-4 py-2 text-white hover:bg-gray-700/50 cursor-pointer">Upravit profil</a>
+        <a class="block px-4 py-2 text-white hover:bg-gray-700/50 cursor-pointer">Odhlásit se</a>
       </div>
     </div>
 </div>

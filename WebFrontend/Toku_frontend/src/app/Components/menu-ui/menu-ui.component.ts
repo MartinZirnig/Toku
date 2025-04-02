@@ -11,42 +11,56 @@ import {
   iconColor,
   iconHoverColor,
 } from '../../services/colors.service';
+import { OpenAndcloseMenuService } from '../../services/open-andclose-menu.service';
+import { IconComponent } from '../icon/icon.component';
+
 
 @Component({
   selector: 'app-menu-ui',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, IconComponent],
   templateUrl: './menu-ui.component.html',
   styleUrls: ['./menu-ui.component.scss']
 })
 export class MenuUiComponent {
-  showDropdown = false;
-  isVisible = false;
-  active = false;
+  showDropdown_user = false;
+  isVisible_user = false;
+  active_user = false;
+
+  isVisible_menu = false;
 
   public constructor(public menuService: OpenAndcloseMenuService) {
 
   }
 
   showMenu() {
-    this.menuService.toggleDropdownMenu();
+    if (!this.isVisible_menu) {
+      this.menuService.toggleDropdownMenu();
+      this.isVisible_menu = !this.isVisible_menu
+    }
+    else {
+      this.isVisible_menu = !this.isVisible_menu
+      this.menuService.toggleDropdownMenu();
+    }
+  
+    
   }
 
 
   toggleDropdown() {
-    if (!this.active)
+    if (!this.active_user)
     {
-      this.isVisible = true;
-      this.showDropdown = true;
-      setTimeout(() => this.active = true, 1);
+      this.isVisible_user = true;
+      this.showDropdown_user = true;
+      setTimeout(() => this.active_user = true, 1);
     }
   }
   @HostListener('document:click')
   onDocumentClick() {
-    if (this.active) {
-      this.isVisible = false;
-      setTimeout(() => this.showDropdown = false, 400);
-      this.active = false;
+    if (this.active_user) {
+      this.isVisible_user = false;
+      setTimeout(() => this.showDropdown_user = false, 400);
+      this.active_user = false;
     }
   }
 

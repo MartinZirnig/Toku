@@ -174,7 +174,7 @@ export const chatItemHoverBackground = colors.gray[600];
 export const chatItemTextColor = colors.white;
 export const chatItemSubTextColor = colors.gray[400];
 export const chatItemTimeColor = colors.gray[400];
-export const blurredBackground = colors.gray[800];
+export const blurredBackground = colors.gray[100];
 
 @Injectable({
   providedIn: 'root'

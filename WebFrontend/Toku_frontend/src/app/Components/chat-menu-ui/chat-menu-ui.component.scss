@@ -1,45 +1,46 @@
 .animate-fade-in-right
 {
-  animation: fadeInSlide 300ms ease-in forwards;
+  animation: fadeInSlide 400ms ease-in forwards;
 }
 .animate-fade-out-left
 {
-  animation: fadeOutSlide 300ms ease-out forwards;
+  animation: fadeOutSlide 400ms ease-out forwards;
 }
 @keyframes fadeInSlide {
   from {
-    transform: translateX(-100px);
+    transform: translateX(-300px);
+    opacity: 0;
   }
   to {
     transform: translateX(0);
+    opacity: 1;
   }
 }
 
 @keyframes fadeOutSlide {
   from {
     transform: translateX(0);
+    opacity: 1;
   }
   to {
-    transform: translateX(-100px);
+    transform: translateX(-300px);
+    opacity: 0;
   }
 }
 
 .chat-menu-container {
-  background-color: var(--blurred-background); // Keep only the background color
+ background-color: rgba(245, 245, 245, 0.301);
+  
 }
 
 .chat-item {
-  background-color: var(--chat-item-background);
-  color: var(--chat-item-text-color);
-  &:hover {
-    background-color: var(--chat-item-hover-background);
-  }
+  // Colors are now set dynamically
 }
 
 .chat-item-subtext {
-  color: var(--chat-item-subtext-color);
+  // Colors are now set dynamically
 }
 
 .chat-item-time {
-  color: var(--chat-item-time-color);
+  // Colors are now set dynamically
 }
