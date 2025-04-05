@@ -55,6 +55,15 @@ export class MenuUiComponent {
       setTimeout(() => this.active_user = true, 1);
     }
   }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event): void {
+    if (window.innerWidth < 700) {
+      this.menuService.showDropdown = false; // Close the chat menu
+      this.isVisible_menu = false; // Close the menu-ui
+    }
+  }
+
   @HostListener('document:click')
   onDocumentClick() {
     if (this.active_user) {

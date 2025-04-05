@@ -10,4 +10,5 @@
         rgb(5, 5, 30) 80%,           /* Téměř černá */
         rgb(0, 0, 0) 100%           /* Černá */
     );
+    background-attachment: fixed; /* Makes the background static */
 }

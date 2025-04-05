@@ -1,0 +1,13 @@
+/* This file is no longer needed as Tailwind CSS is used for all styles. */
+
+.menu {
+  position: fixed; /* Use fixed positioning to escape stacking context */
+  z-index: 9999; /* Ensure menu is above all other elements */
+  pointer-events: auto; /* Ensure menu is clickable */
+}
+
+#messageContainer {
+  position: relative;
+  z-index: auto; /* Remove any stacking context issues */
+}
+

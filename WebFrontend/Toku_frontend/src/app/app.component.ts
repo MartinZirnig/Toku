@@ -1,17 +1,10 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { IconComponent } from './Components/icon/icon.component';
-import { InputUiComponent } from './Components/input-ui/input-ui.component';
-import { MenuUiComponent } from './Components/menu-ui/menu-ui.component';
-import { ChatMenuUiComponent } from './Components/chat-menu-ui/chat-menu-ui.component';
-import { MessageComponent } from './message/message.component';
+import { MainPageComponent } from './pages/main-page/main-page.component';
+import { UserSettingsComponent } from './Components/user-settings/user-settings.component';
 
 @Component({
   selector: 'app-root',
-  imports: [InputUiComponent,
-            MenuUiComponent, 
-            ChatMenuUiComponent, 
-            MessageComponent],
+  imports: [MainPageComponent, UserSettingsComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
   standalone: true
@@ -21,4 +14,4 @@ import { MessageComponent } from './message/message.component';
 export class AppComponent {
   title = 'Toku_frontend';
   
-}
+  }

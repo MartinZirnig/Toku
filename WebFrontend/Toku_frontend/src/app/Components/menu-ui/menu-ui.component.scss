@@ -49,11 +49,11 @@
 }
 @keyframes fadeInSlideRight {
   from {
-    width: 100vw; /* Full viewport width */
+    width: 105vw; /* Full viewport width */
     right: 0;
   }
   to {
-    width: calc(100vw - 375px); /* Shrink by 350px */
+    width: calc(100vw - 338px); /* Shrink by 350px */
     right: 0;
   }
 }

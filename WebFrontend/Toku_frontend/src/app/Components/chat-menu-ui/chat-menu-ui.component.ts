@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import {
   chatItemBackground,
   chatItemHoverBackground,
@@ -18,58 +18,29 @@ import { CommonModule, NgIf } from '@angular/common';
   styleUrl: './chat-menu-ui.component.scss'
 })
 export class ChatMenuUiComponent {
-/* 
- @ViewChild('chatMenuContainer', { static: true }) chatMenuContainer!: ElementRef;
-*/
+  public isEditing = false;
+  public chats = [
+    { name: 'Ondřej Šibrava', preview: 'Last message preview...', time: '3:26' },
+    { name: 'P3.B sk.2', preview: 'Last message preview...', time: '15:23' }
+  ];
+
   constructor(public menuService: OpenAndcloseMenuService) {}
-/*
-  ngAfterViewInit(): void {
-    if (this.chatMenuContainer) {
-      this.setupChatMenuUI();
-    } else {
-      console.error('chatMenuContainer is not defined');
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event): void {
+    if (window.innerWidth < 700) {
+      this.menuService.showDropdown = false; // Close the chat menu
+      this.menuService.isVisible = false; // Ensure animation state is updated
     }
   }
 
-  setupChatMenuUI(): void {
-    alert("setupChatMenuUI");
-    if (!this.chatMenuContainer) {
-      console.error('chatMenuContainer is not defined');
-      return;
-    }
-    const container = this.chatMenuContainer.nativeElement;
-
-   // Dynamically set styles for the chat menu container
-    container.style.backgroundColor = blurredBackground;
-
-    // Set dynamic styles for chat items
-    const chatItems = container.querySelectorAll('chat-item');
-    chatItems.forEach((item) => {
-      (item as HTMLElement).style.backgroundColor = chatItemBackground;
-      (item as HTMLElement).style.color = chatItemTextColor;
-
-      // Add hover effects dynamically
-      item.addEventListener('mouseenter', () => {
-        (item as HTMLElement).style.backgroundColor = chatItemHoverBackground;
-      });
-      item.addEventListener('mouseleave', () => {
-        (item as HTMLElement).style.backgroundColor = chatItemBackground;
-      });
-
-      // Set dynamic styles for subtext and time
-      const subtext = item.querySelector('chat-item-subtext');
-      const time = item.querySelector('chat-item-time');
-      if (subtext) {
-        (subtext as HTMLElement).style.color = chatItemSubTextColor;
-      }
-      if (time) {
-        (time as HTMLElement).style.color = chatItemTimeColor;
-      }
-    });
-    
+  public onEditClick(): void {
+    this.isEditing = !this.isEditing;
   }
-  */
+
   public onChatItemClick(chatName: string): void {
-    alert(`Clicked on chat: ${chatName}`);
+    if (!this.isEditing) {
+      alert(`Clicked on chat: ${chatName}`);
+    }
   }
 }
