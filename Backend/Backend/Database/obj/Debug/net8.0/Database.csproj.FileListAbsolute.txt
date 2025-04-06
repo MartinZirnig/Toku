@@ -1,0 +1,15 @@
+C:\Users\Martin\Desktop\Backend\Database\bin\Debug\net8.0\Database.deps.json
+C:\Users\Martin\Desktop\Backend\Database\bin\Debug\net8.0\Database.dll
+C:\Users\Martin\Desktop\Backend\Database\bin\Debug\net8.0\Database.pdb
+C:\Users\Martin\Desktop\Backend\Database\obj\Debug\net8.0\Database.csproj.AssemblyReference.cache
+C:\Users\Martin\Desktop\Backend\Database\obj\Debug\net8.0\Database.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Martin\Desktop\Backend\Database\obj\Debug\net8.0\Database.AssemblyInfoInputs.cache
+C:\Users\Martin\Desktop\Backend\Database\obj\Debug\net8.0\Database.AssemblyInfo.cs
+C:\Users\Martin\Desktop\Backend\Database\obj\Debug\net8.0\Database.csproj.CoreCompileInputs.cache
+C:\Users\Martin\Desktop\Backend\Database\obj\Debug\net8.0\Database.csproj.Up2Date
+C:\Users\Martin\Desktop\Backend\Database\obj\Debug\net8.0\Database.dll
+C:\Users\Martin\Desktop\Backend\Database\obj\Debug\net8.0\refint\Database.dll
+C:\Users\Martin\Desktop\Backend\Database\obj\Debug\net8.0\Database.pdb
+C:\Users\Martin\Desktop\Backend\Database\obj\Debug\net8.0\ref\Database.dll
+C:\Users\Martin\Desktop\Backend\Database\bin\Debug\net8.0\BackendInterfaces.dll
+C:\Users\Martin\Desktop\Backend\Database\bin\Debug\net8.0\BackendInterfaces.pdb
