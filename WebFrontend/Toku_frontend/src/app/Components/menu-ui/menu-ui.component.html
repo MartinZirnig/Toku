@@ -1,7 +1,7 @@
 <div class="fixed top-0 right-0 h-15 flex items-center px-5 z-50 transition-all backdrop-blur-sm duration-400"
      [ngClass]="{
-       'w-full animate-fade-out-left': !isVisible_menu,
-       'w-4/5 animate-fade-in-right': isVisible_menu
+       'w-full animate-fade-out-left': !menuService.isVisible,
+       'w-4/5 animate-fade-in-right':menuService.isVisible
      }">
     <!-- Levé tlačítko -->
     <button class="w-12 h-12 rounded-full flex items-center justify-center bg-black/30 hover:bg-black/50 transition-all duration-300 cursor-pointer"
@@ -31,8 +31,8 @@
              'animate-fade-out-up': !isVisible_user
            }"
            class="absolute right-0 mt-2 w-56 bg-gray-800/90 rounded-lg shadow-lg py-1 transition-all duration-200 origin-top backdrop-blur-md">
-        <a class="block px-4 py-2 text-white hover:bg-gray-700/50 cursor-pointer">Upravit profil</a>
-        <a class="block px-4 py-2 text-white hover:bg-gray-700/50 cursor-pointer">Odhlásit se</a>
+        <a class="block px-4 py-2 text-white hover:bg-gray-700/50 cursor-pointer" (click)="goToSettings()">Upravit profil</a>
+        <a class="block px-4 py-2 text-white hover:bg-gray-700/50 cursor-pointer" (click)="goToLogout() " >Odhlásit se</a>
       </div>
     </div>
 </div>

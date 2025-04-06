@@ -13,6 +13,7 @@ import {
 } from '../../services/colors.service';
 import { OpenAndcloseMenuService } from '../../services/open-andclose-menu.service';
 import { IconComponent } from '../icon/icon.component';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -27,23 +28,20 @@ export class MenuUiComponent {
   isVisible_user = false;
   active_user = false;
 
-  isVisible_menu = false;
+  
 
-  public constructor(public menuService: OpenAndcloseMenuService) {
-
+  public constructor(public menuService: OpenAndcloseMenuService, private router: Router) {
+   
   }
 
   showMenu() {
-    if (!this.isVisible_menu) {
+    if (!this.menuService.isVisible) {
       this.menuService.toggleDropdownMenu();
-      this.isVisible_menu = !this.isVisible_menu
     }
     else {
-      this.isVisible_menu = !this.isVisible_menu
+      
       this.menuService.toggleDropdownMenu();
     }
-  
-    
   }
 
 
@@ -60,10 +58,17 @@ export class MenuUiComponent {
   onResize(event: Event): void {
     if (window.innerWidth < 700) {
       this.menuService.showDropdown = false; // Close the chat menu
-      this.isVisible_menu = false; // Close the menu-ui
+      this.menuService.isVisible = false; // Close the menu-ui
     }
   }
 
+  goToSettings() {
+    this.router.navigate(['/main/user-settings']);
+  }
+  goToLogout() {
+    this.router.navigate(['/login']);
+    sessionStorage.removeItem('relationCode');
+  }
   @HostListener('document:click')
   onDocumentClick() {
     if (this.active_user) {

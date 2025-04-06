@@ -1,10 +1,9 @@
 import { Component } from '@angular/core';
-import { MainPageComponent } from './pages/main-page/main-page.component';
-import { UserSettingsComponent } from './Components/user-settings/user-settings.component';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  imports: [MainPageComponent, UserSettingsComponent],
+  imports: [RouterOutlet],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
   standalone: true

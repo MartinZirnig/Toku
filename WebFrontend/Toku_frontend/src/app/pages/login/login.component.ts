@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { cwd } from 'process';
 
 @Component({
   selector: 'app-login',
@@ -40,6 +39,8 @@ export class LoginComponent {
     }
 
     alert('Login successful!');
+    sessionStorage.setItem('relationCode', relationCode); // Store the relation code in session storage
+    this.router.navigate(['/main']); // Navigate to the main page
   }
 
   fynishLoginAndGetRelationCode(name: string, password: string) : string {
