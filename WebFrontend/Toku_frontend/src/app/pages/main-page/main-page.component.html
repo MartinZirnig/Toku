@@ -1,7 +1,7 @@
 
 <app-input-ui class="fixed bottom-0 left-0 right-0 p-4 z-999"></app-input-ui>
 
-<div class="relative space-y-5 px-8 z-0 mt-15 mb-33" > <!-- Add relative for stacking context -->
+<div class="relative space-y-5 px-8 z-0 mt-15 mb-33" >  z<!-- Add relative for stacking context -->
   <div class="flex justify-start pr-16">
     <app-message-adresator
       [text]="'Čus, jak bylo dneska?'"  
@@ -99,8 +99,14 @@
       [status]="'undelivered'">
     </app-message>
   </div>
+  <div class="flex justify-end pl-16">
+    <app-dummy-message-sender></app-dummy-message-sender>
+  </div>
+  <div class="flex justify-start pr-16">
+    <app-dummy-message-adresator></app-dummy-message-adresator>
+  </div>
 </div>
 
-<app-chat-menu-ui></app-chat-menu-ui>
+<app-chat-menu-ui class="z-9999"></app-chat-menu-ui>
 <app-menu-ui></app-menu-ui>
 <router-outlet></router-outlet>

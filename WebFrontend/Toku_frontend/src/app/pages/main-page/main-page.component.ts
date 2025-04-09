@@ -5,6 +5,8 @@ import { ChatMenuUiComponent } from '../../Components/chat-menu-ui/chat-menu-ui.
 import { Message_senderComponent } from '../../Components/message_sender/message_sender.component';
 import { MessageAdresatorComponent } from '../../Components/message-adresator/message-adresator.component';
 import { RouterOutlet } from '@angular/router';
+import { DummyMessageSenderComponent } from '../../Components/dummy-message-sender/dummy-message-sender.component';
+import { DummyMessageAdresatorComponent } from '../../Components/dummy-message-adresator/dummy-message-adresator.component';
 @Component({
   selector: 'app-main-page',
   imports: [
@@ -13,7 +15,9 @@ import { RouterOutlet } from '@angular/router';
     Message_senderComponent, 
     MessageAdresatorComponent,
     MenuUiComponent,
-    RouterOutlet
+    RouterOutlet,
+    DummyMessageSenderComponent,
+    DummyMessageAdresatorComponent
   ],
   templateUrl: './main-page.component.html',
   styleUrls: ['./main-page.component.scss']
