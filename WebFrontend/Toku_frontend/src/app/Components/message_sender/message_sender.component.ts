@@ -13,6 +13,8 @@ export class Message_senderComponent implements OnInit {
   @Input() image!: string | null;
   @Input() time!: string;
   @Input() status!: 'undelivered' | 'delivered' | 'read';
+  @Input() previewText!: string | null; // New input for preview text
+  @Input() hasFile: boolean = false; // New input to indicate if the previous message has a file
 
   @ViewChild('menuTrigger', { static: false }) menuTrigger!: ElementRef;
   @ViewChild('messageContainer', { static: false }) messageContainer!: ElementRef;
@@ -27,7 +29,7 @@ export class Message_senderComponent implements OnInit {
   private isDragging = false; // Dragging state
 
   ngOnInit(): void {
-    console.log('Message initialized:', { text: this.text, image: this.image, time: this.time, status: this.status });
+    console.log('Message initialized:', { text: this.text, image: this.image, time: this.time, status: this.status, previewText: this.previewText, hasFile: this.hasFile });
     this.isLongText = this.text.length > 50; // Adjust threshold as needed
   }
 
