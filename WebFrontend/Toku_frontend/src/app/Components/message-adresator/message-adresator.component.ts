@@ -12,6 +12,7 @@ export class MessageAdresatorComponent implements OnInit {
   @Input() text!: string;
   @Input() image!: string | null;
   @Input() time!: string;
+  @Input() onDeleteMessage!: () => void; // Callback to notify parent component about deletion
 
   @ViewChild('menuTrigger', { static: false }) menuTrigger!: ElementRef;
 
@@ -51,7 +52,10 @@ export class MessageAdresatorComponent implements OnInit {
   }
 
   onDelete(): void {
-    console.log('Delete action triggered'); // Add your delete logic here
+    console.log('Message deleted:', this.text); // Log the deleted message
+    if (this.onDeleteMessage) {
+      this.onDeleteMessage(); // Notify parent component to remove the message
+    }
   }
 
   @HostListener('document:click', ['$event'])

@@ -1,4 +1,4 @@
-<div #messageContainer class="relative flex justify-end items-center mx-auto draggable touch-pan-y select-none z-[1]"
+<div #messageContainer  class="relative flex justify-end items-center draggable mx-auto touch-pan-y select-none z-[1]"
      (mousedown)="onMouseDown($event)"
      (mousemove)="onMouseMove($event)"
      (mouseup)="onMouseUp()"
@@ -7,36 +7,50 @@
      (touchmove)="onTouchMove($event)"
      (touchend)="onTouchEnd()"
      (contextmenu)="onRightClick($event)">
+     <div class="relative">
   <!-- Wrapper for message and menu -->
-  <div class="relative" >
-    <!-- Preview of another message -->
+  <div class="relative flex items-center">
+    <div class="z-1" style="width: 100%; max-width: 50vw">
+       <!-- Preview of another message -->
     <div *ngIf="previewText" class="bg-black text-gray-200 text-sm rounded-lg p-3 shadow-md flex items-center space-x-2 mb-2">
       <svg *ngIf="hasFile"  class="h-5 w-5 text-gray-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M11.2443 1.95482C12.9442 1.01506 15.0346 1.01506 16.7345 1.95482C17.3642 2.30291 17.9519 2.86575 18.9066 3.78015C18.9374 3.80965 18.9686 3.83952 19.0002 3.86977C19.0332 3.90137 19.0657 3.93255 19.0979 3.96334C20.0489 4.87363 20.6381 5.43761 21.0039 6.04433C21.9987 7.69404 21.9987 9.73123 21.0039 11.3809C20.6381 11.9877 20.0489 12.5517 19.0979 13.4619C19.0657 13.4927 19.0332 13.5239 19.0002 13.5555L11.5432 20.6955C11.0139 21.2023 10.5826 21.6153 10.2031 21.9215C9.80997 22.2385 9.42288 22.4831 8.96849 22.6137C8.3365 22.7954 7.66344 22.7954 7.03145 22.6137C6.57706 22.4831 6.18997 22.2385 5.79685 21.9215C5.41736 21.6154 4.98604 21.2024 4.4568 20.6956L4.40896 20.6498C3.88006 20.1434 3.44862 19.7303 3.12862 19.3666C2.79815 18.991 2.53687 18.6144 2.3962 18.1659C2.20127 17.5443 2.20127 16.8808 2.3962 16.2592C2.53687 15.8107 2.79815 15.4341 3.12862 15.0585C3.44862 14.6948 3.88007 14.2817 4.40896 13.7753L11.7594 6.7372C11.7858 6.712 11.8118 6.68704 11.8375 6.66235C12.2069 6.30782 12.5188 6.00843 12.8793 5.8422C13.5141 5.54951 14.2508 5.54951 14.8856 5.8422C15.2461 6.00843 15.558 6.30782 15.9274 6.66235C15.9531 6.68704 15.9791 6.712 16.0055 6.7372C16.0327 6.76328 16.0597 6.78906 16.0864 6.81458C16.4534 7.16504 16.769 7.46639 16.946 7.81825C17.2623 8.44722 17.2623 9.18288 16.946 9.81184C16.842 10.0185 16.7035 10.19 16.555 10.3498C16.4132 10.5025 16.2317 10.6763 16.0205 10.8785L8.62562 17.9591C8.32644 18.2455 7.85167 18.2352 7.56521 17.936C7.27874 17.6369 7.28905 17.1621 7.58823 16.8756L14.9681 9.80945C15.1985 9.58884 15.3477 9.4455 15.4559 9.329C15.5607 9.21618 15.5928 9.16394 15.6059 9.13786C15.709 8.93291 15.709 8.69718 15.6059 8.49224C15.5616 8.40415 15.4629 8.29447 14.9681 7.82064C14.4761 7.34963 14.3581 7.25076 14.2575 7.20436C14.0213 7.09546 13.7436 7.09546 13.5074 7.20436C13.4068 7.25075 13.2887 7.34963 12.7968 7.82064L5.47047 14.8356C4.91163 15.3707 4.52727 15.7396 4.2548 16.0493C3.98794 16.3526 3.87862 16.5449 3.82747 16.7081C3.72418 17.0374 3.72418 17.3877 3.82747 17.717C3.87862 17.8801 3.98794 18.0724 4.2548 18.3758C4.52727 18.6855 4.91163 19.0544 5.47047 19.5895C6.02912 20.1244 6.41466 20.4926 6.73859 20.7539C7.05455 21.0088 7.26154 21.1191 7.44595 21.1721C7.80709 21.276 8.19285 21.276 8.55399 21.1721C8.7384 21.1191 8.94539 21.0088 9.26135 20.7539C9.58528 20.4926 9.97082 20.1244 10.5295 19.5895L17.9628 12.4721C19.0429 11.4379 19.4703 11.0194 19.7194 10.6064C20.4269 9.43309 20.4269 7.99218 19.7194 6.81888C19.4703 6.40585 19.0429 5.98742 17.9628 4.9532C16.8844 3.92069 16.4453 3.50886 16.0088 3.26758C14.7605 2.57747 13.2183 2.57747 11.97 3.26758C11.5335 3.50886 11.0944 3.92069 10.016 4.9532L4.02659 10.6881C3.72741 10.9745 3.25265 10.9642 2.96618 10.665C2.67971 10.3659 2.69002 9.8911 2.9892 9.60464L8.97863 3.86977C9.01022 3.83952 9.04141 3.80965 9.07222 3.78014C10.0269 2.86575 10.6146 2.30291 11.2443 1.95482Z" fill="#ffffff"></path> </g></svg>
       <span>{{ previewText }}</span>
     </div>
-    <!-- Message content -->
-    <div class="p-4 rounded-lg shadow-md relative backdrop-blur-md bg-gray-800/80 text-gray-100 break-words" [ngClass]="{'long-text': isLongText}">
-      <!-- Image content -->
-      <img *ngIf="image" [src]="image" alt="Message Image" class="mb-2 rounded-lg max-w-full">
-      <!-- Text content -->
-      <p *ngIf="text" class="text-gray-100">{{ text }}</p>
-<div class="mt-5 flex">
-        <!-- Time and checkmarks -->
-        <div class="absolute bottom-2 right-2 flex items-center text-gray-500 text-sm space-x-0">
-          <span>{{ time }}</span>
-          <!-- First checkmark -->
-          <svg *ngIf="status === 'undelivered' || status === 'delivered' || status === 'read'" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" [ngClass]="{'text-gray-500': status === 'undelivered' || status === 'delivered', 'text-cyan-500': status === 'read'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-          </svg>
-          <!-- Second checkmark -->
-          <svg *ngIf="status === 'delivered' || status === 'read'" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 relative -ml-3" [ngClass]="{'text-gray-500': status === 'delivered', 'text-cyan-500': status === 'read'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-          </svg>
+      <!-- Message content -->
+      <div *ngIf="!isEditing" class="p-4 rounded-lg shadow-md relative backdrop-blur-md bg-gray-800/80 text-gray-100 break-words" [ngClass]="{'long-text': isLongText}">
+        <!-- Image content -->
+        <img *ngIf="image" [src]="image" alt="Message Image" class="mb-2 rounded-lg max-w-full">
+        <!-- Text content -->
+        <p *ngIf="text" class="text-gray-100">{{ text }}</p>
+        <div class="mt-5 flex">
+          <!-- Time and checkmarks -->
+          <div class="absolute bottom-2 right-2 flex items-center text-gray-500 text-sm space-x-0">
+            <span>{{ time }}</span>
+            <!-- First checkmark -->
+            <svg *ngIf="status === 'undelivered' || status === 'delivered' || status === 'read'" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" [ngClass]="{'text-gray-500': status === 'undelivered' || status === 'delivered', 'text-cyan-500': status === 'read'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <!-- Second checkmark -->
+            <svg *ngIf="status === 'delivered' || status === 'read'" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 relative -ml-3" [ngClass]="{'text-gray-500': status === 'delivered', 'text-cyan-500': status === 'read'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="isEditing" class="p-4 rounded-lg shadow-md relative backdrop-blur-md bg-gray-800/80 text-gray-100 break-words">
+        <div class="relative">
+          <textarea #areabox 
+                    class="areabox" 
+                    [(ngModel)]="editableText" 
+                    (input)="adjustTextareaHeight(areabox)"></textarea>
+          <button class="absolute -bottom-4 -right-4 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-3" (click)="confirmEdit()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+              <path d="M12.146.854a.5.5 0 0 1 .708 0l2.292 2.292a.5.5 0 0 1 0 .708l-9.793 9.793a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1-.11-.168l9.793-9.793zM11.207 3L3 11.207V13h1.793L13 4.793 11.207 3zM12 2.207L13.793 4 14.5 3.293 12.707 1.5 12 2.207zM1 13.5V15h1.5l.5-.5H1z"/>
+            </svg>
+          </button>
         </div>
       </div>
     </div>
-
-    
     <!-- Three-dot menu -->
     <div class="absolute left-[-2rem] top-1/2 transform -translate-y-1/2 cursor-pointer z-50" (click)="toggleMenu($event)" #menuTrigger>
       <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-500 hover:text-gray-700 rotate-180" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 1080 1080" xml:space="preserve">
@@ -52,17 +66,18 @@
         </g>
       </svg>
     </div>
+    
   </div>
   <!-- Context menu for actions -->
-  <div *ngIf="menuVisible" class="absolute top-0 left-[-12rem] bg-gray-800/30 backdrop-blur-md shadow-lg text-white rounded-lg z-[9999] p-2 w-48 menu">
-    <ul class="list-none m-0 p-0">
+  <div *ngIf="menuVisible"  class="absolute left-[-20vw] bg-gray-800/30 backdrop-blur-md shadow-lg text-white rounded-lg p-2 w-48 z-50">
+    <ul class="list-none m-0 p-0"> 
       <li class="flex items-center px-4 py-2 hover:bg-gray-200/30 cursor-pointer" (click)="onEdit()">
-        <svg class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/1999/xlink">
+        <svg class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.x.org/1999/xlink">
           <path d="M18 2L22 6M2 22L3.2764 17.3199C3.35968 17.0145 3.40131 16.8619 3.46523 16.7195C3.52199 16.5931 3.59172 16.4729 3.67332 16.3609C3.76521 16.2348 3.87711 16.1229 4.1009 15.8991L14.4343 5.56569C14.6323 5.36768 14.7313 5.26867 14.8455 5.23158C14.9459 5.19895 15.0541 5.19895 15.1545 5.23158C15.2687 5.26867 15.3677 5.36768 15.5657 5.56569L18.4343 8.43431C18.6323 8.63232 18.7313 8.73133 18.7684 8.84549C18.8011 8.94591 18.8011 9.05409 18.7684 9.15451C18.7313 9.26867 18.6323 9.36768 18.4343 9.56569L8.1009 19.8991C7.87711 20.1229 7.76521 20.2348 7.63908 20.3267C7.52709 20.4083 7.40692 20.478 7.28052 20.5348C7.13815 20.5987 6.98548 20.6403 6.68014 20.7236L2 22Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
         </svg>
         Upravit
       </li>
-      <li class="flex items-center px-4 py-2 hover:bg-gray-200/30 cursor-pointer">
+      <li class="flex items-center px-4 py-2 hover:bg-gray-200/30 cursor-pointer" (click)="onDelete()">
         <svg class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.x.org/1999/xlink">
           <path d="M9 3H15M3 6H21M19 6L18.2987 16.5193C18.1935 18.0975 18.1409 18.8867 17.8 19.485C17.4999 20.0118 17.0472 20.4353 16.5017 20.6997C15.882 21 15.0911 21 13.5093 21H10.4907C8.90891 21 8.11803 21 7.49834 20.6997C6.95276 20.4353 6.50009 20.0118 6.19998 19.485C5.85911 18.8867 5.8065 18.0975 5.70129 16.5193L5 6M10 10.5V15.5M14 10.5V15.5" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
         </svg>
@@ -88,4 +103,5 @@
       </li>
     </ul>
   </div>
+</div>
 </div>

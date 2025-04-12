@@ -1,112 +1,28 @@
-
 <app-input-ui class="fixed bottom-0 left-0 right-0 p-4 z-999"></app-input-ui>
 
-<div class="relative space-y-5 px-8 z-0 mt-15 mb-33" >  z<!-- Add relative for stacking context -->
-  <div class="flex justify-start pr-16">
-    <app-message-adresator
-      [text]="'Čus, jak bylo dneska?'"  
-      [time]="' 14:07'">
-    </app-message-adresator>
-  </div>
-  <div class="flex justify-end pl-16">
-    <app-message
-      [text]="'Ahoj, docela v pohodě, jen ta poslední hodina byla nekonečná 🙄'"  
-      [time]="'14:09'"
-      [status]="'read'">
-    </app-message>
-  </div>
-  <div class="flex justify-end pl-16">
-    <app-message
-      [text]="'Fakt jsem si připadala jak ve zpomaleným filmu'"  
-      [time]="'14:10'"
-      [status]="'read'"
-      [previewText]="'Preview of a file'"
-      [hasFile]="true"
-      >
-    </app-message>
-  </div>
-  <div class="flex justify-start pr-16">
-    <app-message-adresator
-      [text]="'To těžce znám. My jsme měli supl za děják a pustil nám nějakej dokument z roku 1995 😭'"  
-      [time]="' 14:12'">
-    </app-message-adresator>
-  </div>
-  <div class="flex justify-end pl-16">
-    <app-message
-      [text]="'Ty jo, to už je skoro retro 😂'"  
-      [time]="'14:13'"
-      [status]="'read'">
-    </app-message>
-  </div>
-  <div class="flex justify-start pr-16">
-    <app-message-adresator
-      [text]="'jakože thanks bro, to mě fakt posunulo'"  
-      [time]="' 14:15'">
-    </app-message-adresator>
-  </div>
-  <div class="flex justify-start pr-16">
-    <app-message-adresator
-      [text]="'To těžce znám. My jsme měli supl za děják a pustil nám nějakej dokument z roku 1995 😭'"  
-      [time]="' 14:15'">
-    </app-message-adresator>
-  </div>
-  <div class="flex justify-end pl-16">
-    <app-message
-      [text]="'Ty jo, to už je skoro retro 😂'"  
-      [time]="'14:17'"
-      [status]="'read'">
-    </app-message>
-  </div>
-  <div class="flex justify-start pr-16">
-    <app-message-adresator
-      [text]="'No asi jen že jsem se konečně dokopal udělat ten projekt do výtvarky'"  
-      [time]="' 14:18'">
-    </app-message-adresator>
-  </div>
-  <div class="flex justify-start pr-16">
-    <app-message-adresator
-      [text]="'3 dny před deadlinem, rekord 😎'"  
-      [time]="' 14:18'">
-    </app-message-adresator>
-  </div>
-  <div class="flex justify-end pl-16">
-    <app-message
-      [text]="'Hustě, já ještě ani nezačala 😅'"  
-      [time]="'14:20'"
-      [status]="'read'">
-    </app-message>
-  </div>
-  <div class="flex justify-start pr-16">
-    <app-message-adresator
-      [text]="'To zvládneš, stačí si k tomu pustit hudbu'"  
-      [time]="' 14:22'">
-    </app-message-adresator>
-  </div>
-  <div class="flex justify-start pr-16">
-    <app-message-adresator
-      [text]="'a tvářit se, že tě to baví 😂'"  
-      [time]="' 14:22'">
-    </app-message-adresator>
-  </div>
-  <div class="flex justify-end pl-16">
-    <app-message
-      [text]="'Jo, nebo to prostě nakreslím o přestávce'"  
-      [time]="'14:23'"
-      [status]="'delivered'">
-    </app-message>
-  </div>
-  <div class="flex justify-end pl-16">
-    <app-message
-      [text]="'jako vždycky'"  
-      [time]="'14:23'"
-      [status]="'undelivered'">
-    </app-message>
-  </div>
-  <div class="flex justify-end pl-16">
-    <app-dummy-message-sender></app-dummy-message-sender>
-  </div>
-  <div class="flex justify-start pr-16">
-    <app-dummy-message-adresator></app-dummy-message-adresator>
+<div class="relative z-0 mt-24 mb-48 flex justify-center"> <!-- Center the main container -->
+  <div class="w-[65vw] space-y-3"> <!-- Fixed width for the main container -->
+    <div *ngFor="let message of messages; let i = index" 
+         [ngClass]="{'flex justify-end': message.isSender, 'flex justify-start': !message.isSender}">
+      <ng-container *ngIf="message.isSender; else adresatorTemplate">
+        <app-message
+          [text]="message.text"
+          [time]="message.time"
+          [status]="message.status"
+          [previewText]="message.previewText"
+          [hasFile]="message.hasFile"
+          [timeStamp]="message.timeStamp"
+          [onDeleteMessage]="onDeleteMessage.bind(this, i)">
+        </app-message>
+      </ng-container>
+      <ng-template #adresatorTemplate>
+        <app-message-adresator
+          [text]="message.text"
+          [time]="message.time"
+          [onDeleteMessage]="onDeleteMessage.bind(this, i)">
+        </app-message-adresator>
+      </ng-template>
+    </div>
   </div>
 </div>
 
