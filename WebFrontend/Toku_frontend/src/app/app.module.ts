@@ -19,3 +19,14 @@ import { Message_senderComponent } from './Components/message_sender/message_sen
   bootstrap: [AppComponent],
 })
 export class AppModule {}
+
+
+
+
+import { PickerModule } from '@ctrl/ngx-emoji-mart';
+
+@NgModule({
+  imports:      [ BrowserModule, FormsModule, PickerModule],
+  declarations: [ AppComponent],
+  bootstrap:    [ AppComponent ]
+})
