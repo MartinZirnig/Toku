@@ -6,10 +6,11 @@
      (touchstart)="onTouchStart($event)"
      (touchmove)="onTouchMove($event)"
      (touchend)="onTouchEnd()"
-     (contextmenu)="onRightClick($event)">
+     (contextmenu)="onRightClick($event)"
+     [ngStyle]="{'z-index': menuVisible ? 9999 : 'auto'}">
      <div class="relative">
   <!-- Wrapper for message and menu -->
-  <div class="relative flex items-center">
+  <div class="relative flex items-center z-1" >
     <div class="z-1" style="width: 100%; max-width: 50vw">
        <!-- Preview of another message -->
     <div *ngIf="previewText" class="bg-black text-gray-200 text-sm rounded-lg p-3 shadow-md flex items-center space-x-2 mb-2">
@@ -69,7 +70,7 @@
     
   </div>
   <!-- Context menu for actions -->
-  <div *ngIf="menuVisible"  class="absolute left-[-20vw] bg-gray-800/30 backdrop-blur-md shadow-lg text-white rounded-lg p-2 w-48 z-50">
+  <div *ngIf="menuVisible"  class="absolute left-[-8vw] bg-gray-800/30 backdrop-blur-md shadow-lg text-white rounded-lg p-2 w-48 z-50 top-[-2rem] translate-x-[-50%]">
     <ul class="list-none m-0 p-0"> 
       <li class="flex items-center px-4 py-2 hover:bg-gray-200/30 cursor-pointer" (click)="onEdit()">
         <svg class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.x.org/1999/xlink">
