@@ -3,6 +3,7 @@ import { Component, HostListener, OnInit, ViewChild, ElementRef, Input } from '@
 import { MenuService } from '../../services/menu.service'; // Ensure the correct path to MenuService
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser'; // Import DomSanitizer
 import { NgModel, FormsModule } from '@angular/forms'; // Import FormsModule for two-way binding
+import { EmojiPopUpOpenService } from '../../services/emoji-pop-up-open.service'; // Import the emoji popup service
 
 @Component({
   selector: 'app-message',
@@ -31,7 +32,10 @@ export class Message_senderComponent implements OnInit {
   isEditing = false; // Track if the message is in edit mode
   editableText!: string; // Store the editable text
 
-  constructor(private menuService: MenuService, private sanitizer: DomSanitizer) {} // Inject DomSanitizer
+  emojiPopupVisible = false;
+  emojiPopupPosition = { x: 0, y: 0 };
+
+  constructor(private menuService: MenuService, private sanitizer: DomSanitizer, private emojiPopUp: EmojiPopUpOpenService) {} // Inject DomSanitizer
 
   private startX = 0; // Initial position
   private currentX = 0; // Current position
@@ -207,5 +211,18 @@ export class Message_senderComponent implements OnInit {
 
     const lines = Math.ceil(this.editableText.length / maxCharsPerLine); // Calculate the number of lines
     return Math.max(lines, 1); // Ensure at least 1 row
+  }
+
+  onReact(event: MouseEvent): void {
+    this.emojiPopUp.openEmojiPopup(); // Open the emoji popup
+  }
+
+  closeEmojiPopup(): void {
+    this.emojiPopUp.closeEmojiPopup(); // Close the emoji popup
+  }
+
+  onEmojiSelected(emoji: string): void {
+    console.log('Selected emoji:', emoji);
+    this.emojiPopUp.closeEmojiPopup();
   }
 }

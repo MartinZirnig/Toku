@@ -13,11 +13,15 @@ import {
   pinButtonHoverBackground,
   sendButtonHoverBackground,
 } from '../../services/colors.service';
+import { EmojisPopUpComponent } from '../emojis-pop-up/emojis-pop-up.component';
+import { NgIf } from '@angular/common';
+import { EmojiPopUpOpenService } from '../../services/emoji-pop-up-open.service';
 
 @Component({
   selector: 'app-input-ui',
   templateUrl: './input-ui.component.html',
-  styleUrls: ['./input-ui.component.scss'] // Opraveno na správný soubor
+  styleUrls: ['./input-ui.component.scss'], // Opraveno na správný soubor¨
+  imports: [EmojisPopUpComponent,NgIf]
 })
 export class InputUiComponent implements OnInit {
   @ViewChild('chatTextarea', { static: true }) textarea!: ElementRef<HTMLTextAreaElement>;
@@ -30,7 +34,7 @@ export class InputUiComponent implements OnInit {
   private mouseUpListener!: () => void;
   private animationFrameId: number | null = null;
 
-  constructor(private renderer: Renderer2) {}
+  constructor(private renderer: Renderer2, public emojiPopUp: EmojiPopUpOpenService) {}
 
   ngOnInit(): void {
     this.setupChatUI();
@@ -185,5 +189,10 @@ export class InputUiComponent implements OnInit {
   onResize(): void {
     this.checkScrollability();
     this.updateScrollThumbPosition();
+  }
+
+  onEmojiSelected(emoji: string): void {
+    console.log('Selected emoji:', emoji);
+    
   }
 }

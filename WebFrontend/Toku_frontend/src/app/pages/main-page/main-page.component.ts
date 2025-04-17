@@ -8,6 +8,7 @@ import { RouterOutlet } from '@angular/router';
 import { DummyMessageSenderComponent } from '../../Components/dummy-message-sender/dummy-message-sender.component';
 import { DummyMessageAdresatorComponent } from '../../Components/dummy-message-adresator/dummy-message-adresator.component';
 import { NgClass, NgFor, NgIf } from '@angular/common';
+import { EmojisPopUpComponent } from "../../Components/emojis-pop-up/emojis-pop-up.component";
 
 @Component({
   selector: 'app-main-page',
@@ -18,12 +19,10 @@ import { NgClass, NgFor, NgIf } from '@angular/common';
     MessageAdresatorComponent,
     MenuUiComponent,
     RouterOutlet,
-    DummyMessageSenderComponent,
-    DummyMessageAdresatorComponent,
     NgClass,
     NgFor,
     NgIf
-  ],
+],
   templateUrl: './main-page.component.html',
   styleUrls: ['./main-page.component.scss']
 })

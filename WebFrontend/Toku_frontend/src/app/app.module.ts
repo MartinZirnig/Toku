@@ -7,8 +7,7 @@ import { Message_senderComponent } from './Components/message_sender/message_sen
 
 @NgModule({
   declarations: [
-    AppComponent,
-    Message_senderComponent, // Ensure this component is declared here
+ // Ensure this component is declared here
   ],
   imports: [
     BrowserModule,
@@ -16,17 +15,6 @@ import { Message_senderComponent } from './Components/message_sender/message_sen
     CommonModule, // Add CommonModule here for NgIf, NgClass, etc.
   ],
   providers: [],
-  bootstrap: [AppComponent],
+  bootstrap: [],
 })
 export class AppModule {}
-
-
-
-
-import { PickerModule } from '@ctrl/ngx-emoji-mart';
-
-@NgModule({
-  imports:      [ BrowserModule, FormsModule, PickerModule],
-  declarations: [ AppComponent],
-  bootstrap:    [ AppComponent ]
-})
