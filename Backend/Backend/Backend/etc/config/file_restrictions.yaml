@@ -1,0 +1,2 @@
+UserPicture: $ExeDir$\etc\files\profile_images\{$UserId}
+GroupFile: $ExeDir$\etc\files\group_files\{$GroupId}
