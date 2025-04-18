@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using MysqlDatabase.Tables;
 using Org.BouncyCastle.Pkcs;
 using System.Diagnostics;
+using YamlDotNet.Serialization.ObjectFactories;
 
 namespace MysqlDatabase;
 internal class UserService : DatabaseServisLifecycle, IUserService
@@ -20,10 +21,10 @@ internal class UserService : DatabaseServisLifecycle, IUserService
                 return new RequestResultModel(false, "User already exists!");
 
             var KeyId = await InsertNewUserKeyAsync(model);
-            var USerId = await InsertNewUserAsync(model, KeyId);
+            var UserId = await InsertNewUserAsync(model, KeyId);
 
             await transaction.CommitAsync();
-
+            return new RequestResultModel(true, string.Empty);
         }
         catch (Exception ex)
         {
@@ -31,7 +32,6 @@ internal class UserService : DatabaseServisLifecycle, IUserService
             return new RequestResultModel(false, ex.Message);
         }
 
-        return new RequestResultModel(true, string.Empty);
     }
     private async Task<bool> ExistsUserAsync(string userName)
     {
@@ -85,27 +85,33 @@ internal class UserService : DatabaseServisLifecycle, IUserService
                 return new UserLoginResponseModel(
                     string.Empty, 0);
 
+            var logged = await FinishUserLoggingAsync(model, user);
+
             await transaction.CommitAsync();
-            return await FinishUserLogingAsync(model, user);
+            return logged;
         }
         catch
         {
             await transaction.RollbackAsync();
             return new UserLoginResponseModel(
                 string.Empty, 0);
-        }
+        };
 
 
     }
     private async Task<User?> FindUserAsync(UserLoginModel model)
     {
-        return await Context.Users
+        var user = await Context.Users
             .AsNoTracking()
             .Include(u => u.Key)
-            .Where(u => u.Name == model.UserName && u.Password.VerifyPassword(model.Password))
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(u => u.Name == model.UserName);
+
+        if (user is null) return null;
+        if (user.Password.VerifyPassword(model.Password))
+            return user;
+        return null;
     }
-    private async Task<UserLoginResponseModel> FinishUserLogingAsync(UserLoginModel model, User user)
+    private async Task<UserLoginResponseModel> FinishUserLoggingAsync(UserLoginModel model, User user)
     {
         var login = new UserLogin()
         {
@@ -121,6 +127,31 @@ internal class UserService : DatabaseServisLifecycle, IUserService
         return new UserLoginResponseModel(login.SessionId.ToString(), user.LastGroupId);
     }
 
+    public async Task<UserLoginResponseModel> LoginGoogleUserAsync(GmailAuthorizationModel model)
+    {
+        var transaction = await Context.Database.BeginTransactionAsync();
+        try
+        {
+            var registration = model.DeriveRegistration()
+                with
+            { Name = $"google_{model.Name}" };
+
+
+            if (!await ExistsUserAsync(registration.Name))
+                await RegisterUserAsync(registration);
+
+            var login = await LoginUserAsync(registration.DeriveUserLogin());
+
+            await transaction.CommitAsync();
+            return login;
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            return new UserLoginResponseModel(
+                string.Empty, 0);
+        }
+    }
 
     public async Task<LoggedUserData?> GetLoggedUserDataAsync(Guid identification)
     {
@@ -224,5 +255,7 @@ internal class UserService : DatabaseServisLifecycle, IUserService
             .FirstOrDefaultAsync(x => x.SessionId == identification)
             is not null;
     }
+
+
 }
 

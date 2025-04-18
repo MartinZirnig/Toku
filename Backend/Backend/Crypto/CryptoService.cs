@@ -37,9 +37,11 @@ internal static class CryptoService
         using var aes = Aes.Create();
         aes.Key = decryptionKey;
         aes.IV = iv;
+        aes.Padding = PaddingMode.PKCS7;
+        aes.Mode = CipherMode.CBC;
 
         using var decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
-        using var memoryStream = new System.IO.MemoryStream(encryptedKey);
+        using var memoryStream = new MemoryStream(encryptedKey);
         using var cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read);
 
         using var resultStream = new MemoryStream();

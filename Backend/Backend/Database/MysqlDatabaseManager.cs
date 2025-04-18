@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using BackendInterface;
+using MysqlDatabase.Tables;
 using MysqlDatabaseControl;
 
 namespace MysqlDatabase;
@@ -23,7 +24,7 @@ public sealed class MysqlDatabaseManager
     }
     public static void DestroyDatabase()
     {
-        //EmergencyBackup();
+        EmergencyBackup();
         using var context = new DatabaseContext();
         context.Database.EnsureDeleted();
     }
@@ -48,6 +49,14 @@ public sealed class MysqlDatabaseManager
             DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss ff"));
         BackupDatabase(path);
     }
+    public static void RestoreDatabase(string path)
+    {
+        using var context = new DatabaseContext();
+        using var off = new ConstraintOff(context);
+        var query = new DatabaseRestoreQuery(path);
+        query.Execute(context);
+
+    }
     #endregion
 
 
@@ -67,6 +76,11 @@ public sealed class MysqlDatabaseManager
         return new FileService();
     }
 
+    public static IGroupService GetGroupServiceStatic()
+    {
+        return new GroupService();
+    }
+
     public IDataService GetDataService()
     {
         return GetDataServiceStatic();
@@ -81,6 +95,13 @@ public sealed class MysqlDatabaseManager
     {
         return GetFileServiceStatic();
     }
+
+    public IGroupService GetGroupService()
+    {
+        return GetGroupServiceStatic();
+    }
+
+
     #endregion
 }
 

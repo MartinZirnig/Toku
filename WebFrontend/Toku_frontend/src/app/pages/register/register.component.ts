@@ -73,9 +73,9 @@ export class RegisterComponent {
     this.usrctrl.login(name, password)
       .subscribe({
         next: response => {
-          if (response.UserIdentification.trim()) {
-            User.Id = response.UserIdentification;
-            this.redirecter.Group(response.LastGroupId);
+          if (response.userIdentification.trim()) {
+            User.Id = response.userIdentification;
+            this.redirecter.Group(response.lastGroupId);
           }
           else 
             this.printError('cannot login user, user data is not valid');

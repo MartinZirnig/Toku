@@ -14,7 +14,7 @@ internal static class DefaultValues
         result.Add(new InsertQuery("StoredFiles",
             [1, (byte)FileType.Image,
             "default user image",
-            @"etc\\profile_images\\default.png" ]));
+            @"etc\\profile_images\\default.png", "0", "null" ]));
 
 
         return result;

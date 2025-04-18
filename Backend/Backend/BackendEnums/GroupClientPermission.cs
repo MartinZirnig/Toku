@@ -2,7 +2,8 @@
 
 public enum GroupClientPermission : byte
 {
-    Member = 0,
-    Moderator = 1,
-    Admin = 2
+    PowerLess = 0,
+    Member = 1,
+    Moderator = 2,
+    Admin = 3
 }

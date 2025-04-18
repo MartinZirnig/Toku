@@ -22,45 +22,57 @@ internal class DataService : DatabaseServisLifecycle, IDataService
     }
 
 
-    public uint ReceiveMessage(MessageModel message)
+    public async Task<uint> ReceiveMessageAsync(MessageModel message)
     {
-        throw new NotImplementedException();
-        /*
-        var encrypted = new EncryptedMessage(message.MessageContent);
-        var messageId = StoreMessage(encrypted, message);
-        if (messageId == 0) return 0;
-        var users = SupportService.GetGroupUsersAsync(
-            message.GroupId, Context);
-        foreach (var user in users)
-            StoreUserMessageRelation(encrypted, user, messageId);
-        return messageId;
-        */
+        using var off = new ConstraintOff(Context);
+        using var transaction = await Context.Database.BeginTransactionAsync();
+
+        try
+        {
+            var encrypted = new EncryptedMessage(message.MessageContent);
+            var messageId = await StoreMessageAsync(encrypted, message);
+            if (messageId == 0) return 0;
+
+            var users = await SupportService.GetGroupUsersAsync(
+                message.GroupId, Context);
+
+            var tasks = users.Select(user =>
+                StoreUserMessageRelationAsync(encrypted, user, messageId));
+            await Task.WhenAll(tasks);
+
+            await transaction.CommitAsync();
+            return messageId;
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            return 0;
+        }
     }
-    private uint StoreMessage
-        (EncryptedMessage message, MessageModel model)
+    private async Task<uint> StoreMessageAsync(
+        EncryptedMessage message, MessageModel model)
     {
-        throw new NotImplementedException();
-        /*
-        var user = SupportService.GetUserDataAsync(
+        var user = await SupportService.GetUserDataAsync(
             model.SenderContext, Context);
 
         if (user is null) return 0;
 
         var dbMessage = new Message
         {
+            GroupId = model.GroupId,
             Content = message.Content,
             StoredFileId = model.AttachedFileId,
             SenderId = user.UserId,
             PinnedMessageId = model.PinnedMessageId,
-            CreatedTime = DateTime.Now
+            CreatedTime = DateTime.Now,
         };
 
         Context.Messages.Add(dbMessage);
-        Context.SaveChanges();
+        await Context.SaveChangesAsync();
+
         return dbMessage.MessageId;
-        */
     }
-    private void StoreUserMessageRelation(
+    private async Task StoreUserMessageRelationAsync(
         EncryptedMessage msg, User usr, uint msgId)
     {
         var message = msg.EncryptKey(((PPKeyPair)usr.Key).PublicKeyPem);
@@ -70,72 +82,78 @@ internal class DataService : DatabaseServisLifecycle, IDataService
             MessageId = msgId,
             EncryptedKey = message.Key
         };
+
         Context.UserMessages.Add(userMessage);
-        Context.SaveChanges();
+        await Context.SaveChangesAsync();
     }
 
 
-    public IEnumerable<StoredMessageModel> GetGroupMessages(Guid user, uint groupId, uint messageCount)
+
+    public async Task<IEnumerable<StoredMessageModel>> GetGroupMessagesAsync(Guid user, uint groupId, uint messageCount)
     {
-        var userData = SupportService.GetUserDataAsync(user, Context);
-        var messages = Context.Groups
+        var userData = await SupportService.GetUserDataAsync(user, Context);
+        if (userData is null) return [];
+
+        var messageIds = await Context.Messages
             .AsNoTracking()
-            .Include(g => g.Messages)
+            .Where(m => m.GroupId == groupId)
+            .OrderByDescending(m => m.CreatedTime)
+            .Select(m => m.MessageId)
             .Take((int)messageCount)
-            .FirstOrDefault(g => g.GroupId == groupId)?
-            .Messages
-            .Select(m => m.MessageId);
-        if (messages is null) return [];
+            .ToListAsync();
 
-        var result = new List<StoredMessageModel>();
-        foreach (var message in messages)
-        {
-            var storedMessage = GetMessage(user, message);
-            if (storedMessage is null) continue;
-            result.Add(storedMessage);
-        }
-        return result;
+        if (messageIds.Count == 0) return [];
 
+        var tasks = messageIds.Select(id => GetMessageAsync(userData, id));
+        var results = await Task.WhenAll(tasks);
+
+        return results.Where(msg => msg is not null)!;
     }
 
-    public StoredMessageModel? GetMessage(Guid user, uint messageId)
+    public async Task<StoredMessageModel?> GetMessageAsync(Guid user, uint messageId)
     {
-        throw new NotImplementedException();
-        /*
-        var userData = SupportService.GetUserDataAsync(user, Context);
+        var userData = await SupportService.GetUserDataAsync(user, Context);
         if (userData is null) return null;
-        var message = Context.Messages
+        return await GetMessageAsync(userData, messageId);
+    }
+    public async Task<StoredMessageModel?> GetMessageAsync(LoggedUserData userData, uint messageId)
+    {
+        var message = await Context.Messages
             .AsNoTracking()
-            .FirstOrDefault(m => m.MessageId == messageId);
+            .FirstOrDefaultAsync(m => m.MessageId == messageId);
         if (message is null) return null;
-        var userMessage = Context.UserMessages
+
+        var userMessage = await Context.UserMessages
             .AsNoTracking()
-            .FirstOrDefault(um =>
-                um.UserId == userData.UserId
-                && um.MessageId == messageId);
+            .FirstOrDefaultAsync(um =>
+                um.UserId == userData.UserId &&
+                um.MessageId == messageId);
         if (userMessage is null) return null;
 
-        var encryptedMessage = new EncryptedMessage(
-            message.Content, userMessage.EncryptedKey);
-        var decryptedMessage = encryptedMessage.DecryptKey(
-            userData.DecryptedPrivateKey);
+        var encryptedMessage = new EncryptedMessage(message.Content, userMessage.EncryptedKey);
+        var decryptedMessage = encryptedMessage.DecryptKey(userData.DecryptedPrivateKey);
         var content = decryptedMessage.Decrypt();
 
+        var status = await GetMessageStatusAsync(messageId);
+
         return new StoredMessageModel(
-            content, message.StoredFileId, message.PinnedMessageId,
-            message.GroupId, GetMessageStatus(messageId)
-                ?? MessageStatusCode.Sent
-            );
-    */
+            content,
+            message.StoredFileId,
+            message.PinnedMessageId,
+            message.GroupId,
+            status ?? MessageStatusCode.Sent
+        );
     }
-    private MessageStatusCode? GetMessageStatus(uint messageId)
+
+    private async Task<MessageStatusCode?> GetMessageStatusAsync(uint messageId)
     {
-        var statuses = Context.MessageStatuses
+        var statuses = await Context.MessageStatuses
             .AsNoTracking()
             .Where(ms => ms.MessageId == messageId)
             .Select(ms => ms.StatusCode)
-            .ToList();
-        if (statuses is null) return null;
+            .ToListAsync();
+
+        if (statuses.Count == 0) return null;
 
         if (statuses.Contains(MessageStatusCode.Sent))
             return MessageStatusCode.Sent;

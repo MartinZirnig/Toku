@@ -31,8 +31,6 @@ internal static class SupportService
     {
         return await context.Users
             .AsNoTracking()
-            .Include(u => u.Key)
-            .ThenInclude(k => k.PublicKey)
             .Include(u => u.Picture)
             .FirstOrDefaultAsync(u => u.UserId == userId);
     }
@@ -40,17 +38,16 @@ internal static class SupportService
     public static async Task<IEnumerable<User>> GetGroupUsersAsync
         (uint groupId, DatabaseContext context)
     {
-        var temp = await context.Groups
+        return await context.Clients
             .AsNoTracking()
-            .Include(g => g.GroupClients)
-            .ThenInclude(gc => gc.Client)
-            .ThenInclude(c => c.User)
-            .FirstOrDefaultAsync(x => x.GroupId == groupId);
-        if (temp is null) return [];
-
-        return temp.GroupClients
-            .Select(gc => gc.Client.User)
-            .ToList();
+            .Include(c => c.User)
+                .ThenInclude(u => u.Key)
+            .Include(c => c.User)
+                .ThenInclude(u => u.Picture)
+            .Where(c => c.GroupRelations
+                .Any(r => r.GroupId == groupId))
+            .Select(c => c.User)
+            .ToListAsync();
     }
 
 

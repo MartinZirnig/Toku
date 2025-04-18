@@ -6,9 +6,9 @@ public interface IDataService : IDisposable
 {
     T ExecuteQuery<T>(IQuery<T> query);
 
-    uint ReceiveMessage(MessageModel message);
-    StoredMessageModel? GetMessage(Guid user, uint messageId);
-    IEnumerable<StoredMessageModel> GetGroupMessages(
+    Task<uint> ReceiveMessageAsync(MessageModel message);
+    Task<StoredMessageModel?> GetMessageAsync(Guid user, uint messageId);
+    Task<IEnumerable<StoredMessageModel>> GetGroupMessagesAsync(
         Guid user, uint groupId, uint messageCount);
 }
 

@@ -1,6 +1,10 @@
+Ôªøusing Backend.Attributes;
 using BackendInterface;
+using Microsoft.OpenApi.Models;
 using MysqlDatabase;
 
+MysqlDatabaseManager.DestroyDatabase();
+MysqlDatabaseManager.InitializeDatabase();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,15 +15,41 @@ builder.Services.AddScoped<IDatabaseServiceProvider, MysqlDatabaseManager>();
 
 builder.Services.AddRouting(options =>
 {
-    options.LowercaseUrls = true; // Tato volba zajistÌ, ûe vöechny URL budou ve form·tu mal˝ch pÌsmen
+    options.LowercaseUrls = true;
 });
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.AddSecurityDefinition(AuthorizationAttribute.UserIdentificationKey, new OpenApiSecurityScheme
+    {
+        Description = "Zadej sv≈Øj vlastn√≠ Client ID",
+        Name = AuthorizationAttribute.UserIdentificationKey,
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = AuthorizationAttribute.UserIdentificationKey
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = AuthorizationAttribute.UserIdentificationKey
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
 builder.Services.AddCors(cors =>
 {
     cors.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins(string.Empty)
+        policy.AllowAnyOrigin()
             .AllowAnyHeader()
             .AllowAnyMethod();
     });

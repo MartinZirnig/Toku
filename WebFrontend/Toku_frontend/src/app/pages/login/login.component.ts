@@ -1,8 +1,14 @@
-import { Component } from '@angular/core';
+import { Component, importProvidersFrom } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { BackgroundLoginComponent } from '../../Components/background-login/background-login.component';
+import { Redirecter } from '../../data_managements/redirecter.service';
+import { UserControlService } from '../../data_managements/control-services/user-control-service.service';
+import { Observable } from 'rxjs';
+import { UserLoginResponseModel } from '../../data_managements/models/user-login-response-model';
+import { User } from '../../data_managements/user';
+import { GoogleAuthenticationService } from '../../data_managements/services/google-authentication-service.service';
 
 @Component({
   selector: 'app-login',
@@ -15,7 +21,12 @@ export class LoginComponent {
   loginForm: FormGroup;
   errorMessage: string = '';
 
-  constructor(private fb: FormBuilder, private router: Router) {
+  constructor(
+    private fb: FormBuilder, 
+    private redirecter: Redirecter,
+    private usrCtrl: UserControlService,
+    private googleAut: GoogleAuthenticationService
+  ) {
     this.loginForm = this.fb.group({
       name: ['', Validators.required],
       password: ['', Validators.required]
@@ -33,25 +44,34 @@ export class LoginComponent {
       return;
     }
 
-    const relationCode = this.fynishLoginAndGetRelationCode(name, password);
-    if (relationCode === '') {
-      this.printError('Invalid login. Please try again.');
-      return;
-    }
+    this.fynishLogin(name, password);
+}
 
-    alert('Login successful!');
-    sessionStorage.setItem('relationCode', relationCode); // Store the relation code in session storage
-    this.router.navigate(['/main']); // Navigate to the main page
+  private fynishLogin(name: string, password: string) : void {
+    const request = this.usrCtrl.login(name, password);
+    this.manageLoginResponse(request);
   }
 
-  fynishLoginAndGetRelationCode(name: string, password: string) : string {
-    console.log('logging: ', {name, password});
+  private manageLoginResponse(
+    request: Observable<UserLoginResponseModel>): void {
+    request.subscribe({
+        next: response => {
+          if (response.userIdentification.trim()) {
+            User.Id = response.userIdentification;
+            this.redirecter.Group(response.lastGroupId);
+          }
+          else 
+            this.printError('cannot login user, user data is not valid');
+      },
+      error: err => {
+        this.printError('cannot login user, user data is not valid');
+      }
 
-    return 'relationCode'; 
+    })
   }
 
   
   loginWithGoogle() {
-    console.log('Logging in with Google');
+    this.googleAut.login(this.manageLoginResponse);
   }
 }

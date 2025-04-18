@@ -26,12 +26,24 @@ namespace Backend.Controllers
             using var service = _serviceProvider.GetUserService();
 
             var loginData = await service.LoginUserAsync(model);
-            if (loginData is null)
 
+            if (loginData.UserIdentification.Length == 0)
                 return BadRequest("Invalid username or password");
             return Ok(loginData);
 
         }
+        [HttpPost("login-google")]
+        public async Task<IActionResult> GoogleLogin([FromBody] GmailAuthorizationModel model)
+        {
+            using var service = _serviceProvider.GetUserService();
+
+            var loginData = await service.LoginGoogleUserAsync(model);
+
+            if (loginData.UserIdentification.Length == 0)
+                return BadRequest("Invalid username or password");
+            return Ok(loginData);
+        }
+
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {

@@ -13,7 +13,7 @@ public class PPKeyPair
 
     public readonly string PublicKey;
     public string PublicKeyPem =>
-        $"{PublicPemBegin}\n{PublicKey}\n{PublicPemEnd}";
+        $"{PublicPemBegin}\n{PublicKey.Trim()}\n{PublicPemEnd}";
 
     public readonly byte[] EncryptedPrivateKey;
     public readonly byte[] Salt;
@@ -81,6 +81,7 @@ public class PPKeyPair
             builder.Append(PrivatePemEnd);
             return builder.ToString();
         }
+
         return Convert.ToBase64String(key);
     }
 }

@@ -41,6 +41,12 @@ internal class DatabaseContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+
+        modelBuilder.Entity<Group>()
+            .Property(g => g.TwoUserIdentifier)
+            .IsRequired(false);
+
+
         modelBuilder.Entity<User>()
             .Property(u => u.Password)
             .HasConversion(
@@ -57,14 +63,14 @@ internal class DatabaseContext : DbContext
         modelBuilder.Entity<Group>()
             .Property(g => g.Password)
             .HasConversion(
-                hashedValue => hashedValue.ToString(),
-                str => new HashedValue(str)
+                hashedValue => hashedValue == null ? null : hashedValue.ToString(),
+                str => str == null ? null : new HashedValue(str)
             );
         modelBuilder.Entity<Group>()
             .Property(g => g.TwoUserIdentifier)
             .HasConversion(
-                hashedValue => hashedValue.ToString(),
-                str => new HashedValue(str)
+                hashedValue => hashedValue == null ? null : hashedValue.ToString(),
+                str => str == null ? null : new HashedValue(str)
             );
     }
 }

@@ -23,6 +23,7 @@ internal class Client
     public string LocalName { get; set; }
     public HashedValue LocalPassword { get; set; }
 
+    public virtual List<GroupClient> GroupRelations { get; set; } 
     public virtual List<MessageReaction> MessageReactions { get; set; } = [];
     public virtual List<Message> Messages { get; set; } = [];
 }

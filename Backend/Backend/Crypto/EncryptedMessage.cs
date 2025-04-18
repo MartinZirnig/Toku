@@ -12,29 +12,26 @@ public class EncryptedMessage
         Key = key.ToString();
         IsKeyEncrypted = false;
     }
-    public EncryptedMessage(string content, string key)
-    {
-        Content = content;
-        Key = key;
-        IsKeyEncrypted = true;
-    }
     private EncryptedMessage(string content, string key, bool isKeyEncrypted)
     {
         Content = content;
         Key = key;
         IsKeyEncrypted = isKeyEncrypted;
     }
+    public EncryptedMessage(string content, string key)
+        : this(content, key, true) { }
+
 
     public EncryptedMessage EncryptKey(string publicKeyPem)
     {
         var encryptedKey = CryptoService.EncryptWithPublicKey(publicKeyPem, Key);
-        return new EncryptedMessage(Convert.ToBase64String(encryptedKey), Content, true);
+        return new EncryptedMessage(Content, Convert.ToBase64String(encryptedKey), true);
     }
     public EncryptedMessage DecryptKey(string privateKey)
     {
-        byte[] encryptedKey = Convert.FromBase64String(Content);
-        var decryptedKey = CryptoService.DecryptWithPrivateKey(privateKey, encryptedKey);
-        return new EncryptedMessage(Content, decryptedKey, false);
+        byte[] encryptedKeyBytes = Convert.FromBase64String(Key);
+        string decryptedSymmetricKey = CryptoService.DecryptWithPrivateKey(privateKey, encryptedKeyBytes);
+        return new EncryptedMessage(Content, decryptedSymmetricKey, false);
     }
     public string Decrypt()
     {

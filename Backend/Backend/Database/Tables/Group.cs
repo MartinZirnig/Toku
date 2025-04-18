@@ -27,8 +27,8 @@ internal class Group
     [Required]
     public GroupType GroupType { get; set; }
 
-    public HashedValue TwoUserIdentifier { get; set; }
-    public HashedValue Password { get; set; }
+    public HashedValue? TwoUserIdentifier { get; set; }
+    public HashedValue? Password { get; set; }
 
     [Required]
     public DateTime CreatedTime { get; set; }

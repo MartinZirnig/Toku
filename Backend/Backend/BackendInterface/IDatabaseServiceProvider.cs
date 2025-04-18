@@ -9,6 +9,5 @@ public interface IDatabaseServiceProvider
     IDataService GetDataService();
     IUserService GetUserService();
     IFileService GetFileService();
-
-
+    IGroupService GetGroupService();
 }

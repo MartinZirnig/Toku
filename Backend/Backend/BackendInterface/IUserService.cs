@@ -6,6 +6,7 @@ public interface IUserService : IDisposable
 {
     Task<RequestResultModel> RegisterUserAsync(UserRegistrationModel model);
     Task<UserLoginResponseModel> LoginUserAsync(UserLoginModel model);
+    Task<UserLoginResponseModel> LoginGoogleUserAsync(GmailAuthorizationModel model);
     Task<bool> IsLoggedInAsync(Guid identification);
     Task HeartbeatAsync(Guid identification);
     Task LogoutUserAsync(Guid identification);

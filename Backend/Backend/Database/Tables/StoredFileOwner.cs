@@ -11,7 +11,7 @@ internal class StoredFileOwner
     public virtual StoredFile StoredFile { get; set; }
 
     public uint? UserOwnerId { get; set; }
-    [ForeignKey("UserId")]
+    [ForeignKey("UserOwnerId")]
     public virtual User UserOwner { get; set; }
 
     public uint? ClientOwnerId { get; set; }
