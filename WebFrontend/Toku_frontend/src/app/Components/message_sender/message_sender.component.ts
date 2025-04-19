@@ -19,6 +19,7 @@ export class Message_senderComponent implements OnInit {
   @Input() previewText!: string | null; // New input for preview text
   @Input() hasFile: boolean = false; // New input to indicate if the previous message has a file
   @Input() timeStamp!: string | null; // New input for timestamp
+  @Input() reaction: string = '👌';
   @Input() onDeleteMessage!: () => void; // Callback to notify parent component about deletion
 
   @ViewChild('menuTrigger') menuTrigger!: ElementRef;
@@ -31,6 +32,7 @@ export class Message_senderComponent implements OnInit {
   formattedPreviewText!: SafeHtml; // Formatted preview text with gradient effect
   isEditing = false; // Track if the message is in edit mode
   editableText!: string; // Store the editable text
+  showReaction: boolean = true; // Track if the reaction menu is visible
 
   emojiPopupVisible = false;
   emojiPopupPosition = { x: 0, y: 0 };
@@ -225,4 +227,8 @@ export class Message_senderComponent implements OnInit {
     console.log('Selected emoji:', emoji);
     this.emojiPopUp.closeEmojiPopup();
   }
+
+
+
+  
 }
