@@ -16,11 +16,13 @@ import {
 import { EmojisPopUpComponent } from '../emojis-pop-up/emojis-pop-up.component';
 import { NgIf } from '@angular/common';
 import { EmojiPopUpOpenService } from '../../services/emoji-pop-up-open.service';
+import { GroupService } from '../../data_managements/services/group-service.service';
+import { MainInputService } from '../../services/main-input.service';
 
 @Component({
   selector: 'app-input-ui',
   templateUrl: './input-ui.component.html',
-  styleUrls: ['./input-ui.component.scss'], // Opraveno na správný soubor¨
+  styleUrls: ['./input-ui.component.scss'], 
   imports: [EmojisPopUpComponent,NgIf]
 })
 export class InputUiComponent implements OnInit {
@@ -34,7 +36,11 @@ export class InputUiComponent implements OnInit {
   private mouseUpListener!: () => void;
   private animationFrameId: number | null = null;
 
-  constructor(private renderer: Renderer2, public emojiPopUp: EmojiPopUpOpenService) {}
+  constructor(
+    private renderer: Renderer2, 
+    public emojiPopUp: EmojiPopUpOpenService,
+    private service: MainInputService
+  ) {}
 
   ngOnInit(): void {
     this.setupChatUI();
@@ -194,5 +200,12 @@ export class InputUiComponent implements OnInit {
   onEmojiSelected(emoji: string): void {
     console.log('Selected emoji:', emoji);
     
+  }
+
+  send(): void {
+    const text = this.textarea.nativeElement.value.trim();
+    if (!text) return;
+    this.service.sendMessage(text ?? '');
+    this.textarea.nativeElement.value = '';
   }
 }

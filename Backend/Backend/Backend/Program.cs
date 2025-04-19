@@ -3,8 +3,9 @@ using BackendInterface;
 using Microsoft.OpenApi.Models;
 using MysqlDatabase;
 
-MysqlDatabaseManager.DestroyDatabase();
+//MysqlDatabaseManager.DestroyDatabase();
 MysqlDatabaseManager.InitializeDatabase();
+//MysqlDatabaseManager.RestoreDatabase("C:\\Users\\Martin\\Documents\\GitHub\\Toku\\Backend\\Backend\\Backend\\db_backups\\2025-04-19 11-39-08 33\\");
 
 var builder = WebApplication.CreateBuilder(args);
 

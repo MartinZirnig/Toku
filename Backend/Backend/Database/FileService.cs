@@ -14,7 +14,9 @@ internal class FileService : DatabaseServisLifecycle, IFileService
 
     public async Task<uint> SaveAndEncryptFileAsync(ManagedFileModel file, uint groupId)
     {
-        var transaction = await Context.Database.BeginTransactionAsync();
+        await using var transaction = await Context.Database
+            .BeginTransactionAsync()
+            .ConfigureAwait(false);
         try
         {
             var dataAsString = Convert.ToBase64String(file.Origin.Data);
@@ -134,7 +136,9 @@ internal class FileService : DatabaseServisLifecycle, IFileService
     }
     public async Task<uint> SaveFileAsync(ManagedFileModel file)
     {
-        var transaction = await Context.Database.BeginTransactionAsync();
+        await using var transaction = await Context.Database
+             .BeginTransactionAsync()
+             .ConfigureAwait(false);
         try
         {
             var path = await StoreFileToDiskAsync(file);

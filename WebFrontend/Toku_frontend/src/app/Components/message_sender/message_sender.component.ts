@@ -11,7 +11,8 @@ import { EmojiPopUpOpenService } from '../../services/emoji-pop-up-open.service'
   styleUrls: ['./message_sender.component.scss'],
   imports: [NgIf, NgClass, FormsModule, NgStyle], // Add FormsModule
 })
-export class Message_senderComponent implements OnInit {
+export class 
+Message_senderComponent implements OnInit {
   @Input() text!: string; // Ensure this is declared only once
   @Input() image!: string | null;
   @Input() time!: string;
@@ -46,6 +47,8 @@ export class Message_senderComponent implements OnInit {
     this.isLongText = this.text.length > 50; // Adjust threshold as needed
     const truncatedText = this.getTruncatedPreviewText(this.previewText, 10); // Limit preview to 10 words
     this.formattedPreviewText = this.sanitizer.bypassSecurityTrustHtml(this.applyGradientToLastCharacters(truncatedText, 10)); // Apply gradient to last 10 characters
+  
+  
   }
 
   private getTruncatedPreviewText(text: string | null, wordLimit: number): string {

@@ -12,7 +12,8 @@ internal static class SupportService
             .AsNoTracking()
             .Include(x => x.User)
             .ThenInclude(x => x.Key)
-            .FirstOrDefaultAsync(x => x.SessionId == identification);
+            .FirstOrDefaultAsync(x => x.SessionId == identification)
+            .ConfigureAwait(false);
 
         if (user is null) return null;
         return new LoggedUserData()
@@ -32,7 +33,8 @@ internal static class SupportService
         return await context.Users
             .AsNoTracking()
             .Include(u => u.Picture)
-            .FirstOrDefaultAsync(u => u.UserId == userId);
+            .FirstOrDefaultAsync(u => u.UserId == userId)
+            .ConfigureAwait(false);
     }
 
     public static async Task<IEnumerable<User>> GetGroupUsersAsync
@@ -47,9 +49,18 @@ internal static class SupportService
             .Where(c => c.GroupRelations
                 .Any(r => r.GroupId == groupId))
             .Select(c => c.User)
-            .ToListAsync();
+            .ToListAsync()
+            .ConfigureAwait(false);
     }
 
-
+    public static async Task<Client?> GetGroupClientAsync(uint userId, uint groupId, DatabaseContext context)
+    {
+        return await context.Clients
+            .AsNoTracking()
+            .Include(c => c.GroupRelations)
+            .Where(c => c.UserId == userId)
+            .FirstOrDefaultAsync(c => c.GroupRelations.Any(gr => gr.GroupId == groupId))
+            .ConfigureAwait(false);
+    }
 }
 

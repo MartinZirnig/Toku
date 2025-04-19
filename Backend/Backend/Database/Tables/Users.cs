@@ -29,7 +29,7 @@ internal class User
     public virtual CryptoKey Key { get; set; }
 
     [Required]
-    public uint LastGroupId = 0;
+    public uint LastGroupId { get; set; }
 
 
     [Required]

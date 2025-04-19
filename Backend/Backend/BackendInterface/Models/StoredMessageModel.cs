@@ -6,5 +6,8 @@ public record StoredMessageModel(
     uint? AttachedFileId,
     uint? PinnedMessageId,
     uint GroupId,
-    MessageStatusCode Status
+    byte Status,
+    string time,
+    string? timeStamp,
+    string? PinnedMessagePreview
     );

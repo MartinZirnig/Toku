@@ -15,8 +15,8 @@ internal class Group
     public virtual Client Creator { get; set; }
 
     [Required]
-    public uint Picture { get; set; }
-    [ForeignKey("Picture")]
+    public uint PictureId { get; set; }
+    [ForeignKey("PictureId")]
     public virtual StoredFile PictureStoredFile { get; set; }
 
     [Required]
@@ -32,6 +32,8 @@ internal class Group
 
     [Required]
     public DateTime CreatedTime { get; set; }
+    [Required]
+    public DateTime LastOperation { get; set; }
     public DateTime? DeletedTime { get; set; }
 
 

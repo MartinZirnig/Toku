@@ -13,7 +13,9 @@ internal class UserService : DatabaseServisLifecycle, IUserService
 {
     public async Task<RequestResultModel> RegisterUserAsync(UserRegistrationModel model)
     {
-        using var transaction = await Context.Database.BeginTransactionAsync();
+        await using var transaction = await Context.Database
+            .BeginTransactionAsync()
+            .ConfigureAwait(false);
 
         try
         {
@@ -77,7 +79,9 @@ internal class UserService : DatabaseServisLifecycle, IUserService
 
     public async Task<UserLoginResponseModel> LoginUserAsync(UserLoginModel model)
     {
-        var transaction = await Context.Database.BeginTransactionAsync();
+        await using var transaction = await Context.Database
+            .BeginTransactionAsync()
+            .ConfigureAwait(false);
         try
         {
             var user = await FindUserAsync(model);
@@ -129,7 +133,9 @@ internal class UserService : DatabaseServisLifecycle, IUserService
 
     public async Task<UserLoginResponseModel> LoginGoogleUserAsync(GmailAuthorizationModel model)
     {
-        var transaction = await Context.Database.BeginTransactionAsync();
+        await using var transaction = await Context.Database
+            .BeginTransactionAsync()
+            .ConfigureAwait(false);
         try
         {
             var registration = model.DeriveRegistration()
@@ -190,7 +196,9 @@ internal class UserService : DatabaseServisLifecycle, IUserService
 
     public async Task HeartbeatAsync(Guid identification)
     {
-        var transaction = await Context.Database.BeginTransactionAsync();
+        await using var transaction = await Context.Database
+            .BeginTransactionAsync()
+            .ConfigureAwait(false);
         try
         {
             var user = await Context.UserLogins
@@ -211,7 +219,9 @@ internal class UserService : DatabaseServisLifecycle, IUserService
 
     public async Task LogoutUserAsync(Guid identification)
     {
-        var transaction = await Context.Database.BeginTransactionAsync();
+        await using var transaction = await Context.Database
+            .BeginTransactionAsync()
+            .ConfigureAwait(false);
         try
         {
             var user = await Context.UserLogins
@@ -231,7 +241,9 @@ internal class UserService : DatabaseServisLifecycle, IUserService
 
     public async Task LogoutAllUsersAsync()
     {
-        var transaction = await Context.Database.BeginTransactionAsync();
+        await using var transaction = await Context.Database
+            .BeginTransactionAsync()
+            .ConfigureAwait(false);
         try
         {
             await Context.UserLogins
@@ -255,7 +267,5 @@ internal class UserService : DatabaseServisLifecycle, IUserService
             .FirstOrDefaultAsync(x => x.SessionId == identification)
             is not null;
     }
-
-
 }
 

@@ -9,6 +9,6 @@ public interface IDataService : IDisposable
     Task<uint> ReceiveMessageAsync(MessageModel message);
     Task<StoredMessageModel?> GetMessageAsync(Guid user, uint messageId);
     Task<IEnumerable<StoredMessageModel>> GetGroupMessagesAsync(
-        Guid user, uint groupId, uint messageCount);
+        Guid user, uint groupId, uint? messageCount);
 }
 

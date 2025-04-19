@@ -12,7 +12,7 @@ internal class MessageStatus
 
     [Required]
     public uint MessageId { get; set; }
-    [ForeignKey("StoredFileId")]
+    [ForeignKey("MessageId")]
     public virtual Message Message { get; set; }
 
     [Required]

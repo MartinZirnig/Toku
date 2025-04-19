@@ -5,9 +5,10 @@ export const authenticationInserterInterceptor: HttpInterceptorFn = (req, next) 
   const uid = User.Id;
   if (!uid) return next(req);
   
+  const headerKey = `X-${User.UIdCode}`;
   const modified = req.clone({
     setHeaders: {
-      [User.UIdCode]: uid
+      [headerKey]: uid
     }
   });
   return next(modified);

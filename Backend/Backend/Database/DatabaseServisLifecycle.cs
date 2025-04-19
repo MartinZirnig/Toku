@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MysqlDatabase;
+﻿namespace MysqlDatabase;
 internal abstract class DatabaseServisLifecycle : IDisposable
 {
     private bool _disposed = false;
     protected readonly DatabaseContext Context = new();
+
 
     public void Dispose()
     {
@@ -28,6 +23,7 @@ internal abstract class DatabaseServisLifecycle : IDisposable
 
         _disposed = true;
     }
+    internal DatabaseContext GetContext() => Context;
 
     ~DatabaseServisLifecycle()
     {
