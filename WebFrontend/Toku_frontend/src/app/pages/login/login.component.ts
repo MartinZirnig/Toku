@@ -9,6 +9,7 @@ import { Observable } from 'rxjs';
 import { UserLoginResponseModel } from '../../data_managements/models/user-login-response-model';
 import { User } from '../../data_managements/user';
 import { GoogleAuthenticationService } from '../../data_managements/services/google-authentication-service.service';
+import { Heart } from '../../data_managements/heart.service';
 
 @Component({
   selector: 'app-login',
@@ -25,7 +26,8 @@ export class LoginComponent {
     private fb: FormBuilder, 
     private redirecter: Redirecter,
     private usrCtrl: UserControlService,
-    private googleAut: GoogleAuthenticationService
+    private googleAut: GoogleAuthenticationService,
+    private heart: Heart
   ) {
     this.loginForm = this.fb.group({
       name: ['', Validators.required],
@@ -59,6 +61,7 @@ export class LoginComponent {
           if (response.userIdentification.trim()) {
             User.Id = response.userIdentification;
             this.redirecter.Group(response.lastGroupId);
+            this.heart.startBeat();
           }
           else 
             this.printError('cannot login user, user data is not valid');

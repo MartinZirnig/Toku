@@ -14,6 +14,9 @@ import {
 import { OpenAndcloseMenuService } from '../../services/open-andclose-menu.service';
 import { IconComponent } from '../icon/icon.component';
 import { Router } from '@angular/router';
+import { User } from '../../data_managements/user';
+import { Redirecter } from '../../data_managements/redirecter.service';
+import { Heart } from '../../data_managements/heart.service';
 
 
 @Component({
@@ -30,9 +33,11 @@ export class MenuUiComponent {
 
   
 
-  public constructor(public menuService: OpenAndcloseMenuService, private router: Router) {
-   
-  }
+  public constructor(
+    public menuService: OpenAndcloseMenuService, 
+    private redirecter: Redirecter,
+    private heart: Heart
+  ) {}
 
   showMenu() {
     if (!this.menuService.isVisible) {
@@ -63,11 +68,13 @@ export class MenuUiComponent {
   }
 
   goToSettings() {
-    this.router.navigate(['/main/user-settings']);
+    this.redirecter.Settings();
   }
   goToLogout() {
-    this.router.navigate(['/login']);
-    sessionStorage.removeItem('relationCode');
+    User.ClearId();
+    this.heart.stopBeat();
+    this.redirecter.Login();
+
   }
   @HostListener('document:click')
   onDocumentClick() {

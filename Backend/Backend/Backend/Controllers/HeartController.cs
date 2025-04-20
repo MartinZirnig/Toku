@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers
 {
+    [Authorization]
     [ApiController]
     [Route("[controller]")]
     public class HeartController : ControllerBase
@@ -20,12 +21,11 @@ namespace Backend.Controllers
 
 
         [HttpPost("beat")]
-        [Authorization]
-        public async Task<IActionResult> Beat()
+        public async Task<IActionResult> BeatAsync()
         {
             var service = _serviceProvider.GetUserService();
 
-            var uid = (string)HttpContext.Items[AuthorizationAttribute.UserIdentificationKey]!;
+            var uid = HttpContext.Items[AuthorizationAttribute.UserIdentificationKey]!.ToString()!;
             await service.HeartbeatAsync(Guid.Parse(uid));
 
             return Ok();

@@ -22,7 +22,7 @@ public class GroupController : ControllerBase
     }
 
     [HttpPost("create-group")]
-    public async Task<IActionResult> CreateGroup([FromBody] GroupCreationModel model)
+    public async Task<IActionResult> CreateGroupAsync([FromBody] GroupCreationModel model)
     {
         using var service = _serviceProvider.GetGroupService();
         var result = await service.CreateGroupAsync(model)
@@ -32,13 +32,13 @@ public class GroupController : ControllerBase
     }
 
     [HttpPost("add-group-user")]
-    public async Task<IActionResult> AddGroupUser([FromBody] GroupAddUserModel model)
+    public async Task<IActionResult> AddGroupUserAsync([FromBody] GroupAddUserModel model)
     {
         using var service = _serviceProvider.GetGroupService();
 
         var executor = Guid.Parse(HttpContext.Items[AuthorizationAttribute.UserIdentificationKey]!.ToString()!);
 
-        var permission = await service.GetUsersPermissions(executor, model.groupId)
+        var permission = await service.GetUsersPermissionsAsync(executor, model.groupId)
             .ConfigureAwait(false);
         if (!permission.Contains(GroupClientPermission.Admin))
             return Unauthorized();
@@ -48,7 +48,7 @@ public class GroupController : ControllerBase
         return Ok(result);
     }
     [HttpGet("get-user-groups")]
-    public async Task<IActionResult> GetUserGroups()
+    public async Task<IActionResult> GetUserGroupsAsync()
     {
         using var service = _serviceProvider.GetGroupService();
         var user = Guid.Parse(HttpContext.Items[AuthorizationAttribute.UserIdentificationKey]!.ToString()!);
@@ -58,7 +58,7 @@ public class GroupController : ControllerBase
         return Ok(result);
     }
     [HttpPatch("update-last-group")]
-    public async Task<IActionResult> UpdateLastGroup([FromBody] UserGroupModel model)
+    public async Task<IActionResult> UpdateLastGroupAsync([FromBody] UserGroupModel model)
     {
         using var service = _serviceProvider.GetGroupService();
 
@@ -77,7 +77,14 @@ public class GroupController : ControllerBase
         return Ok(result);
     }
 
-
+    [HttpDelete("remove-user")]
+    public async Task<IActionResult> RemoveUserAsync([FromQuery] GroupRemoveUserModel model)
+    {
+        using var service = _serviceProvider.GetGroupService();
+        var result = await service.RemoveUserFromGroupAsync(model)
+            .ConfigureAwait(false);
+        return Ok(result);
+    }
 
 
 
@@ -86,7 +93,7 @@ public class GroupController : ControllerBase
 
 
     [HttpPost("send-message")]
-    public async Task<IActionResult> SendMessage([FromBody] MessageModel model)
+    public async Task<IActionResult> SendMessageAsync([FromBody] MessageModel model)
     {
         using var service = _serviceProvider.GetDataService();
         var id = await service.ReceiveMessageAsync(model)
@@ -97,7 +104,7 @@ public class GroupController : ControllerBase
     }
 
     [HttpGet("get-messages")]
-    public async Task<IActionResult> GetMessages
+    public async Task<IActionResult> GetMessagesAsync
         ([FromQuery] string identification, [FromQuery] uint groupId, [FromQuery] uint? count)
     {
         using var service = _serviceProvider.GetDataService();
@@ -110,7 +117,7 @@ public class GroupController : ControllerBase
         return Ok(data);
     }
     [HttpGet("get-message")]
-    public async Task<IActionResult> GetMessage([FromQuery] uint messageId)
+    public async Task<IActionResult> GetMessageAsync([FromQuery] uint messageId)
     {
         using var service = _serviceProvider.GetDataService();
         var user = Guid.Parse(HttpContext.Items[AuthorizationAttribute.UserIdentificationKey]!.ToString()!);
@@ -120,6 +127,24 @@ public class GroupController : ControllerBase
         return Ok(result);
     }
 
+    [HttpPatch("update-message")]
+    public async Task<IActionResult> UpdateMessageAsync([FromBody] MessageEditModel model)
+    {
+        using var service = _serviceProvider.GetDataService();
+        var result = await service.UpdateMessageAsync(model)
+            .ConfigureAwait(false);
+        return Ok(result);
+    }
+    [HttpDelete("remove-message")]
+    public async Task<IActionResult> RemoveMessageAsync([FromQuery] MessageRemoveModel model)
+    {
+        using var service = _serviceProvider.GetDataService();
+
+        var result = await service
+            .RemoveMessageAsync(model)
+            .ConfigureAwait(false);
+
+        return Ok(result);
+    }
 
 }
-

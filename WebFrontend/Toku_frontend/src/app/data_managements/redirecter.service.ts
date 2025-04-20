@@ -14,8 +14,11 @@ export class Redirecter {
  public Login() {
    this.router.navigate(['login']);
  }
- public ChangePassword(){
+ public ChangePassword() {
    this.router.navigate(['chagepass']);
+ }
+ public Settings() {
+  this.router.navigate(['/main/user-settings']);
  }
  
  public Group(groupId: number) {

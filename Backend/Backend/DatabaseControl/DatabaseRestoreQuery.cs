@@ -21,7 +21,7 @@ public class DatabaseRestoreQuery : IQuery<Unit>
     }
     private IEnumerable<string> GetDatabaseFiles()
     {
-        var files = Directory.GetFiles(DatabasePath, 
+        var files = Directory.GetFiles(DatabasePath,
             $"*{TableBackupManager.BackupFileExtension}");
         return files;
     }

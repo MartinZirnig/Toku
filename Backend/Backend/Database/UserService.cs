@@ -4,13 +4,13 @@ using BackendInterface.Models;
 using Crypto;
 using Microsoft.EntityFrameworkCore;
 using MysqlDatabase.Tables;
-using Org.BouncyCastle.Pkcs;
-using System.Diagnostics;
-using YamlDotNet.Serialization.ObjectFactories;
 
 namespace MysqlDatabase;
 internal class UserService : DatabaseServisLifecycle, IUserService
 {
+    public UserService(MysqlDatabaseManager creator)
+        : base(creator) { }
+
     public async Task<RequestResultModel> RegisterUserAsync(UserRegistrationModel model)
     {
         await using var transaction = await Context.Database
@@ -40,6 +40,7 @@ internal class UserService : DatabaseServisLifecycle, IUserService
         return await Context.Users
             .AsNoTracking()
             .FirstOrDefaultAsync(u => u.Name == userName)
+            .ConfigureAwait(false)
             is not null;
     }
     private async Task<uint> InsertNewUserKeyAsync(UserRegistrationModel model)
@@ -224,12 +225,8 @@ internal class UserService : DatabaseServisLifecycle, IUserService
             .ConfigureAwait(false);
         try
         {
-            var user = await Context.UserLogins
-                .FirstOrDefaultAsync(x => x.SessionId == identification);
-            if (user is null) return;
+            await this.Creator.UserWatcher.Logout(identification, Context);
 
-            user.DecryptedKey = string.Empty;
-            user.LoggedOut = DateTime.Now;
             await Context.SaveChangesAsync();
             await transaction.RollbackAsync();
         }
@@ -246,11 +243,8 @@ internal class UserService : DatabaseServisLifecycle, IUserService
             .ConfigureAwait(false);
         try
         {
-            await Context.UserLogins
-                .Where(x => x.LoggedOut == null)
-                .ExecuteUpdateAsync(ul => ul
-                    .SetProperty(x => x.DecryptedKey, string.Empty)
-                    .SetProperty(x => x.LoggedOut, DateTime.Now));
+            await Creator.UserWatcher.LogoutAll(Context);
+
             await Context.SaveChangesAsync();
             await transaction.CommitAsync();
         }
@@ -268,4 +262,3 @@ internal class UserService : DatabaseServisLifecycle, IUserService
             is not null;
     }
 }
-

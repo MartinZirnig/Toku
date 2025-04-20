@@ -1,9 +1,11 @@
 import { NgIf, NgClass, NgStyle } from '@angular/common';
-import { Component, HostListener, OnInit, ViewChild, ElementRef, Input } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild, ElementRef, Input, input } from '@angular/core';
 import { MenuService } from '../../services/menu.service'; // Ensure the correct path to MenuService
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser'; // Import DomSanitizer
 import { NgModel, FormsModule } from '@angular/forms'; // Import FormsModule for two-way binding
 import { EmojiPopUpOpenService } from '../../services/emoji-pop-up-open.service'; // Import the emoji popup service
+import { MessageControllService } from '../../data_managements/control-services/message-controll.service';
+import { StoredMessageModel } from '../../data_managements/models/stored-message-model';
 
 @Component({
   selector: 'app-message',
@@ -21,6 +23,7 @@ Message_senderComponent implements OnInit {
   @Input() hasFile: boolean = false; // New input to indicate if the previous message has a file
   @Input() timeStamp!: string | null; // New input for timestamp
   @Input() onDeleteMessage!: () => void; // Callback to notify parent component about deletion
+  @Input() declare raw: StoredMessageModel;
 
   @ViewChild('menuTrigger') menuTrigger!: ElementRef;
   @ViewChild('messageContainer') messageContainer!: ElementRef;
@@ -36,7 +39,12 @@ Message_senderComponent implements OnInit {
   emojiPopupVisible = false;
   emojiPopupPosition = { x: 0, y: 0 };
 
-  constructor(private menuService: MenuService, private sanitizer: DomSanitizer, private emojiPopUp: EmojiPopUpOpenService) {} // Inject DomSanitizer
+  constructor(
+    private menuService: MenuService, 
+    private sanitizer: DomSanitizer, 
+    private emojiPopUp: EmojiPopUpOpenService,
+    private msgCtrl: MessageControllService
+  ) {} // Inject DomSanitizer
 
   private startX = 0; // Initial position
   private currentX = 0; // Current position
@@ -124,6 +132,18 @@ Message_senderComponent implements OnInit {
   confirmEdit(): void {
     this.processUpdatedText(this.editableText); // Process the updated text
     this.isEditing = false; // Exit edit mode
+
+    this.msgCtrl.updateMessage(
+      this.raw.messageId, this.editableText)
+      .subscribe({
+        next: response => {
+          if (!response.success)
+            console.warn('failed message update: ', response.description);
+        },
+        error: err => {
+          console.error('server cannot update message: ', err)
+        }
+      })
   }
 
   private processUpdatedText(newText: string): void {
@@ -139,6 +159,18 @@ Message_senderComponent implements OnInit {
 
   onDelete(): void {
     console.log('Message deleted:', this.text); // Log the deleted message
+
+    this.msgCtrl.removeMessage(this.raw.messageId)
+    .subscribe({
+      next: response => {
+        if (!response.success)
+          console.warn('failed deleting message: ', response.description);
+      },
+      error: err => {
+        console.error('cannot remove on server: ', err);
+      }
+    })
+
     if (this.onDeleteMessage) {
       this.onDeleteMessage(); // Notify parent component to remove the message
     }

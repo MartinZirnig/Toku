@@ -19,16 +19,15 @@ internal class GroupOperation
     [ForeignKey("EditorId")]
     public virtual Client Editor { get; set; }
 
-    [Required]
-    public uint TargetUserId { get; set; }
+    public uint? TargetUserId { get; set; }
     [ForeignKey("TargetUserId")]
-    public virtual Client TargetUser { get; set; }
+    public virtual Client? TargetUser { get; set; }
 
     [Required]
     public string Description { get; set; }
 
     [Required]
-    public OperationCode OperationCode { get; set; } 
+    public OperationCode OperationCode { get; set; }
 
     [Required]
     public DateTime CreatedTime { get; set; }

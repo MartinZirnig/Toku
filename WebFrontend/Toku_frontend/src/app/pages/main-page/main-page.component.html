@@ -24,7 +24,8 @@
           [previewText]="message.previewText"
           [hasFile]="message.hasFile"
           [timeStamp]="message.timeStamp"
-          [onDeleteMessage]="onDeleteMessage.bind(this, i)">
+          [onDeleteMessage]="onDeleteMessage.bind(this, i)"
+          [raw]="message.raw">
         </app-message>
       </ng-container>
       <ng-template #adresatorTemplate>

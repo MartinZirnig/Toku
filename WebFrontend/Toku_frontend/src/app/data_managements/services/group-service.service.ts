@@ -7,6 +7,8 @@ import { Server } from '../server';
 import { AvailableGroupsModel } from '../models/available-groups-model';
 import { RequestResultModel } from '../models/result-model';
 import { UserGroupModel } from '../models/last-group-model';
+import { MessageEditModel } from '../models/message-edit-model';
+import { MessageRemoveModel } from '../models/message-remove-model';
 
 @Injectable({
   providedIn: 'root'
@@ -47,5 +49,17 @@ export class GroupService {
 
   readGroup(model: UserGroupModel) : Observable<RequestResultModel> {
     return this.http.patch<RequestResultModel>(`${this.baseUrl}/read-group`, model)
+  }
+
+  updateMessage(model: MessageEditModel) : Observable<RequestResultModel> {
+    return this.http.patch<RequestResultModel>(`${this.baseUrl}/update-message`, model);
+  }
+
+  removeMessage(model: MessageRemoveModel) : Observable<RequestResultModel> {
+    const params = new HttpParams()
+      .set('userContext', model.userContext)
+      .set('messageId', model.messageId);
+
+    return this.http.delete<RequestResultModel>(`${this.baseUrl}/remove-message`, {params})
   }
 }

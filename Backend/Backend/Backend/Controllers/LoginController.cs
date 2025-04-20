@@ -21,7 +21,7 @@ namespace Backend.Controllers
 
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] UserLoginModel model)
+        public async Task<IActionResult> LoginAsync([FromBody] UserLoginModel model)
         {
             using var service = _serviceProvider.GetUserService();
 
@@ -33,7 +33,7 @@ namespace Backend.Controllers
 
         }
         [HttpPost("login-google")]
-        public async Task<IActionResult> GoogleLogin([FromBody] GmailAuthorizationModel model)
+        public async Task<IActionResult> GoogleLoginAsync([FromBody] GmailAuthorizationModel model)
         {
             using var service = _serviceProvider.GetUserService();
 
@@ -45,7 +45,7 @@ namespace Backend.Controllers
         }
 
         [HttpPost("logout")]
-        public async Task<IActionResult> Logout()
+        public async Task<IActionResult> LogoutAsync()
         {
             using var service = _serviceProvider.GetUserService();
             var uid = (string)HttpContext.Items[AuthorizationAttribute.UserIdentificationKey]!;

@@ -6,7 +6,7 @@ using MysqlDatabaseControl;
 namespace MysqlDatabase;
 
 public sealed class MysqlDatabaseManager
-    : IDatabaseServiceProvider, IDatabaseService
+    : IDatabaseServiceProvider, IDatabaseService, IDisposable
 {
     #region IDatabaseService
     public static readonly string BaseEmergencyBackupPath
@@ -61,47 +61,53 @@ public sealed class MysqlDatabaseManager
 
 
     #region IServiceProvider
-    public static IDataService GetDataServiceStatic()
-    {
-        return new DataService();
-    }
-
-    public static IUserService GetUserServiceStatic()
-    {
-        return new UserService();
-    }
-
-    public static IFileService GetFileServiceStatic()
-    {
-        return new FileService();
-    }
-
-    public static IGroupService GetGroupServiceStatic()
-    {
-        return new GroupService();
-    }
 
     public IDataService GetDataService()
     {
-        return GetDataServiceStatic();
+        return new DataService(this);
     }
 
     public IUserService GetUserService()
     {
-        return GetUserServiceStatic();
+        return new UserService(this);
     }
 
     public IFileService GetFileService()
     {
-        return GetFileServiceStatic();
+        return new FileService(this);
     }
 
     public IGroupService GetGroupService()
     {
-        return GetGroupServiceStatic();
+        return new GroupService(this);
     }
 
+    #endregion
 
+
+    #region LifeCycle
+    internal UserWatcher UserWatcher;
+    private bool _disposed;
+    public MysqlDatabaseManager()
+    {
+        InitializeDatabase();
+
+        UserWatcher = new UserWatcher();
+        UserWatcher.LogoutAll();
+        UserWatcher.StartWatch();
+        Console.WriteLine("created");
+    }
+    ~MysqlDatabaseManager() =>
+        Dispose();
+
+    public void Dispose()
+    {
+        if (_disposed) return;
+
+        _disposed = true;
+        UserWatcher.StopWatch();
+        GC.SuppressFinalize(this);
+    }
     #endregion
 }
 

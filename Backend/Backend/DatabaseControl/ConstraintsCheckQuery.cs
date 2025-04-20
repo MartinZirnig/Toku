@@ -1,6 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Data.Common;
-using MysqlDatabaseControl;
 
 namespace MysqlDatabaseControl;
 public record ConstraintsCheckQuery

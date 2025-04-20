@@ -1,8 +1,9 @@
 ﻿namespace MysqlDatabase;
-internal abstract class DatabaseServisLifecycle : IDisposable
+internal abstract class DatabaseServisLifecycle(MysqlDatabaseManager creator) : IDisposable
 {
     private bool _disposed = false;
     protected readonly DatabaseContext Context = new();
+    protected MysqlDatabaseManager Creator = creator;
 
 
     public void Dispose()

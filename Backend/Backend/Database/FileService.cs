@@ -12,6 +12,9 @@ internal class FileService : DatabaseServisLifecycle, IFileService
 {
     private static readonly FileTypeParser _fileParser = new FileTypeParser();
 
+    public FileService(MysqlDatabaseManager creator)
+    : base(creator) { }
+
     public async Task<uint> SaveAndEncryptFileAsync(ManagedFileModel file, uint groupId)
     {
         await using var transaction = await Context.Database
@@ -19,8 +22,7 @@ internal class FileService : DatabaseServisLifecycle, IFileService
             .ConfigureAwait(false);
         try
         {
-            var dataAsString = Convert.ToBase64String(file.Origin.Data);
-            var encryptedFile = new EncryptedFile(dataAsString);
+            var encryptedFile = new EncryptedFile(file.Origin.Data);
             var data = Convert.FromBase64String(encryptedFile.Content);
 
             var newOrigin = file.Origin with { Data = data };

@@ -7,6 +7,7 @@ import { UserRegistrationModel } from '../../data_managements/models/user-regist
 import { Redirecter } from '../../data_managements/redirecter.service';
 import { UserControlService } from '../../data_managements/control-services/user-control-service.service';
 import { User } from '../../data_managements/user';
+import { Heart } from '../../data_managements/heart.service';
 
 @Component({
   selector: 'app-register',
@@ -22,7 +23,8 @@ export class RegisterComponent {
   constructor(
     private fb: FormBuilder, 
     private redirecter: Redirecter,
-    private usrctrl: UserControlService
+    private usrctrl: UserControlService,
+    private heart: Heart
   ) 
   {
     this.registerForm = this.fb.group({
@@ -76,6 +78,7 @@ export class RegisterComponent {
           if (response.userIdentification.trim()) {
             User.Id = response.userIdentification;
             this.redirecter.Group(response.lastGroupId);
+            this.heart.startBeat();
           }
           else 
             this.printError('cannot login user, user data is not valid');

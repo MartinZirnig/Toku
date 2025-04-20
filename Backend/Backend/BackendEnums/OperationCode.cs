@@ -2,7 +2,9 @@
 
 public enum OperationCode : byte
 {
-    Add = 0,
-    Remove = 1,
-    Update = 2
+    Create = 0,
+    Alter = 1,
+    Add = 5,
+    Remove = 6,
+    Update = 7
 }

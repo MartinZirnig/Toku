@@ -1,5 +1,6 @@
 export class StoredMessageModel {
   constructor(
+    public messageId: number,
     public messageContent: string,
     public groupId: number,
     public status: number,

@@ -6,10 +6,14 @@ using ConfigurationParsing;
 using Crypto;
 using Microsoft.EntityFrameworkCore;
 using MysqlDatabase.Tables;
+using System.Runtime.CompilerServices;
 
 namespace MysqlDatabase;
 internal class GroupService : DatabaseServisLifecycle, IGroupService
 {
+    public GroupService(MysqlDatabaseManager creator)
+    : base(creator) { }
+
     public async Task<RequestResultModel> CreateGroupAsync(GroupCreationModel model)
     {
         await using var transaction = await Context.Database
@@ -18,8 +22,12 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
         using var off = new ConstraintOff(Context);
         try
         {
-            var user = GetLoggedUserDataAsync(model.Creator);
-            await InsertNewGroupAsync(model, await user);
+            var user = await GetLoggedUserDataAsync(model.Creator);
+            var group = await InsertNewGroupAsync(model, user);
+            await InsertGroupOperation(
+                user.UserId, group.GroupId,
+                string.Empty, OperationCode.Create);
+
 
             await transaction.CommitAsync();
             return new RequestResultModel(
@@ -40,7 +48,7 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
             throw new UnauthorizedAccessException();
         return user;
     }
-    private async Task InsertNewGroupAsync(
+    private async Task<Group> InsertNewGroupAsync(
         GroupCreationModel model, LoggedUserData user)
     {
         var group = new Group()
@@ -58,6 +66,8 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
 
         await Context.Groups.AddAsync(group);
         await Context.SaveChangesAsync();
+
+        return group;
     }
 
     public async Task<RequestResultModel> AddUserToGroupAsync(GroupAddUserModel model)
@@ -70,6 +80,10 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
         {
             var clinetId = InsertNewClientAsync(model);
             await InsertClientGroupRelation(model, await clinetId);
+            await InsertGroupOperation(
+                model.userId, model.groupId,
+                string.Empty, OperationCode.Add,
+                model.userId);
 
             await transaction.CommitAsync();
             return new RequestResultModel(
@@ -113,7 +127,7 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
         return groupClient.ClientId;
     }
 
-    public async Task<IEnumerable<GroupClientPermission>> GetUsersPermissions(Guid userId, uint groupId)
+    public async Task<IEnumerable<GroupClientPermission>> GetUsersPermissionsAsync(Guid userId, uint groupId)
     {
         try
         {
@@ -170,7 +184,7 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
                 .Include(gc => gc.Group)
                     .ThenInclude(g => g.PictureStoredFile)
                 .Where(gc => clientIds.Contains(gc.ClientId))
-                .OrderBy(gc => gc.Group.LastOperation)
+                .OrderByDescending(gc => gc.Group.LastOperation)
                 .Select(gc => gc.Group)
                 .ToListAsync()
                 .ConfigureAwait(false);
@@ -192,10 +206,11 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
     }
     private static async Task<string> DecryptLastMessageAsync(Guid uid, uint groupId)
     {
-        var dataService = new DataService();
+        var dataService = new DataService(null!);
         var context = dataService.GetContext();
 
         var last = await context.Messages
+                .Where(m => m.DeletedTime == null)
                 .OrderByDescending(m => m.CreatedTime)
                 .FirstOrDefaultAsync(m => m.GroupId == groupId)
                 .ConfigureAwait(false);
@@ -318,5 +333,75 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
         }
     }
 
+    public async Task<RequestResultModel> RemoveUserFromGroupAsync(GroupRemoveUserModel model)
+    {
+        await using var transaction = await Context.Database
+            .BeginTransactionAsync()
+            .ConfigureAwait(false);
+
+        try
+        {
+            var login = await SupportService
+                .GetUserDataAsync(model.ExecutorContext, Context)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+            if (login.UserId != model.TargetUser)
+            {
+                var acces = await GetUsersPermissionsAsync(model.ExecutorContext, model.TargetGroup);
+                if (!acces.Contains(GroupClientPermission.Admin))
+                    throw new UnauthorizedAccessException("Must be group admin");
+            }
+
+            var client = await Context.Clients
+                .Include(c => c.GroupRelations)
+                    .ThenInclude(rg => rg.Group)
+                .FirstOrDefaultAsync(c =>
+                    c.UserId == model.TargetUser
+                    && c.GroupRelations.Any(gr =>
+                        gr.GroupId == model.TargetGroup))
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+
+
+            Context.Clients.Remove(client);
+
+            await Context.SaveChangesAsync()
+                .ConfigureAwait(false);
+            await transaction.CommitAsync()
+                .ConfigureAwait(false);
+
+            return new RequestResultModel(
+                true, string.Empty);
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync()
+                .ConfigureAwait(false);
+            return new RequestResultModel(
+                false, ex.Message);
+        }
+    }
+
+
+
+    private async Task InsertGroupOperation
+        (uint executor, uint group, string description, OperationCode operation, uint? target = null)
+    {
+        var groupOperation = new GroupOperation()
+        {
+            GroupId = group,
+            EditorId = executor,
+            TargetUserId = target,
+            Description = description,
+            OperationCode = operation
+        };
+        await Context.GroupOperations
+            .AddAsync(groupOperation)
+            .ConfigureAwait(false);
+        await Context.SaveChangesAsync()
+            .ConfigureAwait(false);
+    }
 }
 

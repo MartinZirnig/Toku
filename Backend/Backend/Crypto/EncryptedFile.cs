@@ -6,20 +6,13 @@ public class EncryptedFile
     public readonly bool IsKeyEncrypted;
 
 
-    public EncryptedFile(string content)
+    public EncryptedFile(byte[] content)
     {
-        string contentAsString = content;
-
         SimpleKey key = new SimpleKey();
+        var contentAsString = Convert.ToBase64String(content);
         Content = key.Encrypt(contentAsString);
         Key = key.ToString();
         IsKeyEncrypted = false;
-    }
-    public EncryptedFile(string content, string key)
-    {
-        Content = content;
-        Key = key;
-        IsKeyEncrypted = true;
     }
     private EncryptedFile(string content, string key, bool isKeyEncrypted)
     {
@@ -27,24 +20,28 @@ public class EncryptedFile
         Key = key;
         IsKeyEncrypted = isKeyEncrypted;
     }
+    public EncryptedFile(string content, string key)
+        : this(content, key, true) { }
+
 
     public EncryptedFile EncryptKey(string publicKeyPem)
     {
         var encryptedKey = CryptoService.EncryptWithPublicKey(publicKeyPem, Key);
-        return new EncryptedFile(Convert.ToBase64String(encryptedKey), Content, true);
+        return new EncryptedFile(Content, Convert.ToBase64String(encryptedKey), true);
     }
     public EncryptedFile DecryptKey(string privateKey)
     {
-        byte[] encryptedKey = Convert.FromBase64String(Content);
-        var decryptedKey = CryptoService.DecryptWithPrivateKey(privateKey, encryptedKey);
-        return new EncryptedFile(Content, decryptedKey, false);
+        byte[] encryptedKeyBytes = Convert.FromBase64String(Key);
+        string decryptedSymmetricKey = CryptoService.DecryptWithPrivateKey(privateKey, encryptedKeyBytes);
+        return new EncryptedFile(Content, decryptedSymmetricKey, false);
     }
-    public string Decrypt()
+    public byte[] Decrypt()
     {
         if (IsKeyEncrypted)
             throw new InvalidOperationException("Key is encrypted. Decrypt the key first.");
 
         var key = SimpleKey.FromString(Key);
-        return key.Decrypt(Content);
+        var content = key.Decrypt(Content);
+        return Convert.FromBase64String(content);
     }
 }

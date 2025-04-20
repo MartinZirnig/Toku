@@ -13,6 +13,7 @@ import { ActiveGroupComponent } from './active-group/active-group.component';
 import { ActiveGroupMenuService } from '../../services/active-group-menu-service.service';
 import { GroupsLoaderService } from '../../data_managements/control-services/groups-loader.service';
 import { AvailableGroupsModel } from '../../data_managements/models/available-groups-model';
+import { GroupReloadService } from '../../services/group-reload.service';
 
 
 @Component({
@@ -29,8 +30,11 @@ export class ChatMenuUiComponent {
   constructor(
     public menuService: OpenAndcloseMenuService,
     public activeMenuService: ActiveGroupMenuService,
-    public loader: GroupsLoaderService
-  ) {}
+    public loader: GroupsLoaderService,
+    public reloader: GroupReloadService
+  ) {
+    reloader.groupReload = this.reload.bind(this);
+  }
 
   @HostListener('window:resize', ['$event'])
   onResize(event: Event): void {
@@ -41,6 +45,9 @@ export class ChatMenuUiComponent {
   }
 
   ngOnInit() {
+    this.reload();
+  }
+  reload(){
     const request = this.loader.getGroups()
     request.subscribe({
       next: response => {
@@ -52,7 +59,6 @@ export class ChatMenuUiComponent {
       }
     });
   }
-
 
   public onEditClick(): void {
     this.activeMenuService.inEditMode = !this.activeMenuService.inEditMode;

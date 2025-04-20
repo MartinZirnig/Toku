@@ -20,7 +20,7 @@ namespace Backend.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> Register([FromBody] UserRegistrationModel userDat)
+        public async Task<IActionResult> RegisterAsync([FromBody] UserRegistrationModel userDat)
         {
             using var service = _serviceProvider.GetUserService();
 

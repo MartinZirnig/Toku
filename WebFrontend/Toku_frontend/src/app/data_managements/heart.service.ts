@@ -11,7 +11,7 @@ export class Heart {
   private sub?: Subscription;
   private readonly beatRate: number = 60 * 1000;
   private readonly url: string 
-    = Server.Url + "/hearth/beat"
+    = Server.Url + "/heart/beat"
 
   public constructor(private http: HttpClient) {}
 

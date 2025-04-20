@@ -61,7 +61,12 @@ ngOnInit(): void {
       this.initializeMessages(numeralFragment);
       this.readMessages(numeralFragment);
     });
+
+    setTimeout(() => {
+      this.dummyVisible = false;
+    }, 5);
   }
+  
   
   initializeMessages(group: number): void {
     this.msgCtrl.loadMessages(group)
@@ -98,7 +103,7 @@ ngOnInit(): void {
       new MessageFormat(
         msg.messageContent, msg.time, 
         stat, msg.pinnedMessagePrewiev ?? null, 
-        msg.pinnedMessageId !== null, msg.timeStamp ?? null, sender
+        msg.pinnedMessageId !== null, msg.timeStamp ?? null, sender, msg
       ));
     
       this.ngZone.onStable.pipe(take(1)).subscribe(() => {
@@ -127,6 +132,7 @@ class MessageFormat {
     public previewText: string | null,
     public hasFile: boolean,
     public timeStamp: string | null,
-    public isSender: boolean
+    public isSender: boolean, 
+    public raw: StoredMessageModel
   ) { }
 }

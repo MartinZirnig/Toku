@@ -33,6 +33,7 @@ public class EncryptedMessage
         string decryptedSymmetricKey = CryptoService.DecryptWithPrivateKey(privateKey, encryptedKeyBytes);
         return new EncryptedMessage(Content, decryptedSymmetricKey, false);
     }
+
     public string Decrypt()
     {
         if (IsKeyEncrypted)
@@ -42,4 +43,11 @@ public class EncryptedMessage
         return key.Decrypt(Content);
     }
 
+
+    public static EncryptedMessage EncryptByKey(string content, string key)
+    {
+        var encryptKey = SimpleKey.FromString(key);
+        var encryptedMsg = encryptKey.Encrypt(content);
+        return new EncryptedMessage(encryptedMsg, key, true);
+    }
 }

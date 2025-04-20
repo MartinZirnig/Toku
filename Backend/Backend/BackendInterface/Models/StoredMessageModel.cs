@@ -2,6 +2,7 @@
 
 namespace BackendInterface.Models;
 public record StoredMessageModel(
+    uint MessageId,
     string MessageContent,
     uint? AttachedFileId,
     uint? PinnedMessageId,

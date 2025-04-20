@@ -18,6 +18,7 @@ import { NgIf } from '@angular/common';
 import { EmojiPopUpOpenService } from '../../services/emoji-pop-up-open.service';
 import { GroupService } from '../../data_managements/services/group-service.service';
 import { MainInputService } from '../../services/main-input.service';
+import { GroupReloadService } from '../../services/group-reload.service';
 
 @Component({
   selector: 'app-input-ui',
@@ -39,7 +40,8 @@ export class InputUiComponent implements OnInit {
   constructor(
     private renderer: Renderer2, 
     public emojiPopUp: EmojiPopUpOpenService,
-    private service: MainInputService
+    private service: MainInputService,
+    private reloader: GroupReloadService
   ) {}
 
   ngOnInit(): void {
@@ -207,5 +209,9 @@ export class InputUiComponent implements OnInit {
     if (!text) return;
     this.service.sendMessage(text ?? '');
     this.textarea.nativeElement.value = '';
+
+    setTimeout(() => {
+    this.reloader.groupReload();
+    }, 1000);
   }
 }

@@ -7,12 +7,15 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using MysqlDatabase.Tables;
 using MysqlDatabaseControl;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace MysqlDatabase;
 internal class DataService : DatabaseServisLifecycle, IDataService
 {
+    public DataService(MysqlDatabaseManager creator)
+    : base(creator) { }
 
     public T ExecuteQuery<T>(IQuery<T> query)
     {
@@ -56,7 +59,7 @@ internal class DataService : DatabaseServisLifecycle, IDataService
             return 0;
         }
     }
-    private async Task StoreUserMessageRelationAndHistoryAsync
+    private static async Task StoreUserMessageRelationAndHistoryAsync
         (EncryptedMessage msg, User usr, uint msgId, MessageModel model)
     {
         using var tempContext = new DatabaseContext();
@@ -82,7 +85,7 @@ internal class DataService : DatabaseServisLifecycle, IDataService
             StoredFileId = model.AttachedFileId,
             SenderId = user.UserId,
             PinnedMessageId = model.PinnedMessageId,
-            CreatedTime = DateTime.Now,
+            CreatedTime = DateTime.UtcNow,
         };
 
         Context.Messages.Add(dbMessage);
@@ -160,6 +163,7 @@ internal class DataService : DatabaseServisLifecycle, IDataService
         var messageIds = await Context.Messages
             .AsNoTracking()
             .Where(m => m.GroupId == groupId)
+            .Where(m => m.DeletedTime == null)
             .OrderBy(m => m.CreatedTime)
             .Select(m => m.MessageId)
             .Take((int)messageCount)
@@ -214,6 +218,7 @@ internal class DataService : DatabaseServisLifecycle, IDataService
             : null;
 
         var result = new StoredMessageModel(
+            messageId,
             content,
             message.StoredFileId,
             message.PinnedMessageId,
@@ -231,16 +236,6 @@ internal class DataService : DatabaseServisLifecycle, IDataService
 
     private static async Task<MessageStatusCode?> GetMessageStatusAsync(uint messageId, DatabaseContext context)
     {
-        //var query = context.MessageStatuses
-        //    .AsNoTracking()
-        //    .Where(ms => ms.MessageId == messageId)
-        //    .Select(ms => ms.StatusCode);
-
-        //var requestId = Guid.NewGuid();
-
-        //Console.WriteLine($"[{requestId}] messageId == {messageId}");
-        //Console.WriteLine($"[{requestId}] query: {query.ToQueryString().Replace('\n', ' ').Replace('\r', ' ')}");
-
         var statuses = await context.MessageStatuses
             .AsNoTracking()
             .Where(ms => ms.MessageId == messageId)
@@ -253,7 +248,7 @@ internal class DataService : DatabaseServisLifecycle, IDataService
             .Where(ms => ms.MessageId == messageId)
             .Select(ms => ms.StatusCode);
 
-        Console.WriteLine($"{messageId} -> {statuses.Count} -> {query.ToQueryString().Replace('\n', ' ').Replace('\r', ' ')}");
+        //Console.WriteLine($"{messageId} -> {statuses.Count} -> {query.ToQueryString().Replace('\n', ' ').Replace('\r', ' ')}");
 
         if (statuses.Count == 0) return null;
 
@@ -276,4 +271,83 @@ internal class DataService : DatabaseServisLifecycle, IDataService
         return GroupService.GetCorrectTymeFormat(time);
     }
 
+    public async Task<RequestResultModel> UpdateMessageAsync(MessageEditModel model)
+    {
+        await using var transaction = await Context.Database.BeginTransactionAsync();
+        try
+        {
+            var login = await SupportService
+                .GetUserDataAsync(model.EditorContext, Context)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+            var message = await Context.Messages.
+                FirstOrDefaultAsync(m => m.MessageId == model.MessageId)
+                .ConfigureAwait(false)
+                ?? throw new ArgumentException("message not found");
+
+            var userMessage = await Context.UserMessages
+                .AsNoTracking()
+                .FirstOrDefaultAsync(um =>
+                    um.UserId == login.UserId &&
+                    um.MessageId == model.MessageId)
+                .ConfigureAwait(false)
+                ?? throw new ArgumentException("user-message not found");
+
+            var encryptedMessage = new EncryptedMessage(message.Content, userMessage.EncryptedKey);
+            var decryptedMessage = encryptedMessage.DecryptKey(login.DecryptedPrivateKey);
+
+            var encryptedNewContent = EncryptedMessage.EncryptByKey(model.NewContent, decryptedMessage.Key);
+
+            message.Content = encryptedNewContent.Content;
+            //message.CreatedTime = DateTime.UtcNow;
+
+            await Context.SaveChangesAsync().ConfigureAwait(false);
+            await transaction.CommitAsync().ConfigureAwait(false);
+
+            return new RequestResultModel(
+                true, string.Empty);
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            return new RequestResultModel(
+                false, ex.Message);
+        }
+    }
+    public async Task<RequestResultModel> RemoveMessageAsync(MessageRemoveModel model)
+    {
+        await using var transaction = await Context.Database
+            .BeginTransactionAsync()
+            .ConfigureAwait(false);
+        try
+        {
+            var login = await SupportService
+                .GetUserDataAsync(model.UserContext, Context)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+            var message = await Context.Messages
+                .Where(m => m.SenderId == login.UserId)
+                .FirstOrDefaultAsync(m => m.MessageId == model.MessageId)
+                .ConfigureAwait(false)
+                ?? throw new ArgumentException("message not found");
+
+            message.DeletedTime = DateTime.UtcNow;
+            await Context.SaveChangesAsync()
+                .ConfigureAwait(false);
+
+            await transaction.CommitAsync()
+                .ConfigureAwait(false);
+
+            return new RequestResultModel(
+                true, string.Empty);
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            return new RequestResultModel(
+                false, ex.Message);
+        }
+    }
 }
