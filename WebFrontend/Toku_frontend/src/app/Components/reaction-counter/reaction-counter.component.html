@@ -1,0 +1,35 @@
+<div
+  #reactionsContainer
+  *ngIf="reactionsvisible"
+  class="flex flex-wrap items-center gap-2 bg-gray-500 rounded-full p-1 relative select-none"
+  (mouseenter)="onMouseEnter($event)"
+  (mouseleave)="onMouseLeave()"
+  (click)="handleClick($event)"
+>
+  <ng-container *ngFor="let reaction of reactions">
+    <span class="reaction-emoji text-base flex items-center">
+      {{ reaction.emoji }}
+      <span *ngIf="reaction.count > 1" class="ml-1 text-xs">
+        {{ getDisplayCount(reaction.count) }}
+      </span>
+    </span>
+  </ng-container>
+</div>
+
+<div
+#allReactionsPopup
+class="absolute bg-white border border-gray-200 shadow-md z-1000 p-2 rounded-md min-w-[200px] flex flex-wrap gap-2"
+*ngIf="showAllReactions"
+
+(mouseenter)="onPopupMouseEnter()"
+(mouseleave)="onPopupMouseLeave()"
+>
+  <ng-container *ngFor="let reaction of allReactions">
+    <span class="text-lg px-2 py-1 rounded-full bg-gray-700 text-white flex items-center">
+      {{ reaction.emoji }}
+      <span *ngIf="reaction.count > 1" class="ml-1 text-xs">
+        {{ reaction.count }}
+      </span>
+    </span>
+  </ng-container>
+</div>

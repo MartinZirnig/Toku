@@ -1,1 +1,2 @@
 - přidání nefunkčních reakcí 19.4.
+- značné upravení nefunkčních reakcí nyní polyfunkční 20.4.

@@ -37,9 +37,7 @@
             </svg>
           </div>
         </div>
-        <div *ngIf="showReaction" class="absolute left-[1rem] z-50 bg-gray-500 backdrop-blur-md bottom-[-0.5rem] rounded-full px-2 py-1 text-s text-white select-none pointer-events-none">
-          {{ reaction }}
-        </div>
+        <app-reaction-counter class="absolute left-[1rem] z-50 bottom-[-0.5rem]" [reactionsData]="reactionsData"></app-reaction-counter>
       </div>
       <div *ngIf="isEditing" class="p-4 rounded-lg shadow-md relative backdrop-blur-md bg-gray-800/80 text-gray-100 break-words">
         <div class="relative">

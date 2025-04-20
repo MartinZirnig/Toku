@@ -9,6 +9,7 @@ import { DummyMessageSenderComponent } from '../../Components/dummy-message-send
 import { DummyMessageAdresatorComponent } from '../../Components/dummy-message-adresator/dummy-message-adresator.component';
 import { NgClass, NgFor, NgIf } from '@angular/common';
 import { EmojisPopUpComponent } from "../../Components/emojis-pop-up/emojis-pop-up.component";
+import { ReactionCounterComponent } from '../../Components/reaction-counter/reaction-counter.component';
 
 @Component({
   selector: 'app-main-page',
@@ -35,8 +36,8 @@ export class MainPageComponent implements OnInit {
 
   initializeMessages(): void {
     this.messages = [
-      { text: 'Čus, jak bylo dneska?', time: '14:07', isSender: false },
-      { text: 'Ahoj, docela v pohodě...', time: '14:09', status: 'read', isSender: true },
+      { text: 'Čus, jak bylo dneska?', time: '14:07', isSender: false,  reactionsData: '👍🏻👍🏻👍🏻' },
+      { text: 'Ahoj, docela v pohodě...', time: '14:09', status: 'read', isSender: true, reactionsData: '👍🏻ddd👍🏻👍🏻'  },
       { text: 'Fakt jsem si připadala jak ve zpomaleným filmu', time: '14:10', status: 'read', previewText: 'To těžce znám...', hasFile: true, timeStamp: '14:10', isSender: true },
       { text: 'To těžce znám...', time: '14:12', isSender: false },
       { text: 'Ty jo, to už je skoro retro 😂', time: '14:13', status: 'read', isSender: true },

@@ -1,15 +1,15 @@
 import { NgIf, NgClass, NgStyle } from '@angular/common';
-import { Component, HostListener, OnInit, ViewChild, ElementRef, Input } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild, ElementRef, Input, input } from '@angular/core';
 import { MenuService } from '../../services/menu.service'; // Ensure the correct path to MenuService
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser'; // Import DomSanitizer
 import { NgModel, FormsModule } from '@angular/forms'; // Import FormsModule for two-way binding
 import { EmojiPopUpOpenService } from '../../services/emoji-pop-up-open.service'; // Import the emoji popup service
-
+import { ReactionCounterComponent } from '../reaction-counter/reaction-counter.component'; // Import the reaction counter component
 @Component({
   selector: 'app-message',
   templateUrl: './message_sender.component.html',
   styleUrls: ['./message_sender.component.scss'],
-  imports: [NgIf, NgClass, FormsModule, NgStyle], // Add FormsModule
+  imports: [NgIf, NgClass, FormsModule, NgStyle, ReactionCounterComponent], // Add FormsModule
 })
 export class Message_senderComponent implements OnInit {
   @Input() text!: string; // Ensure this is declared only once
@@ -21,6 +21,7 @@ export class Message_senderComponent implements OnInit {
   @Input() timeStamp!: string | null; // New input for timestamp
   @Input() reaction: string = '👌';
   @Input() onDeleteMessage!: () => void; // Callback to notify parent component about deletion
+  @Input() reactionsData!: string; // Input for reaction data
 
   @ViewChild('menuTrigger') menuTrigger!: ElementRef;
   @ViewChild('messageContainer') messageContainer!: ElementRef;
