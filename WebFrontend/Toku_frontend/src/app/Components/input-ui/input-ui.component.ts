@@ -190,9 +190,4 @@ export class InputUiComponent implements OnInit {
     this.checkScrollability();
     this.updateScrollThumbPosition();
   }
-
-  onEmojiSelected(emoji: string): void {
-    console.log('Selected emoji:', emoji);
-    
-  }
 }

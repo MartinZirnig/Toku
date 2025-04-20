@@ -21,7 +21,7 @@ export class Message_senderComponent implements OnInit {
   @Input() timeStamp!: string | null; // New input for timestamp
   @Input() reaction: string = '👌';
   @Input() onDeleteMessage!: () => void; // Callback to notify parent component about deletion
-  @Input() reactionsData!: string; // Input for reaction data
+  @Input() reactionsData: string = '😂😂😂😂👍😊🚲🚲🤣🤦‍♂️🤦‍♂️😊😁😁'; // Input for reaction data
 
   @ViewChild('menuTrigger') menuTrigger!: ElementRef;
   @ViewChild('messageContainer') messageContainer!: ElementRef;
