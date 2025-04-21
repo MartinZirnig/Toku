@@ -4,12 +4,14 @@ import { MenuService } from '../../services/menu.service'; // Ensure the correct
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser'; // Import DomSanitizer
 import { NgModel, FormsModule } from '@angular/forms'; // Import FormsModule for two-way binding
 import { EmojiPopUpOpenService } from '../../services/emoji-pop-up-open.service'; // Import the emoji popup service
-import { ReactionCounterComponent } from '../reaction-counter/reaction-counter.component'; // Import the reaction counter component
+import { ReactionCounterComponent} from '../reaction-counter/reaction-counter.component'; 
+import { EmojisPopUpComponent } from '../emojis-pop-up/emojis-pop-up.component';
+
 @Component({
   selector: 'app-message',
   templateUrl: './message_sender.component.html',
   styleUrls: ['./message_sender.component.scss'],
-  imports: [NgIf, NgClass, FormsModule, NgStyle, ReactionCounterComponent], // Add FormsModule
+  imports: [NgIf, NgClass, FormsModule, NgStyle, ReactionCounterComponent, EmojisPopUpComponent], // Add FormsModule
 })
 export class Message_senderComponent implements OnInit {
   @Input() text!: string; // Ensure this is declared only once

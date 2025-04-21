@@ -37,6 +37,7 @@
             </svg>
           </div>
         </div>
+       
       </div>
       <div *ngIf="isEditing" class="p-4 rounded-lg shadow-md relative backdrop-blur-md bg-gray-800/80 text-gray-100 break-words">
         <div class="relative">
@@ -52,6 +53,8 @@
         </div>
       </div>
     </div>
+    <app-reaction-counter class="absolute left-[1rem] z-5000 bottom-[-0.5rem] top-[83%]" [reactionsData]="reactionsData"></app-reaction-counter>
+
     <!-- Three-dot menu -->
     <div class="absolute left-[-2rem] top-1/2 transform -translate-y-1/2 cursor-pointer z-50" (click)="toggleMenu($event)" #menuTrigger>
       <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-500 hover:text-gray-700 rotate-180" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 1080 1080" xml:space="preserve">
@@ -107,9 +110,9 @@
   
 </div>
 </div>
-<!--
+
+
 <div *ngIf="emojiPopupVisible" 
      class="fixed z-500">
   <app-emoji (emojiSelected)="onEmojiSelected($event)"></app-emoji>
 </div>
--->

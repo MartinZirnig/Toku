@@ -12,14 +12,18 @@
           [previewText]="message.previewText"
           [hasFile]="message.hasFile"
           [timeStamp]="message.timeStamp"
-          [onDeleteMessage]="onDeleteMessage.bind(this, i)">
+          [onDeleteMessage]="onDeleteMessage.bind(this, i)"
+          [reactionsData]="message.reactionsData"
+          >
+          
         </app-message>
       </ng-container>
       <ng-template #adresatorTemplate>
         <app-message-adresator
           [text]="message.text"
           [time]="message.time"
-          [onDeleteMessage]="onDeleteMessage.bind(this, i)">
+          [onDeleteMessage]="onDeleteMessage.bind(this, i)"
+          [reactionsData]="message.reactionsData">
         </app-message-adresator>
       </ng-template>
     </div>

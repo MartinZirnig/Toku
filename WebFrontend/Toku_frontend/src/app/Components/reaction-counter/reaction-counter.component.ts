@@ -5,6 +5,7 @@ import {
   HostListener,
   Input,
   OnChanges,
+  OnInit,
   SimpleChanges,
   ViewChild
 } from '@angular/core';
@@ -15,7 +16,7 @@ import {
   imports: [NgIf,NgFor],
   styleUrls: ['./reaction-counter.component.scss'],
 })
-export class ReactionCounterComponent implements OnChanges {
+export class ReactionCounterComponent implements OnInit {
   @Input() reactionsData!: string;
 
   @ViewChild('reactionsContainer') reactionsContainer!: ElementRef;
@@ -25,20 +26,26 @@ export class ReactionCounterComponent implements OnChanges {
   allReactions: { emoji: string; count: number }[] = [];
   showAllReactions = false;
   mouseInPopup = false;
-  reactionsvisible = true;
-  private popupTimeoutId: any;
+  reactionsvisible = false;
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['reactionsData']) {
-      this.processReactions(this.reactionsData);
-    }
+  ngOnInit(): void {
+    
+    
+  
     if (this.reactionsData === '' || this.reactionsData === undefined || this.reactionsData === null) {
       this.reactionsvisible = false;
+      
     }
     else {
       this.reactionsvisible = true;
+      this.processReactions(this.reactionsData);
     }
+    
+    
   }
+
+ 
+
 
   processReactions(reactionsString: string): void {
     const emojis = Array.from(reactionsString);
@@ -65,37 +72,43 @@ export class ReactionCounterComponent implements OnChanges {
   }
 
   onMouseEnter(event: MouseEvent): void {
+    
     if (this.allReactions.length > 3) {
-      this.popupTimeoutId = setTimeout(() => {
+      setTimeout(() => {
         this.showAllReactions = true;
-        
       }, 500);
     }
   }
 
   onMouseLeave(): void {
-    clearTimeout(this.popupTimeoutId);
-    this.popupTimeoutId = setTimeout(() => {
+    setTimeout(() => {
       this.showAllReactions = false;
-    }, 150);
+    }, 500.5);
   }
 
   handleMouseLeave(): void {
-    // Nastartujeme timer, ale neschováme, dokud neodejde i z popupu
-    this.popupTimeoutId = setTimeout(() => {
+    if (this.mouseInPopup) {
+    setTimeout(() => {
       if (!this.mouseInPopup) {
         this.showAllReactions = false;
       }
-    }, 200);
+    }, 501);
+  }
   }
 
   handleClick(event: MouseEvent): void {
+    if (this.allReactions.length > 3) {
+      
     this.showAllReactions = !this.showAllReactions;
+      
+    }
     
   }
 
   @HostListener('document:click', ['$event'])
   handleClickOutside(event: MouseEvent): void {
+    
+    
     if (
       this.reactionsContainer &&
       !this.reactionsContainer.nativeElement.contains(event.target) &&
@@ -108,16 +121,11 @@ export class ReactionCounterComponent implements OnChanges {
 
 onPopupMouseEnter(): void {
   this.mouseInPopup = true;
-  if (this.popupTimeoutId) {
-    clearTimeout(this.popupTimeoutId);
-  }
+  
 }
 
 onPopupMouseLeave(): void {
   this.mouseInPopup = false;
-  this.popupTimeoutId = setTimeout(() => {
-    this.showAllReactions = false;
-  }, 200);
 }
 
   

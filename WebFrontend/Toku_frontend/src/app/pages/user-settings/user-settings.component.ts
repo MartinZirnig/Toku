@@ -1,16 +1,19 @@
+import { NgIf } from '@angular/common';
 import { Component, HostListener } from '@angular/core';
+import { NgModel } from '@angular/forms';
 
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-user-settings',
-  imports: [],
+  imports: [NgIf],
   templateUrl: './user-settings.component.html',
   styleUrls: ['./user-settings.component.scss'] // Fixed typo: styleUrl -> styleUrls
 })
 export class UserSettingsComponent {
   constructor(private router: Router) {}
  
+
   ngOnInit() {
     document.body.style.overflow = 'hidden'; // Disable scrolling
   }
@@ -29,4 +32,11 @@ export class UserSettingsComponent {
       this.gotomainPage(); // Navigate to main page on Escape key press
     }
   }
+
+/*
+  onEdit(): void {
+    this.isEditing = true; // Enable edit mode
+    this.editableText = this.text; // Initialize editable text with the current message
+  }
+*/
 }
