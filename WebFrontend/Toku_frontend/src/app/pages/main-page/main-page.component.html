@@ -2,6 +2,18 @@
 
 <div class="relative z-0 mt-24 mb-48 flex justify-center"> <!-- Center the main container -->
   <div class="w-[65vw] space-y-3"> <!-- Fixed width for the main container -->
+    <div *ngIf="dummyVisible">
+      <app-dummy-message-adresator></app-dummy-message-adresator>
+      <app-dummy-message-sender></app-dummy-message-sender>
+      <app-dummy-message-adresator></app-dummy-message-adresator>
+      <app-dummy-message-sender></app-dummy-message-sender>
+      <app-dummy-message-sender></app-dummy-message-sender>
+      <app-dummy-message-adresator></app-dummy-message-adresator>
+      <app-dummy-message-adresator></app-dummy-message-adresator>
+      <app-dummy-message-adresator></app-dummy-message-adresator>
+      <app-dummy-message-sender></app-dummy-message-sender>
+    </div>
+
     <div *ngFor="let message of messages; let i = index" 
          [ngClass]="{'flex justify-end': message.isSender, 'flex justify-start': !message.isSender}">
       <ng-container *ngIf="message.isSender; else adresatorTemplate">
@@ -13,9 +25,11 @@
           [hasFile]="message.hasFile"
           [timeStamp]="message.timeStamp"
           [onDeleteMessage]="onDeleteMessage.bind(this, i)"
+
           [reactionsData]="message.reactionsData"
-          >
-          
+
+          [raw]="message.raw">
+
         </app-message>
       </ng-container>
       <ng-template #adresatorTemplate>

@@ -14,7 +14,7 @@ export class EmojisPopUpComponent implements AfterViewInit {
   selectedEmoji = '';
 
   ngAfterViewInit() {
-    import('emoji-picker-element');
+    //import('emoji-picker-element');
   }
 
   onEmojiClick(event: any) {

@@ -1,4 +1,6 @@
 import { Component, HostListener } from '@angular/core';
+import { OpenAndcloseMenuService } from '../../services/open-andclose-menu.service';
+import { CommonModule, NgIf } from '@angular/common';
 import {
   chatItemBackground,
   chatItemHoverBackground,
@@ -7,24 +9,32 @@ import {
   chatItemTimeColor,
   blurredBackground
 } from '../../services/colors.service';
-import { OpenAndcloseMenuService } from '../../services/open-andclose-menu.service';
-import { CommonModule, NgIf } from '@angular/common';
+import { ActiveGroupComponent } from './active-group/active-group.component';
+import { ActiveGroupMenuService } from '../../services/active-group-menu-service.service';
+import { GroupsLoaderService } from '../../data_managements/control-services/groups-loader.service';
+import { AvailableGroupsModel } from '../../data_managements/models/available-groups-model';
+import { GroupReloadService } from '../../services/group-reload.service';
 
 
 @Component({
   selector: 'app-chat-menu-ui',
   templateUrl: './chat-menu-ui.component.html',
-  imports: [CommonModule, NgIf], // Ensure CommonModule is imported
+  imports: [CommonModule, NgIf, ActiveGroupComponent], // Ensure CommonModule is imported
   styleUrl: './chat-menu-ui.component.scss'
 })
 export class ChatMenuUiComponent {
-  public isEditing = false;
-  public chats = [
-    { name: 'Ondřej Šibrava', preview: 'Last message preview...', time: '3:26' },
-    { name: 'P3.B sk.2', preview: 'Last message preview...', time: '15:23' }
-  ];
+  declare public items: [AvailableGroupsModel];
 
-  constructor(public menuService: OpenAndcloseMenuService) {}
+ 
+
+  constructor(
+    public menuService: OpenAndcloseMenuService,
+    public activeMenuService: ActiveGroupMenuService,
+    public loader: GroupsLoaderService,
+    public reloader: GroupReloadService
+  ) {
+    reloader.groupReload = this.reload.bind(this);
+  }
 
   @HostListener('window:resize', ['$event'])
   onResize(event: Event): void {
@@ -34,12 +44,28 @@ export class ChatMenuUiComponent {
     }
   }
 
+  ngOnInit() {
+    this.reload();
+  }
+  reload(){
+    const request = this.loader.getGroups()
+    request.subscribe({
+      next: response => {
+        console.log(response)
+        this.items = response;
+      },
+      error: err => {
+        console.error('cannot load groups', err)
+      }
+    });
+  }
+
   public onEditClick(): void {
-    this.isEditing = !this.isEditing;
+    this.activeMenuService.inEditMode = !this.activeMenuService.inEditMode;
   }
 
   public onChatItemClick(chatName: string): void {
-    if (!this.isEditing) {
+    if (!this.activeMenuService.inEditMode) {
       alert(`Clicked on chat: ${chatName}`);
     }
   }

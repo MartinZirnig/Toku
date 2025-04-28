@@ -4,8 +4,13 @@ import { MenuService } from '../../services/menu.service'; // Ensure the correct
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser'; // Import DomSanitizer
 import { NgModel, FormsModule } from '@angular/forms'; // Import FormsModule for two-way binding
 import { EmojiPopUpOpenService } from '../../services/emoji-pop-up-open.service'; // Import the emoji popup service
+
 import { ReactionCounterComponent} from '../reaction-counter/reaction-counter.component'; 
 import { EmojisPopUpComponent } from '../emojis-pop-up/emojis-pop-up.component';
+
+import { MessageControllService } from '../../data_managements/control-services/message-controll.service';
+import { StoredMessageModel } from '../../data_managements/models/stored-message-model';
+
 
 @Component({
   selector: 'app-message',
@@ -13,7 +18,8 @@ import { EmojisPopUpComponent } from '../emojis-pop-up/emojis-pop-up.component';
   styleUrls: ['./message_sender.component.scss'],
   imports: [NgIf, NgClass, FormsModule, NgStyle, ReactionCounterComponent, EmojisPopUpComponent], // Add FormsModule
 })
-export class Message_senderComponent implements OnInit {
+export class 
+Message_senderComponent implements OnInit {
   @Input() text!: string; // Ensure this is declared only once
   @Input() image!: string | null;
   @Input() time!: string;
@@ -23,7 +29,11 @@ export class Message_senderComponent implements OnInit {
   @Input() timeStamp!: string | null; // New input for timestamp
   @Input() reaction: string = '👌';
   @Input() onDeleteMessage!: () => void; // Callback to notify parent component about deletion
+
   @Input() reactionsData: string = '😂😂😂😂👍😊🚲🚲🤣🤦‍♂️🤦‍♂️😊😁😁'; // Input for reaction data
+
+  @Input() declare raw: StoredMessageModel;
+
 
   @ViewChild('menuTrigger') menuTrigger!: ElementRef;
   @ViewChild('messageContainer') messageContainer!: ElementRef;
@@ -40,7 +50,12 @@ export class Message_senderComponent implements OnInit {
   emojiPopupVisible = false;
   emojiPopupPosition = { x: 0, y: 0 };
 
-  constructor(private menuService: MenuService, private sanitizer: DomSanitizer, private emojiPopUp: EmojiPopUpOpenService) {} // Inject DomSanitizer
+  constructor(
+    private menuService: MenuService, 
+    private sanitizer: DomSanitizer, 
+    private emojiPopUp: EmojiPopUpOpenService,
+    private msgCtrl: MessageControllService
+  ) {} // Inject DomSanitizer
 
   private startX = 0; // Initial position
   private currentX = 0; // Current position
@@ -51,6 +66,8 @@ export class Message_senderComponent implements OnInit {
     this.isLongText = this.text.length > 50; // Adjust threshold as needed
     const truncatedText = this.getTruncatedPreviewText(this.previewText, 10); // Limit preview to 10 words
     this.formattedPreviewText = this.sanitizer.bypassSecurityTrustHtml(this.applyGradientToLastCharacters(truncatedText, 10)); // Apply gradient to last 10 characters
+  
+  
   }
 
   private getTruncatedPreviewText(text: string | null, wordLimit: number): string {
@@ -126,6 +143,18 @@ export class Message_senderComponent implements OnInit {
   confirmEdit(): void {
     this.processUpdatedText(this.editableText); // Process the updated text
     this.isEditing = false; // Exit edit mode
+
+    this.msgCtrl.updateMessage(
+      this.raw.messageId, this.editableText)
+      .subscribe({
+        next: response => {
+          if (!response.success)
+            console.warn('failed message update: ', response.description);
+        },
+        error: err => {
+          console.error('server cannot update message: ', err)
+        }
+      })
   }
 
   private processUpdatedText(newText: string): void {
@@ -141,6 +170,18 @@ export class Message_senderComponent implements OnInit {
 
   onDelete(): void {
     console.log('Message deleted:', this.text); // Log the deleted message
+
+    this.msgCtrl.removeMessage(this.raw.messageId)
+    .subscribe({
+      next: response => {
+        if (!response.success)
+          console.warn('failed deleting message: ', response.description);
+      },
+      error: err => {
+        console.error('cannot remove on server: ', err);
+      }
+    })
+
     if (this.onDeleteMessage) {
       this.onDeleteMessage(); // Notify parent component to remove the message
     }

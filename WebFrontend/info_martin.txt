@@ -1,0 +1,3 @@
+přidáno "<script src="https://accounts.google.com/gsi/client" async defer></script" do LoginComponent
+přidán komponent a service pro rozdělení groups
+změněna minimální šířka zpráv (při malých správách se nevešel čas)
