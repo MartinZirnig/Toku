@@ -1,18 +1,20 @@
 import { NgClass, NgIf } from '@angular/common';
 import { Component, ElementRef, Input, OnInit, ViewChild, HostListener } from '@angular/core';
 import { MenuService } from '../../services/menu.service'; // Ensure the correct path to MenuService
+import { ReactionCounterComponent } from '../reaction-counter/reaction-counter.component';
 
 @Component({
   selector: 'app-message-adresator',
   templateUrl: './message-adresator.component.html',
   styleUrls: ['./message-adresator.component.scss'],
-  imports: [NgIf, NgClass],
+  imports: [NgIf, NgClass,ReactionCounterComponent],
 })
 export class MessageAdresatorComponent implements OnInit {
   @Input() text!: string;
   @Input() image!: string | null;
   @Input() time!: string;
   @Input() onDeleteMessage!: () => void; // Callback to notify parent component about deletion
+  @Input() reactionsData!: string; // Input for reaction data
 
   @ViewChild('menuTrigger', { static: false }) menuTrigger!: ElementRef;
 

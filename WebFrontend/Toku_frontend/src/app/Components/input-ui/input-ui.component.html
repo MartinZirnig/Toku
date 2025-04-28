@@ -1,9 +1,4 @@
 <div>
-    <!-- Emoji Popup Section -->
-    <div *ngIf="emojiPopUp.emojiPopupVisible" class="absolute bottom-26 left-1/2 transform -translate-x-4/5 z-50">
-        <app-emoji (emojiSelected)="onEmojiSelected($event)"></app-emoji>
-    </div>
-
     <div class="w-full max-w-2xl mx-auto flex items-center gap-2 bg-white/10 backdrop-blur-lg rounded-full shadow-lg p-2">
         <!-- Pin Button -->
         <button id="pin-button" class="rounded-full p-3 flex items-center justify-center transition-colors cursor-pointer">

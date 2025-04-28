@@ -4,14 +4,19 @@ import { MenuService } from '../../services/menu.service'; // Ensure the correct
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser'; // Import DomSanitizer
 import { NgModel, FormsModule } from '@angular/forms'; // Import FormsModule for two-way binding
 import { EmojiPopUpOpenService } from '../../services/emoji-pop-up-open.service'; // Import the emoji popup service
+
+import { ReactionCounterComponent} from '../reaction-counter/reaction-counter.component'; 
+import { EmojisPopUpComponent } from '../emojis-pop-up/emojis-pop-up.component';
+
 import { MessageControllService } from '../../data_managements/control-services/message-controll.service';
 import { StoredMessageModel } from '../../data_managements/models/stored-message-model';
+
 
 @Component({
   selector: 'app-message',
   templateUrl: './message_sender.component.html',
   styleUrls: ['./message_sender.component.scss'],
-  imports: [NgIf, NgClass, FormsModule, NgStyle], // Add FormsModule
+  imports: [NgIf, NgClass, FormsModule, NgStyle, ReactionCounterComponent, EmojisPopUpComponent], // Add FormsModule
 })
 export class 
 Message_senderComponent implements OnInit {
@@ -22,8 +27,13 @@ Message_senderComponent implements OnInit {
   @Input() previewText!: string | null; // New input for preview text
   @Input() hasFile: boolean = false; // New input to indicate if the previous message has a file
   @Input() timeStamp!: string | null; // New input for timestamp
+  @Input() reaction: string = '👌';
   @Input() onDeleteMessage!: () => void; // Callback to notify parent component about deletion
+
+  @Input() reactionsData: string = '😂😂😂😂👍😊🚲🚲🤣🤦‍♂️🤦‍♂️😊😁😁'; // Input for reaction data
+
   @Input() declare raw: StoredMessageModel;
+
 
   @ViewChild('menuTrigger') menuTrigger!: ElementRef;
   @ViewChild('messageContainer') messageContainer!: ElementRef;
@@ -35,6 +45,7 @@ Message_senderComponent implements OnInit {
   formattedPreviewText!: SafeHtml; // Formatted preview text with gradient effect
   isEditing = false; // Track if the message is in edit mode
   editableText!: string; // Store the editable text
+  showReaction: boolean = true; // Track if the reaction menu is visible
 
   emojiPopupVisible = false;
   emojiPopupPosition = { x: 0, y: 0 };
@@ -260,4 +271,8 @@ Message_senderComponent implements OnInit {
     console.log('Selected emoji:', emoji);
     this.emojiPopUp.closeEmojiPopup();
   }
+
+
+
+  
 }
