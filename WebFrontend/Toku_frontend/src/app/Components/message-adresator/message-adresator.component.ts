@@ -1,6 +1,7 @@
 import { NgClass, NgIf } from '@angular/common';
 import { Component, ElementRef, Input, OnInit, ViewChild, HostListener } from '@angular/core';
 import { MenuService } from '../../services/menu.service'; // Ensure the correct path to MenuService
+import { PopUpService } from '../../services/pop-up.service'; // Import the popup service
 import { ReactionCounterComponent } from '../reaction-counter/reaction-counter.component';
 
 @Component({
@@ -21,7 +22,7 @@ export class MessageAdresatorComponent implements OnInit {
   menuVisible = false;
   isLongText = false;
 
-  constructor(private menuService: MenuService) {} // Inject the shared service
+  constructor(private menuService: MenuService, private popupService: PopUpService) {} // Inject the popup service
 
   ngOnInit(): void {
     console.log('Message initialized:', { text: this.text, image: this.image, time: this.time });
@@ -57,6 +58,17 @@ export class MessageAdresatorComponent implements OnInit {
     console.log('Message deleted:', this.text); // Log the deleted message
     if (this.onDeleteMessage) {
       this.onDeleteMessage(); // Notify parent component to remove the message
+    }
+  }
+
+  copyToClipboard(): void {
+    if (this.text) {
+      navigator.clipboard.writeText(this.text).then(() => {
+        console.log('Message copied to clipboard:', this.text);
+        this.popupService.showMessage('Zkopírováno'); // Show popup message this.popUpService.showMessage('Zkopírováno'); // Show popup message
+      }).catch(err => {
+        console.error('Failed to copy message to clipboard:', err);
+      });
     }
   }
 

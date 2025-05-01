@@ -1,0 +1,9 @@
+<div *ngIf="isVisible" class="fixed px-[15%] -translate-x-1/2 py-4 rounded-full shadow-lg"
+     [style.background-color]="backgroundColor" [style.color]="textColor">
+  <span [innerHTML]="truncatedMessage"></span>
+  <div class="w-full h-1 mt-2" [style.background-color]="darkerBackgroundColor">
+    <div class="h-full" [style.background-color]="progressColor" [style.width.%]="progress"></div>
+  </div>
+</div>
+
+

@@ -4,6 +4,7 @@ import { MenuService } from '../../services/menu.service'; // Ensure the correct
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser'; // Import DomSanitizer
 import { NgModel, FormsModule } from '@angular/forms'; // Import FormsModule for two-way binding
 import { EmojiPopUpOpenService } from '../../services/emoji-pop-up-open.service'; // Import the emoji popup service
+import { PopUpService } from '../../services/pop-up.service'; // Import the popup service
 
 import { ReactionCounterComponent} from '../reaction-counter/reaction-counter.component'; 
 import { EmojisPopUpComponent } from '../emojis-pop-up/emojis-pop-up.component';
@@ -54,7 +55,8 @@ Message_senderComponent implements OnInit {
     private menuService: MenuService, 
     private sanitizer: DomSanitizer, 
     private emojiPopUp: EmojiPopUpOpenService,
-    private msgCtrl: MessageControllService
+    private msgCtrl: MessageControllService,
+    private popupService: PopUpService // Inject the popup service
   ) {} // Inject DomSanitizer
 
   private startX = 0; // Initial position
@@ -272,7 +274,15 @@ Message_senderComponent implements OnInit {
     this.emojiPopUp.closeEmojiPopup();
   }
 
-
-
+  copyToClipboard(): void {
+    if (this.text) {
+      navigator.clipboard.writeText(this.text).then(() => {
+        console.log('Message copied to clipboard:', this.text);
+        this.popupService.showMessage('Zkopírováno', 5000, '#3b82f6', '#5EA6FF'); // Show popup message
+      }).catch(err => {
+        console.error('Failed to copy message to clipboard:', err);
+      });
+    }
+  }
   
 }

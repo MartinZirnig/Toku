@@ -18,6 +18,7 @@ import { MainInputService } from '../../services/main-input.service';
 import { NgZone } from '@angular/core';
 import { take } from 'rxjs';
 import { GroupsLoaderService } from '../../data_managements/control-services/groups-loader.service';
+import { PopUpComponent } from '../../Components/pop-up/pop-up.component';
 
 
 @Component({
@@ -33,7 +34,8 @@ import { GroupsLoaderService } from '../../data_managements/control-services/gro
     NgFor,
     NgIf,
     DummyMessageAdresatorComponent,
-    DummyMessageSenderComponent
+    DummyMessageSenderComponent,
+    PopUpComponent
 ],
   templateUrl: './main-page.component.html',
   styleUrls: ['./main-page.component.scss']
@@ -102,20 +104,7 @@ ngOnInit(): void {
   
 
 
-  initializeMessages(): void {
-    this.messages = [
-      { text: 'Čus, jak bylo dneska?', time: '14:07', isSender: false},
-      { text: 'Ahoj, docela v pohodě...', time: '14:09', status: 'read', isSender: true},
-      { text: 'Fakt jsem si připadala jak ve zpomaleným filmu', time: '14:10', status: 'read', previewText: 'To těžce znám...', hasFile: true, timeStamp: '14:10', isSender: true ,  reactionsData: '😂😂😂😂😂👌👌👌👌👍👍😀😀😀😀😀😀😀😀' },
-      { text: 'To těžce znám...', time: '14:12', isSender: false ,  reactionsData: '😂😂😂😂😂👌👌👌👌👍👍😀😀😀😀😀😀😀😀' },
-      { text: 'Ty jo, to už je skoro retro 😂', time: '14:13', status: 'read', isSender: true ,  reactionsData: '😂😂😂😂😂👌👌👌👌👍👍😀😀😀😀😀😀😀😀' },
-      { text: 'jakože thanks bro...', time: '14:15', isSender: false ,  reactionsData: '😂😂😂😂😂👌👌👌👌👍👍😀😀😀😀😀😀😀😀' },
-      { text: 'To zvládneš, stačí si k tomu pustit hudbudddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd', time: '14:22', isSender: false },
-      { text: 'Jo, nebo to prostě nakreslím o přestávcegggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg', time: '14:23', status: 'delivered', isSender: true ,  reactionsData: '😂😂😂😂😂👌👌👌👌👍👍😀😀😀😀😀😀😀😀' },
-      { text: 'jako vždycky', time: '14:23', status: 'undelivered', isSender: true ,  reactionsData: '😂😂😂😂😂👌👌👌👌👍👍😀😀😀😀😀😀😀😀' },
-      { text: 'Jo, nebo to prostě nakreslím o přestávcegggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg', time: '14:23', status: 'delivered', isSender: true ,  reactionsData: '😂😂😂😂😂👌👌👌👌👍👍😀😀😀😀😀😀😀😀' },
-      { text: 'jako vždycky', time: '14:23', status: 'undelivered', isSender: true ,  reactionsData: '😂😂😂😂😂👌👌👌👌👍👍😀😀😀😀😀😀😀😀' }
-    ];
+  
 
   private AddMessage(msg: StoredMessageModel){
     const stat = StoredMessageModel.getStatus(msg.status);
