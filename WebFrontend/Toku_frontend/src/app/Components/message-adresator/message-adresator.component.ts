@@ -65,7 +65,7 @@ export class MessageAdresatorComponent implements OnInit {
     if (this.text) {
       navigator.clipboard.writeText(this.text).then(() => {
         console.log('Message copied to clipboard:', this.text);
-        this.popupService.showMessage('Zkopírováno'); // Show popup message this.popUpService.showMessage('Zkopírováno'); // Show popup message
+        this.popupService.showMessage('123456789.123456789.123456789.123456789',2000); // Show popup message this.popUpService.showMessage('Zkopírováno'); // Show popup message
       }).catch(err => {
         console.error('Failed to copy message to clipboard:', err);
       });

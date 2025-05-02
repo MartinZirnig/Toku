@@ -1,8 +1,11 @@
-<div *ngIf="isVisible" class="fixed px-[15%] -translate-x-1/2 py-4 rounded-full shadow-lg"
-     [style.background-color]="backgroundColor" [style.color]="textColor">
+<div class="fixed flex items-center justify-center py-3 px-6 rounded-full shadow-lg text-center pop-up-container z-[9999]"
+     [style.background-color]="backgroundColor || '#ffffff'"
+     [style.color]="textColor || '#000000'"
+     [style.width]="dynamicWidth">
   <span [innerHTML]="truncatedMessage"></span>
-  <div class="w-full h-1 mt-2" [style.background-color]="darkerBackgroundColor">
-    <div class="h-full" [style.background-color]="progressColor" [style.width.%]="progress"></div>
+  <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-2/3 h-1 rounded-full"
+       [style.background-color]="darkerBackgroundColor">
+    <div class="h-full rounded-full" [style.background-color]="progressColor" [style.width.%]="progress"></div>
   </div>
 </div>
 

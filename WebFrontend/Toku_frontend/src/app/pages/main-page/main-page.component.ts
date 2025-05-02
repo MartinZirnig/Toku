@@ -19,6 +19,7 @@ import { NgZone } from '@angular/core';
 import { take } from 'rxjs';
 import { GroupsLoaderService } from '../../data_managements/control-services/groups-loader.service';
 import { PopUpComponent } from '../../Components/pop-up/pop-up.component';
+import { PopUpService } from '../../services/pop-up.service';
 
 
 @Component({
@@ -45,13 +46,16 @@ export class MainPageComponent implements OnInit {
   public rawMessages: Array<StoredMessageModel> = []
   public roomId: number = 0;
   public dummyVisible: boolean = true;
+  public popUps: Array<{ message: string; backgroundColor: string; textColor: string; id: number; duration: number }> = [];
+  private popUpIdCounter: number = 0;
 
 constructor(
   private route: ActivatedRoute,
   private msgCtrl: MessageControllService,
   private grpCtrl: GroupsLoaderService,
   private sendService: MainInputService,
-  private ngZone: NgZone
+  private ngZone: NgZone,
+  private popUpService: PopUpService
 ) {}
 
 ngOnInit(): void {
@@ -72,6 +76,16 @@ ngOnInit(): void {
     setTimeout(() => {
       this.dummyVisible = false;
     }, 5);
+
+    this.popUpService.message$.subscribe((message) => {
+      if (message) {
+        const duration = this.popUpService.getDuration();
+        const backgroundColor = this.popUpService.getBackgroundColor();
+        const textColor = this.popUpService.getTextColor();
+        console.log('MainPageComponent: Received pop-up data:', { message, duration, backgroundColor, textColor });
+        this.addPopUp(message, duration, backgroundColor, textColor);
+      }
+    });
   }
   
   
@@ -104,6 +118,7 @@ ngOnInit(): void {
   
 
 
+
   
 
   private AddMessage(msg: StoredMessageModel){
@@ -133,6 +148,23 @@ ngOnInit(): void {
       top: document.documentElement.scrollHeight,
       behavior: 'smooth'
     });
+  }
+
+  private addPopUp(message: string, duration: number, backgroundColor: string, textColor: string): void {
+    const id = this.popUpIdCounter++;
+    console.log('Adding pop-up:', { message, backgroundColor, textColor, id, duration });
+    this.popUps.push({ message, backgroundColor, textColor, id, duration });
+
+    setTimeout(() => {
+      console.log('Removing pop-up with ID:', id);
+      this.removePopUp(id);
+    }, duration);
+  }
+
+  private removePopUp(id: number): void {
+    console.log('Before removal, popUps:', this.popUps);
+    this.popUps = this.popUps.filter((popUp) => popUp.id !== id);
+    console.log('After removal, popUps:', this.popUps);
   }
 }
 class MessageFormat {
