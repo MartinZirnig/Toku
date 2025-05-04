@@ -52,20 +52,6 @@
     </div>
   </div>
 </div>
-<app-message
-[text]="'aaaaa'"
-          [time]="'11'"
-          [status]="'delivered'"
-          [previewText]="'aaa'"
-          [hasFile]="false"
-          [timeStamp]="'11'"
-          [onDeleteMessage]="onDeleteMessage.bind(this, 5)"
-
-          [reactionsData]="'aaa'"
-
-          >
-  
-</app-message>
 <div *ngFor="let popUp of popUps" class="z-999999 fixed left-1/2 transform -translate-x-1/2 top-2">
   <app-pop-up
     [id]="popUp.id"

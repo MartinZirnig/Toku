@@ -30,8 +30,9 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
 
 
             await transaction.CommitAsync();
+
             return new RequestResultModel(
-                true, string.Empty);
+                true, group.GroupId.ToString());
         }
         catch (Exception ex)
         {
@@ -78,6 +79,9 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
             .ConfigureAwait(false);
         try
         {
+            if (await ExistsClient(model))
+                return new RequestResultModel(true, "User in group");
+
             var clinetId = InsertNewClientAsync(model);
             await InsertClientGroupRelation(model, await clinetId);
             await InsertGroupOperation(
@@ -95,6 +99,24 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
             return new RequestResultModel(
                 false, ex.Message);
         }
+    }
+    private async Task<bool> ExistsClient(GroupAddUserModel model)
+    {
+        var clients = await Context.Clients
+            .AsNoTracking()
+            .Where(c => c.UserId == model.userId)
+            .Select(c => c.ClientId)
+            .ToListAsync()
+            .ConfigureAwait(false);
+        if (clients.Count == 0) return false;
+
+        var groupClient = await Context.GroupClients
+            .AsNoTracking()
+            .FirstOrDefaultAsync(gc =>
+                clients.Contains(gc.ClientId)
+                && gc.GroupId == model.groupId)
+            .ConfigureAwait(false);
+        return groupClient is not null;
     }
     private async Task<uint> InsertNewClientAsync(GroupAddUserModel model)
     {
@@ -193,7 +215,7 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
             {
                 var lastMessage = await DecryptLastMessageAsync(userId, g.GroupId).ConfigureAwait(false);
                 return new AvailableGroupsModel(
-                    g.GroupId, g.Name, lastMessage, g.PictureStoredFile.FilePath, GetCorrectTymeFormat(g.LastOperation));
+                    g.GroupId, g.Name, lastMessage, g.PictureStoredFile.FilePath, GetCorrectTimeFormat(g.LastOperation));
             });
 
             return await Task.WhenAll(tasks).ConfigureAwait(false);
@@ -220,7 +242,7 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
         var msg = await dataService.GetMessageAsync(uid, last.MessageId);
         return msg?.MessageContent ?? "";
     }
-    public static string GetCorrectTymeFormat(DateTime time)
+    public static string GetCorrectTimeFormat(DateTime time)
     {
         var now = DateTime.UtcNow;
         return time switch
@@ -402,6 +424,166 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
             .ConfigureAwait(false);
         await Context.SaveChangesAsync()
             .ConfigureAwait(false);
+    }
+
+    public async Task<RequestResultModel> UpdatePermissionAsync(GroupUserAccessModel model)
+    {
+        await using var transaction = await Context.Database
+            .BeginTransactionAsync()
+            .ConfigureAwait(false);
+        using var off = new ConstraintOff(Context);
+        try
+        {
+            var client = await Context.Clients
+                .Include(c => c.GroupRelations)
+                    .ThenInclude(gr => gr.Group)
+                .FirstOrDefaultAsync(c =>
+                    c.UserId == model.UserId)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+            var selected = Context.GroupClients
+                .Where(gc => gc.GroupId == model.GroupId
+                    && gc.ClientId == client.ClientId);
+
+            Context.GroupClients
+                .RemoveRange(selected);
+
+            foreach (var permission in model.Permissions)
+            {
+                var groupClient = new GroupClient()
+                {
+                    ClientId = client.ClientId,
+                    GroupId = model.GroupId,
+                    Permission = permission
+                };
+                await Context.GroupClients
+                    .AddAsync(groupClient)
+                    .ConfigureAwait(false);
+            }
+
+            await Context.SaveChangesAsync()
+                .ConfigureAwait(false);
+            await transaction.CommitAsync()
+                .ConfigureAwait(false);
+
+            return new RequestResultModel(
+                true, string.Empty);
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            return new RequestResultModel(
+                false, ex.Message);
+        }
+    }
+
+    public async Task<RequestResultModel> UpdateGroupAsync(GroupUpdateModel model, Guid executor)
+    {
+        await using var transaction = await Context.Database
+            .BeginTransactionAsync()
+            .ConfigureAwait(false);
+        try
+        {
+            //var login = await SupportService
+            //    .GetUserDataAsync(executor, Context)
+            //    .ConfigureAwait(false)
+            //    ?? throw new UnauthorizedAccessException();
+
+            var group = await Context.Groups
+                .FirstOrDefaultAsync(g => g.GroupId == model.GroupId)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+            group.Name = model.Name;
+            group.Description = model.Description;
+            group.LastOperation = DateTime.UtcNow;
+            group.Password = HashedValue.HashPassword(model.Password);
+            group.GroupType = (GroupType)model.GroupType;
+
+            await Context.SaveChangesAsync()
+                .ConfigureAwait(false);
+            await transaction.CommitAsync()
+                .ConfigureAwait(false);
+
+            return new RequestResultModel(
+                true, string.Empty);
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            return new RequestResultModel(
+                false, ex.Message);
+        }
+    }
+
+    public async Task<IEnumerable<GroupUserAccessModel>> GetGroupMembersAsync(Guid executor, uint groupId)
+    {
+        try
+        {
+            //var login = await SupportService
+            //    .GetUserDataAsync(executor, Context)
+            //    .ConfigureAwait(false);
+
+            var clients = await Context.GroupClients
+                .Include(gc => gc.Client)
+                    .ThenInclude(c => c.User)
+                .Where(gc => gc.GroupId == groupId)
+                .OrderBy(gc => gc.ClientId)
+                .ToListAsync()
+                .ConfigureAwait(false);
+            if (clients.Count == 0) return [];
+
+            var ids = clients
+                .Select(c => new { c.ClientId, c.Client.UserId, c.Client.User.Name})
+                .ToHashSet();
+
+            var result = new List<GroupUserAccessModel>();
+            foreach (var id in ids)
+            {
+                var permissions = clients
+                    .Where(c => c.ClientId == id.ClientId)
+                    .Select(c => c.Permission)
+                    .ToArray();
+
+                result.Add(new GroupUserAccessModel(
+                    id.UserId, groupId, permissions)
+                { Name = id.Name });
+
+
+            }
+
+            return result;
+        }
+        catch
+        {
+            return [];
+        }
+    }
+
+    public async Task<GroupDataModel?> GetGroupAsync(Guid userId, uint id)
+    {
+        try
+        {
+            //var login = await SupportService
+            //    .GetUserDataAsync(executor, Context)
+            //    .ConfigureAwait(false);
+
+            var group = await Context.Groups
+                .Include(g => g.PictureStoredFile)
+                .FirstOrDefaultAsync(g => g.GroupId == id)
+                .ConfigureAwait(false);
+            if (group is null) return null;
+
+            return new GroupDataModel(
+                group.Name, group.Description,
+                (!group.Password?.VerifyPassword(string.Empty)) ?? false);
+        }
+        catch
+        {
+            return null;
+        }
+
     }
 }
 

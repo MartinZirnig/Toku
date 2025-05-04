@@ -29,10 +29,10 @@ internal class DataService : DatabaseServisLifecycle, IDataService
 
     public async Task<uint> ReceiveMessageAsync(MessageModel message)
     {
-        using var off = new ConstraintOff(Context);
         await using var transaction = await Context.Database
             .BeginTransactionAsync()
             .ConfigureAwait(false);
+        using var off = new ConstraintOff(Context);
 
         try
         {
@@ -42,6 +42,8 @@ internal class DataService : DatabaseServisLifecycle, IDataService
 
             var users = await SupportService.GetGroupUsersAsync(
                 message.GroupId, Context);
+
+
 
             var tasks = users.Select(user =>
                 StoreUserMessageRelationAndHistoryAsync(
@@ -224,7 +226,8 @@ internal class DataService : DatabaseServisLifecycle, IDataService
             message.PinnedMessageId,
             message.GroupId,
             (byte)(status ?? MessageStatusCode.Sent),
-            GroupService.GetCorrectTymeFormat(message.CreatedTime),
+            GroupService.GetCorrectTimeFormat(message.CreatedTime
+                .AddMinutes(-userData.TimeZoneOffset)),
             await GetLastStatusChange(messageId, context),
             pin
         );
@@ -268,7 +271,7 @@ internal class DataService : DatabaseServisLifecycle, IDataService
             .Select(ms => ms.UpdatedTime)
             .FirstOrDefaultAsync()
             .ConfigureAwait(false);
-        return GroupService.GetCorrectTymeFormat(time);
+        return GroupService.GetCorrectTimeFormat(time);
     }
 
     public async Task<RequestResultModel> UpdateMessageAsync(MessageEditModel model)

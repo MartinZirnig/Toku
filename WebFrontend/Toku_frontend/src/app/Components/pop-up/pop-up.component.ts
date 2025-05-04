@@ -4,8 +4,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-pop-up',
-  standalone: true, // Mark as standalone
-  imports: [NgIf],
+  standalone: true, 
   templateUrl: './pop-up.component.html',
   styleUrl: './pop-up.component.scss'
 })

@@ -16,6 +16,7 @@
     <ProjectReference Include="..\ConfigurationParsing\ConfigurationParsing.csproj" />
     <ProjectReference Include="..\Crypto\Crypto.csproj" />
     <ProjectReference Include="..\DatabaseControl\MysqlDatabaseControl.csproj" />
+    <ProjectReference Include="..\Optimalization\Optimalization.csproj" />
   </ItemGroup>
 
 </Project>

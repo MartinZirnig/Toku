@@ -11,3 +11,4 @@ public enum FileType : byte
 
     Other = 255,
 }
+

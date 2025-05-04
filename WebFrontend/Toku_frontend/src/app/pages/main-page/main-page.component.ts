@@ -20,7 +20,9 @@ import { take } from 'rxjs';
 import { GroupsLoaderService } from '../../data_managements/control-services/groups-loader.service';
 import { PopUpComponent } from '../../Components/pop-up/pop-up.component';
 import { PopUpService } from '../../services/pop-up.service';
-
+import { Redirecter } from '../../data_managements/redirecter.service';
+import { Cache } from '../../data_managements/cache';
+import { User } from '../../data_managements/user';
 
 @Component({
   selector: 'app-main-page',
@@ -55,7 +57,8 @@ constructor(
   private grpCtrl: GroupsLoaderService,
   private sendService: MainInputService,
   private ngZone: NgZone,
-  private popUpService: PopUpService
+  private popUpService: PopUpService,
+  private redirecter: Redirecter
 ) {}
 
 ngOnInit(): void {
@@ -64,13 +67,22 @@ ngOnInit(): void {
   this.sendService.mainPage = this;
 
   this.route.fragment.subscribe(fragment => {
-      const numeralFragment = Number(fragment); 
-      if (Number.isNaN(numeralFragment) 
-        || numeralFragment === 0)
-        return;
-      this.roomId = numeralFragment;
-      this.initializeMessages(numeralFragment);
-      this.readMessages(numeralFragment);
+    const url = this.redirecter.GetUrl().split('#')[0];
+    if (url === '/main') {
+          this.redirectWhenAccessDenied(fragment ?? '');
+          const numeralFragment = Number(fragment); 
+          if (Number.isNaN(numeralFragment) 
+            || numeralFragment === 0)
+            this.invalidRoomId();
+          this.roomId = numeralFragment;
+          this.initializeMessages(numeralFragment);
+          this.readMessages(numeralFragment);
+    }
+    else {
+      var id = Number(Cache.peek('room'));
+      this.initializeMessages(id);
+      this.readMessages(id);
+    }
     });
 
     setTimeout(() => {
@@ -88,7 +100,23 @@ ngOnInit(): void {
     });
   }
   
-  
+  invalidRoomId(): void {
+
+    if (Cache.peek('room') !== null) {
+      const room = Number(Cache.peek('room'));
+      if (!Number.isNaN(room)){
+        this.redirecter.Chat(room);
+      }
+      else {
+        this.redirecter.Login();
+      }
+    }
+  }
+  redirectWhenAccessDenied(id: string): void {
+    if (!User.IsUserInGroup(id))
+      this.redirecter.LastGroup();
+  }
+
   initializeMessages(group: number): void {
     this.msgCtrl.loadMessages(group)
       .subscribe({

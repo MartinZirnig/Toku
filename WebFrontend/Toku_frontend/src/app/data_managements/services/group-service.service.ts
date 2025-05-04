@@ -9,6 +9,11 @@ import { RequestResultModel } from '../models/result-model';
 import { UserGroupModel } from '../models/last-group-model';
 import { MessageEditModel } from '../models/message-edit-model';
 import { MessageRemoveModel } from '../models/message-remove-model';
+import { GroupCreationModel } from '../models/group-creation-model';
+import { GroupAddUserModel } from '../models/group-add-user-model';
+import { GroupUserAccessModel } from '../models/group-user-access-model';
+import { GroupUpdateModel } from '../models/group-update-model';
+import { GroupDataModel } from '../models/group-data-model';
 
 @Injectable({
   providedIn: 'root'
@@ -27,39 +32,31 @@ export class GroupService {
     return this.http.patch<RequestResultModel>(`${this.baseUrl}/update-last-group`, model)
   }
 
-  sendMessage(message: MessageModel): Observable<number> {
-    return this.http.post<number>(`${this.baseUrl}/send-message`, message);
-  }
-
-  getMessages(identification: string, groupId: number, count: number | null = null): Observable<Array<StoredMessageModel>> {
-    const params = new HttpParams()
-      .set('identification', identification)
-      .set('groupId', groupId.toString());
-      if (count) params
-        .set('count', count.toString());
-
-    return this.http.get<StoredMessageModel[]>(`${this.baseUrl}/get-messages`, { params });
-  }
-  
-  getMessage(id: number): Observable<StoredMessageModel> {
-    const params = new HttpParams()
-      .set('messageId', id);
-      return this.http.get<StoredMessageModel>(`${this.baseUrl}/get-message`, { params });
-  }
-
   readGroup(model: UserGroupModel) : Observable<RequestResultModel> {
     return this.http.patch<RequestResultModel>(`${this.baseUrl}/read-group`, model)
   }
 
-  updateMessage(model: MessageEditModel) : Observable<RequestResultModel> {
-    return this.http.patch<RequestResultModel>(`${this.baseUrl}/update-message`, model);
+
+  createGroup(model: GroupCreationModel) : Observable<RequestResultModel> {
+    return this.http.post<RequestResultModel>(`${this.baseUrl}/create`, model)
   }
-
-  removeMessage(model: MessageRemoveModel) : Observable<RequestResultModel> {
+  update(model: GroupUpdateModel) : Observable<RequestResultModel> {
+    return this.http.patch<RequestResultModel>(`${this.baseUrl}/update`, model)
+  }
+  addUserGroup(model: GroupAddUserModel) : Observable<RequestResultModel> {
+    return this.http.post<RequestResultModel>(`${this.baseUrl}/add-user`, model)
+  }
+  setUserAccess(model: GroupUserAccessModel) : Observable<RequestResultModel> {
+    return this.http.patch<RequestResultModel>(`${this.baseUrl}/update-access`, model)
+  }
+  loadMembers(roomId: number) : Observable<GroupUserAccessModel[]>{
     const params = new HttpParams()
-      .set('userContext', model.userContext)
-      .set('messageId', model.messageId);
-
-    return this.http.delete<RequestResultModel>(`${this.baseUrl}/remove-message`, {params})
+    .set('groupId', roomId)
+    return this.http.get<GroupUserAccessModel[]>(`${this.baseUrl}/get-members`, {params})
+  }
+  getData(roomId: number): Observable<GroupDataModel>{
+    const params = new HttpParams()
+    .set('groupId', roomId)
+    return this.http.get<GroupDataModel>(`${this.baseUrl}/get-data`, {params})
   }
 }

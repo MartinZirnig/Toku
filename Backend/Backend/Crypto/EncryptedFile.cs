@@ -7,10 +7,16 @@ public class EncryptedFile
 
 
     public EncryptedFile(byte[] content)
+        : this(Convert.ToBase64String(content))
+    { }
+    public EncryptedFile(Span<byte> content)
+        : this(Convert.ToBase64String(content))
+    { }
+
+    private EncryptedFile(string content)
     {
         SimpleKey key = new SimpleKey();
-        var contentAsString = Convert.ToBase64String(content);
-        Content = key.Encrypt(contentAsString);
+        Content = key.Encrypt(content);
         Key = key.ToString();
         IsKeyEncrypted = false;
     }

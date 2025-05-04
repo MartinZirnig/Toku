@@ -65,6 +65,7 @@ internal class UserService : DatabaseServisLifecycle, IUserService
         {
             Name = model.Name,
             Email = model.Email,
+            Phone = string.Empty,
             Password = HashedValue.HashPassword(model.Password),
             CreatedTime = DateTime.Now,
             KeyId = keyId,
@@ -100,7 +101,8 @@ internal class UserService : DatabaseServisLifecycle, IUserService
             await transaction.RollbackAsync();
             return new UserLoginResponseModel(
                 string.Empty, 0);
-        };
+        }
+        ;
 
 
     }
@@ -124,7 +126,8 @@ internal class UserService : DatabaseServisLifecycle, IUserService
             UserId = user.UserId,
             DecryptedKey = ((PPKeyPair)user.Key).DecryptPrivateKey(model.Password),
             LoggedIn = DateTime.Now,
-            LashHearthBeat = DateTime.Now
+            LashHearthBeat = DateTime.Now,
+            TimeZoneOffset = model.TimeZone
         };
         await Context.UserLogins.AddAsync(login);
         await Context.SaveChangesAsync();
@@ -260,5 +263,103 @@ internal class UserService : DatabaseServisLifecycle, IUserService
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.SessionId == identification)
             is not null;
+    }
+
+    public async Task<RequestResultModel> EditUserAsync(UserDataModel model, Guid identification)
+    {
+        await using var transaction = await Context.Database
+            .BeginTransactionAsync()
+            .ConfigureAwait(false);
+        try
+        {
+            var user = await SupportService
+                .GetUserDataAsync(identification, Context)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+            var userData = await Context.Users
+                .FirstOrDefaultAsync(u => u.UserId == user.UserId)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+            userData.Name = model.Name;
+            userData.Email = model.Email;
+            userData.Phone = model.PhoneNumber;
+
+            await Context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            return new RequestResultModel(true, string.Empty);
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            return new RequestResultModel(false, ex.Message);
+        }
+    }
+
+    public async Task<UserDataModel?> GetUserDataAsync(Guid identification)
+    {
+        try
+        {
+            var user = await SupportService
+                .GetUserDataAsync(identification, Context)
+                .ConfigureAwait(false);
+
+            if (user is null) return null;
+
+            var result = new UserDataModel(
+            user.Name, user.Email, user.Phone,
+            user.CreatedTime.ToString("dd.MMMM yyyy")
+            );
+            return result;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+
+    public async Task<IEnumerable<KnownUserDataModel>> GetKnownUserAsync(Guid identification)
+    {
+        try
+        {
+            var login = await SupportService
+                .GetUserDataAsync(identification, Context)
+                .ConfigureAwait(false);
+            if (login is null) return [];
+
+            var groups = await Context.Clients
+                .Include(c => c.GroupRelations)
+                    .ThenInclude(g => g.Group)
+                        .ThenInclude(g => g.GroupClients)
+                            .ThenInclude(gc => gc.Client)
+                                .ThenInclude(c => c.User)
+                .Where(c => c.UserId == login.UserId)
+                .Select(c => c.GroupRelations[0].Group)
+                .ToListAsync()
+                .ConfigureAwait(false);
+
+            var result = new List<KnownUserDataModel>();
+            foreach (var group in groups)
+            {
+                foreach(var client in group.GroupClients)
+                {
+                    var user = client.Client.User;
+                    var userData = new KnownUserDataModel(
+                        user.Name, user.UserId);
+
+                    if (!result.Contains(userData))
+                        result.Add(userData);
+                }
+            }
+
+            return result;
+        }
+        catch
+        {
+            return [];
+        }
     }
 }

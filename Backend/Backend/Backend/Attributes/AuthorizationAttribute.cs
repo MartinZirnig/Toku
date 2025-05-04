@@ -3,12 +3,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Backend.Attributes;
-public class AuthorizationAttribute : ActionFilterAttribute
+public sealed class AuthorizationAttribute : ActionFilterAttribute
 {
-    public const string UserIdentificationKey = "x-uid";
+    public const string UserIdentificationKey = "X-uid";
 
     public override void OnActionExecuting(ActionExecutingContext context)
     {
+        foreach(var head in context.HttpContext.Request.Headers.Keys)
+            Console.WriteLine(head);
+
         if (!IsValid(context.HttpContext.Request.Headers))
         {
             context.Result = new
@@ -24,4 +27,17 @@ public class AuthorizationAttribute : ActionFilterAttribute
     private static bool IsValid(IHeaderDictionary header) =>
         header.ContainsKey(UserIdentificationKey)
         && !string.IsNullOrEmpty(header[UserIdentificationKey]);
+
+
+    public static Guid? GetUID(HttpContext request)
+    {
+        var user = request.Items[UserIdentificationKey]?.ToString();
+        if (user is null)
+            return null;
+
+        if (Guid.TryParse(user, out var result))
+            return result;
+
+        return null;
+    }
 }

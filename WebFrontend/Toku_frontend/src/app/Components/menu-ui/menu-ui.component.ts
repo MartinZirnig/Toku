@@ -1,23 +1,10 @@
 import { Component, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
-import {
-  buttonBackground,
-  buttonHoverBackground,
-  textColor,
-  placeholderColor,
-  textareaBackground,
-  textareaFocusBackground,
-  iconColor,
-  iconHoverColor,
-} from '../../services/colors.service';
 import { OpenAndcloseMenuService } from '../../services/open-andclose-menu.service';
 import { IconComponent } from '../icon/icon.component';
-import { Router } from '@angular/router';
 import { User } from '../../data_managements/user';
 import { Redirecter } from '../../data_managements/redirecter.service';
 import { Heart } from '../../data_managements/heart.service';
-
 
 @Component({
   selector: 'app-menu-ui',
@@ -70,6 +57,8 @@ export class MenuUiComponent {
   goToSettings() {
     this.redirecter.Settings();
   }
+
+
   goToLogout() {
     User.ClearId();
     this.heart.stopBeat();

@@ -38,6 +38,7 @@ internal class User
     [Required]
     public DateTime CreatedTime { get; set; }
     public DateTime? DeletedTime { get; set; }
+    public string Phone { get; set; }
 
 
     public virtual List<UserLogin> UserLogins { get; set; } = new List<UserLogin>();

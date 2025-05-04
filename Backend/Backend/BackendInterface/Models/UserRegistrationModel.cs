@@ -3,10 +3,11 @@
 public record UserRegistrationModel(
     string Name,
     string Email,
-    string Password
+    string Password,
+    int TimeZoneOffset
     )
 {
     public UserLoginModel DeriveUserLogin()
-        => new UserLoginModel(Name, Password);
+        => new UserLoginModel(Name, Password, TimeZoneOffset);
 }
 

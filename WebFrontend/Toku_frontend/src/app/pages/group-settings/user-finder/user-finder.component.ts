@@ -1,6 +1,8 @@
 import { NgFor, NgIf } from '@angular/common';
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { GroupSettingsService } from '../group-settings.service';
+import { KnownUserDataModel } from '../../../data_managements/models/known-user-data-model';
+import { UserControlService } from '../../../data_managements/control-services/user-control-service.service';
 
 @Component({
   selector: 'app-user-finder',
@@ -8,34 +10,50 @@ import { GroupSettingsService } from '../group-settings.service';
   templateUrl: './user-finder.component.html',
   styleUrl: './user-finder.component.scss'
 })
-export class UserFinderComponent {
-  users = ['Alice zdepa', 'Bob', 'Chafghfrlie', 'Algfhfghice', 'fghfghBob', 'Charlffffie', 'Davigd', 'Eveg','Davgggid', 'Evgggfe'];
-  filteredUsers = [...this.users];
-  selectedUsers: string[] = [];
+export class UserFinderComponent implements OnInit {
+  users: KnownUserDataModel[] = [];
+  declare filteredUsers: string[];
+  selectedUsers: KnownUserDataModel[] = [];
   @Output() closeFinder = new EventEmitter<void>();
 
-  constructor(private groupSettingsService: GroupSettingsService) {}
+  constructor(
+    private groupSettingsService: GroupSettingsService,
+    private usrCtrl: UserControlService
+  ) {}
 
   search(query: Event): void {
     const input = query.target as HTMLInputElement;
-    const safeQuery = input.value.trim().toLowerCase();
-    this.filteredUsers = this.users.filter(user =>
-      user.toLowerCase().includes(safeQuery)
+    //const safeQuery = input.value.trim().toLowerCase();
+    this.filteredUsers = this.users.map(user =>
+      user.name.toLowerCase().includes(input.value.trim().toLowerCase()) ? user.name : ''
     );
   }
 
+  ngOnInit(): void {
+    this.usrCtrl.getKnownUsers().subscribe({
+      next: (data: KnownUserDataModel[]) => {
+        this.users = data;
+        this.filteredUsers = data.map(user => user.name);
+      },
+      error: (error) => {
+        console.error('Error fetching known users:', error);
+      }
+    });
+  }
+
   addUser(user: string): void {
-    if (!this.selectedUsers.includes(user)) {
-      this.selectedUsers.push(user);
+    if (!this.selectedUsers.map(u => u.name).includes(user)) {
+      const userData = this.users.find(u => u.name === user);
+      this.selectedUsers.push(userData!);
     }
   }
 
-  removeUser(user: string): void {
-    this.selectedUsers = this.selectedUsers.filter(selected => selected !== user);
+  removeUser(user: KnownUserDataModel): void {
+    this.selectedUsers = this.selectedUsers.filter(selected => selected.userId !== user.userId);
   }
 
-  getInitials(user: string): string {
-    const parts = user.split(' ');
+  getInitials(user: KnownUserDataModel): string {
+    const parts = user.name.split(' ');
     if (parts.length < 2) {
       return parts[0]?.charAt(0).toUpperCase();
     }

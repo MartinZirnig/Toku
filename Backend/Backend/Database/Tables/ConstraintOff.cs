@@ -11,10 +11,16 @@ internal class ConstraintOff : IDisposable
         Disable();
     }
 
-    private void Disable() =>
+    private void Disable()
+    {
         ConstraintsCheckQuery.Disable.Execute(_context);
-    private void Enable() =>
+        _context.SaveChanges();
+    }
+    private void Enable()
+    {
         ConstraintsCheckQuery.Enable.Execute(_context);
+        _context.SaveChanges();
+    }
 
     public void Dispose() =>
         Enable();

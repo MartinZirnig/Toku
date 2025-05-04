@@ -4,6 +4,8 @@ import { StoredMessageModel } from '../data_managements/models/stored-message-mo
 import { MainPageComponent } from '../pages/main-page/main-page.component';
 import { MessageModel } from '../data_managements/models/message-model';
 import { User } from '../data_managements/user';
+import { MessageControllService } from '../data_managements/control-services/message-controll.service';
+import { MessageService } from '../data_managements/services/message.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +15,7 @@ export class MainInputService {
   declare public mainPage: MainPageComponent
 
   constructor(
-    private service: GroupService
+    private service: MessageService
   ) {}
 
   sendMessage(content: string) {

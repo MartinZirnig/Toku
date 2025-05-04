@@ -1,19 +1,27 @@
-import { NgClass, NgFor, NgIf } from '@angular/common';
+import { formatPercent, NgClass, NgFor, NgIf } from '@angular/common';
 import { Component, HostListener } from '@angular/core';
 import { FormsModule, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { UserFinderComponent } from './user-finder/user-finder.component';
 import { GroupSettingsService } from './group-settings.service';
+import { Redirecter } from '../../data_managements/redirecter.service';
+import { ActivatedRoute } from '@angular/router';
+import { GroupEditService } from '../../data_managements/control-services/group-edit.service';
+import { GroupsLoaderService } from '../../data_managements/control-services/groups-loader.service';
+import { GroupUserAccessModel } from '../../data_managements/models/group-user-access-model';
+import { EventInfoWrapper } from '@angular/core/primitives/event-dispatch';
 
-// Define a shared interface for group members
-interface GroupMember {
-  name: string;
-  isAdmin?: boolean;
-  isChatManager?: boolean;
-  canEditGroup?: boolean;
-  canDeleteMessages?: boolean;
-  canDeleteMessagesdd?: boolean;
+
+export class GroupMember {
+  constructor(
+    public name: string,
+    public userId: number,
+    public isAdmin: boolean = false,
+    public isChatManager: boolean = false,
+    public canEditGroup: boolean = false,
+    public canDeleteMessages: boolean = false,
+    public canDeleteMessagesdd: boolean = false
+  ) {}
 }
 
 @Component({
@@ -27,38 +35,31 @@ export class GroupSettingsComponent {
   groupName: string = 'Skupina';
   groupDescription: string = '';
   groupPassword: string = '';
-  groupMembers: GroupMember[] = [
-   /* 
-   příklad jak by to mohlo vypadat
-   { name: 'John Doe', isAdmin: true, canEditGroup: true },
-    { name: 'Jane Smith', isChatManager: true, canDeleteMessages: true },
-    { name: 'Alice Johnson' },
-    { name: 'Bob Brown', isAdmin: true },
-    { name: 'Charlie Davis' },
-    { name: 'David Wilson', canEditGroup: true },
-    { name: 'Eva Green' },
-    */
-  ];
+  groupMembers: GroupMember[] = [];
 
   selectedMember: GroupMember | null = null;
   isEditingName: boolean = false;
   gridFits: boolean = true;
   isUserFinderVisible: boolean = false;
-  maxNameLength: number = 15; // Default value
+  maxNameLength: number = 15;
 
-  // Define the permissions as an array of strings
+  declare roomId: string;
+
   permissions = ['Admin', 'Chat Manager', 'Can Edit Group', 'Can Delete Messages', 'Can Delete Messagesdd'];
   permissionsForm: FormGroup;
 
   constructor(
-    private router: Router,
     private sanitizer: DomSanitizer,
     private groupSettingsService: GroupSettingsService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private redirecter: Redirecter,
+    private route: ActivatedRoute,
+    private grpEdi: GroupEditService,
+    private grpLdr: GroupsLoaderService
   ) {
     this.permissionsForm = this.fb.group(
       this.permissions.reduce<Record<string, boolean>>((acc, permission) => {
-        acc[permission] = false; // Use `false` instead of `[false]`
+        acc[permission] = false;
         return acc;
       }, {})
     );
@@ -68,14 +69,72 @@ export class GroupSettingsComponent {
     this.onResize();
     document.body.style.overflow = 'hidden';
 
+    this.route.fragment.subscribe(fragment => {
+      this.roomId = fragment ?? '';
+      if (this.roomId === '') this.fynishEdit();
+      if (this.roomId !== 'new') {
+        this.loadExistingGroupSettings(this.roomId);
+      }
+    });
+    
+    this.loadMembers();
+    this.loadData();
+
     this.groupSettingsService.selectedUsers$.subscribe((users) => {
-      users.forEach((user) => {
-        if (!this.groupMembers.some((member) => member.name === user)) {
-          this.groupMembers.push({ name: user });
+      users.forEach(user => {
+        if (!this.groupMembers.some((member) => 
+          member.name === user.name
+        )) {
+          const newMember = new GroupMember(user.name, user.userId);
+          console.debug('User:', user);
+          console.debug('New Member:', newMember);
+          this.groupMembers.push(newMember);
         }
       });
-      this.toggleUserFinder(true); // Explicitly close user-finder after adding users
+      console.debug('Group Members:', this.groupMembers);
+      this.toggleUserFinder(true);
     });
+  }
+
+  private loadMembers(){
+    var response = this.grpLdr.loadMembers(Number(this.roomId));
+    response.subscribe({
+      next: response => {
+        response.forEach(data => {
+          const parsed = this.parseAccessModel(data);
+          this.groupMembers.push(parsed);
+        })
+      },
+      error: err => {
+        console.error('error during member loading', err)
+      }
+    })
+  }
+  private loadData(){
+    var response = this.grpLdr.loadData(Number(this.roomId));
+    response.subscribe({
+      next: response => {
+        this.groupName = response.name;
+        this.groupDescription = response.description;
+      },
+      error: err => {
+        console.error('error during data loading', err)
+      }
+    })
+  }
+
+  private parseAccessModel(model: GroupUserAccessModel) : GroupMember {
+    let result = new GroupMember(model.name ?? '', model.userId)
+    model.permissions.forEach(permission => {
+      if (permission == 3)
+        result.isAdmin = true;
+      if (permission == 2)
+        result.canDeleteMessages = true;
+      if (permission == 1)
+        result.canEditGroup = true;
+    });
+
+    return result;
   }
 
   ngAfterViewInit(): void {
@@ -92,20 +151,19 @@ export class GroupSettingsComponent {
     const container = document.querySelector('.permissions-name-container') as HTMLElement;
     if (container) {
       const containerWidth = container.offsetWidth;
-      const averageCharWidth = 8; // Approximate average width of a character in pixels
+      const averageCharWidth = 8;
       this.maxNameLength = Math.floor(containerWidth / averageCharWidth);
     }
-    
   }
 
-  goToMainPage(): void {
-    this.router.navigate(['/main']);
+  fynishEdit(): void {
+    this.redirecter.LastGroup();
   }
 
   @HostListener('document:keydown', ['$event'])
   onKeydown(event: KeyboardEvent) {
     if (event.key === 'Escape') {
-      this.goToMainPage();
+      this.fynishEdit();
     } else if (event.key === 'Enter' && this.isEditingName) {
       this.confirmEdit('name');
     }
@@ -147,54 +205,52 @@ export class GroupSettingsComponent {
   addMember(): void {
     const newMemberName = prompt('Enter the name of the new member:');
     if (newMemberName) {
-      this.groupMembers.push({ name: newMemberName });
+      this.groupMembers.push(new GroupMember(newMemberName, 0));
     }
   }
 
-  removeMember(member: { name: string }): void {
+  removeMember(member: GroupMember): void {
     this.groupMembers = this.groupMembers.filter(m => m !== member);
   }
 
   selectMember(member: GroupMember): void {
     this.selectedMember = member;
+    this.permissions.forEach(permission => {
+      const key = this.mapPermissionToKey(permission);
+      if (this.selectedMember && key in this.selectedMember) {
+        this.permissionsForm.get(permission)?.setValue(this.selectedMember[key] || false);
+      }
+    });
+  }
 
-    // Populate the form with the selected member's permissions
+  updatePermissions(): void {
     if (this.selectedMember) {
       this.permissions.forEach(permission => {
         const key = this.mapPermissionToKey(permission);
-        if (this.selectedMember && key in this.selectedMember) {
-          this.permissionsForm.get(permission)?.setValue(this.selectedMember[key] || false);
+        const control = this.permissionsForm.get(permission);
+        if (control) {
+          if (this.selectedMember)
+              this.selectedMember[key]  = control.value as never;
         }
       });
     }
   }
 
-  updatePermissions(): void {
-    if (this.selectedMember) {
-        this.permissions.forEach(permission => {
-            const key = this.mapPermissionToKey(permission);
-            const control = this.permissionsForm.get(permission);
-            if (control && this.selectedMember) {
-                this.selectedMember[key] = control.value as never;
-            }
-        });
-    }
-  }
-
-  private mapPermissionToKey(permission: string): keyof typeof this.selectedMember {
+  private mapPermissionToKey(permission: string): keyof GroupMember {
     return permission
       .replace(/\s+/g, '')
-      .replace(/^\w/, c => c.toLowerCase()) as keyof typeof this.selectedMember;
+      .replace(/^\w/, c => c.toLowerCase()) as keyof GroupMember;
   }
 
   saveGroupSettings(): void {
+    this.StoreGroup();
+
     console.log('Group settings saved:', {
       groupName: this.groupName,
       groupDescription: this.groupDescription,
       groupPassword: this.groupPassword,
       groupMembers: this.groupMembers
     });
-    
   }
 
   logGroupSettings(): void {
@@ -212,25 +268,109 @@ export class GroupSettingsComponent {
 
   getTruncatedTextWithGradient(text: string, limit: number, bold: boolean = false): SafeHtml {
     if (text.length <= limit) return text;
-    const visiblePart = text.slice(0, limit - 3); // Reserve space for "..."
+    const visiblePart = text.slice(0, limit - 3);
     const gradientPart = visiblePart.slice(-3).split('').map((char, index) => {
-        const opacity = 1 - (index / 3) * 0.9; // Gradually decrease opacity for the last 3 characters
-        const fontWeight = bold ? 'font-weight: bold;' : ''; // Apply bold styling if specified
-        return `<span style="opacity: ${opacity}; ${fontWeight}">${char}</span>`;
+      const opacity = 1 - (index / 3) * 0.9;
+      const fontWeight = bold ? 'font-weight: bold;' : '';
+      return `<span style="opacity: ${opacity}; ${fontWeight}">${char}</span>`;
     }).join('');
     const ellipsis = '...'.split('').map((char, index) => {
-        const opacity = 1 - ((index + 3) / 6) * 0.9; // Gradually decrease opacity for the ellipsis
-        const fontWeight = bold ? 'font-weight: bold;' : ''; // Apply bold styling if specified
-        return `<span style="opacity: ${opacity}; ${fontWeight}">${char}</span>`;
+      const opacity = 1 - ((index + 3) / 6) * 0.9;
+      const fontWeight = bold ? 'font-weight: bold;' : '';
+      return `<span style="opacity: ${opacity}; ${fontWeight}">${char}</span>`;
     }).join('');
-    const truncatedPart = visiblePart.slice(0, -3) + gradientPart + ellipsis; // Combine visible part, gradient, and ellipsis
-    return this.sanitizer.bypassSecurityTrustHtml(truncatedPart); // Sanitize the HTML
+    const truncatedPart = visiblePart.slice(0, -3) + gradientPart + ellipsis;
+    return this.sanitizer.bypassSecurityTrustHtml(truncatedPart);
   }
 
-  updatePermission(permission: keyof Omit<NonNullable<typeof this.selectedMember>, 'name'>, event: Event): void {
+  updatePermission(permission: keyof Omit<GroupMember, 'name' | 'userId'>, event: Event): void {
     const input = event.target as HTMLInputElement;
     if (this.selectedMember && input) {
-        this.selectedMember[permission] = input.checked;
+      this.selectedMember[permission] = input.checked;
     }
+  }
+
+  loadExistingGroupSettings(id: string): void {}
+
+  private StoreGroup(): void {
+    if (this.roomId === 'new') {
+      this.CreateGroup();
+    } else {
+      this.UpdateGroup();
+    }
+  }
+
+  private CreateGroup(): void {
+    const response = this.grpEdi.createGroup(this.groupName, this.groupDescription, 0, this.groupPassword);
+    response.subscribe({
+      next: response => {
+        if (response.success) {
+          this.roomId = response.description;
+          this.redirecter.SetFragment(this.roomId);
+          this.AppendGroupUsers();
+        } else {
+          console.error('Error creating group:', response.description);
+        }
+      },
+      error: (error) => {
+        console.error('Error creating group:', error);
+      }
+    });
+  }
+
+  private UpdateGroup(): void {
+    const response = this.grpEdi.updateGroup(
+      Number(this.roomId), this.groupName, this.groupDescription, 0, this.groupPassword);
+
+    response.subscribe({
+      next: response => {
+        if (response.success) {
+          this.AppendGroupUsers();
+        } else {
+          console.error('Error updating group:', response.description);
+        }
+      },
+      error: (error) => {
+        console.error('Error updating group:', error);
+      }
+    });
+  }
+
+  private AppendGroupUsers(): void {
+    this.groupMembers.forEach(user => {
+      this.AppendGroupUser(user);
+    });
+    this.setPermissions();
+  }
+
+  private AppendGroupUser(user: GroupMember): void {
+    const response = this.grpEdi.addGroupMember(Number(this.roomId), Number(user.userId));
+    response.subscribe({
+      next: response => {
+        if (!response.success) {
+          console.error('Error adding user to group:', response.description);
+        }
+      },
+      error: (error) => {
+        console.error('Error adding user to group:', error);
+      }
+    });
+  }
+
+  private setPermissions(): void {
+    this.groupMembers.forEach(user => {
+      const permissions = this.permissionsForm.value;
+      const response = this.grpEdi.setUserAccess(Number(this.roomId), Number(user.userId), permissions);
+      response.subscribe({
+        next: response => {
+          if (!response.success) {
+            console.error('Error updating user permissions:', response.description);
+          }
+        },
+        error: (error) => {
+          console.error('Error updating user permissions:', error);
+        }
+      });
+    });
   }
 }

@@ -22,9 +22,12 @@ internal static class SupportService
             Identification = user.SessionId,
             Name = user.User.Name,
             Email = user.User.Email,
+            Phone = user.User.Phone,
             DecryptedPrivateKey = user.DecryptedKey,
             PublicKey = user.User.Key.PublicKey,
-            LastHeartbeat = user.LashHearthBeat
+            LastHeartbeat = user.LashHearthBeat,
+            TimeZoneOffset = user.TimeZoneOffset,
+            CreatedTime = user.User.CreatedTime,
         };
     }
     public static async Task<User?> GetUserById
@@ -42,6 +45,7 @@ internal static class SupportService
     {
         return await context.Clients
             .AsNoTracking()
+            .Distinct()
             .Include(c => c.User)
                 .ThenInclude(u => u.Key)
             .Include(c => c.User)

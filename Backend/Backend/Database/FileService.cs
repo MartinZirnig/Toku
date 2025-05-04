@@ -11,11 +11,36 @@ namespace MysqlDatabase;
 internal class FileService : DatabaseServisLifecycle, IFileService
 {
     private static readonly FileTypeParser _fileParser = new FileTypeParser();
+    private FileAccessConfiguration _config;
+
+
+
+
+
+
+
+
+
+
+
+    public void ConfigureAccess(FileAccessConfiguration config)
+    {
+        _config = config;
+    }
+
+
+
+
+
+
+
+
+
 
     public FileService(MysqlDatabaseManager creator)
     : base(creator) { }
 
-    public async Task<uint> SaveAndEncryptFileAsync(ManagedFileModel file, uint groupId)
+    public async Task<uint> SaveEncryptMessageFileAsync(ManagedFileModel file, uint groupId)
     {
         await using var transaction = await Context.Database
             .BeginTransactionAsync()
@@ -27,7 +52,7 @@ internal class FileService : DatabaseServisLifecycle, IFileService
 
             var newOrigin = file.Origin with { Data = data };
             var newFile = file with { Origin = newOrigin };
-            var fileId = await SaveFileAsync(newFile);
+            var fileId = await SaveProfileImage(newFile);
 
             var users = await SupportService.GetGroupUsersAsync(groupId, Context);
             foreach (var user in users)
@@ -57,36 +82,32 @@ internal class FileService : DatabaseServisLifecycle, IFileService
         await Context.SaveChangesAsync();
     }
 
-    public async Task<FileModel?> GetAndDecryptFileAsync(Guid userIdentification, uint fileId)
+    public async Task<byte[]> GetDecryptMessageFileAsync(Guid userIdentification, uint fileId)
     {
         try
         {
             var login = await SupportService.GetUserDataAsync(
                 userIdentification, Context);
-            if (login is null) return null;
+            if (login is null) return [];
 
             var filePath = await GetFilePathAsync(fileId);
-            if (filePath is null) return null;
+            if (filePath is null) return [];
 
             var file = new FileInfo(filePath);
-            if (!file.Exists) return null;
+            if (!file.Exists) return [];
 
             var key = await GetKeyAsync(login, fileId);
-            if (key is null) return null;
+            if (key is null) return [];
 
-            (byte[] decryptedData, byte fileType)
+            (var decryptedData, var _)
                 = await DecryptFileAsync(filePath, key, login);
 
-            return new FileModel(
-                decryptedData, Path.GetFileName(filePath),
-                fileType, null, null, null
-                );
+            return decryptedData;
         }
         catch
         {
-            return null;
+            return [];
         }
-
     }
     private async Task<string?> GetFilePathAsync(uint fileId)
     {
@@ -122,21 +143,15 @@ internal class FileService : DatabaseServisLifecycle, IFileService
 
 
 
-    public async Task<FileModel?> GetFileAsync(uint fileId)
+    public async Task<byte[]> GetProfileImage(uint fileId)
     {
         var file = await GetFilePathAsync(fileId);
-        if (file is null) return null;
+        if (file is null) return [];
 
         var fileData = await File.ReadAllBytesAsync(file);
-
-        var model = new FileModel(
-            fileData, Path.GetFileName(file),
-            (byte)_fileParser.GetFileType(file),
-            null, null, null
-            );
-        return model;
+        return fileData ?? [];
     }
-    public async Task<uint> SaveFileAsync(ManagedFileModel file)
+    public async Task<uint> SaveProfileImage(ManagedFileModel file)
     {
         await using var transaction = await Context.Database
              .BeginTransactionAsync()
@@ -227,4 +242,20 @@ internal class FileService : DatabaseServisLifecycle, IFileService
         await Context.StoredFileOwners.AddAsync(fileOwner);
         await Context.SaveChangesAsync();
     }
+
+
+    private bool MatchConfig(string path, ExecutorType owner)
+    {
+        if (_config is null) return false;
+
+        var directory = Path.GetDirectoryName(path);
+        var allowed = owner == ExecutorType.User
+            ? _config.UserPaths
+            : _config.GroupPaths;
+        if (allowed.Contains(directory))
+            return true;
+
+        return false;
+    }
+
 }

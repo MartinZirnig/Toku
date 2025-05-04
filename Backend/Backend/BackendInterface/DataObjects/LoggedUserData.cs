@@ -10,7 +10,10 @@ public class LoggedUserData
     public string DecryptedPrivateKey { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
+    public string Phone { get; set; } = string.Empty;
     public DateTime LastHeartbeat { get; set; }
+    public int TimeZoneOffset { get; set; }
+    public DateTime CreatedTime { get; set; }
 
     public bool ShouldBeRemoved =>
         LastHeartbeat.AddMinutes(MinutesToRemove) < DateTime.Now;

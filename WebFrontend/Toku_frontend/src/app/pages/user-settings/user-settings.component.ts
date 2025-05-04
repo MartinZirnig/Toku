@@ -3,6 +3,10 @@ import { Component, HostListener } from '@angular/core';
 import { FormsModule, NgModel } from '@angular/forms'; // Import FormsModule
 import { Router } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser'; // Import DomSanitizer
+import { User } from '../../data_managements/user';
+import { Redirecter } from '../../data_managements/redirecter.service';
+import { UserControlService } from '../../data_managements/control-services/user-control-service.service';
+import { UserDataModel } from '../../data_managements/models/user-data-model';
 
 @Component({
   selector: 'app-user-settings',
@@ -12,10 +16,10 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser'; // Import Do
   styleUrls: ['./user-settings.component.scss']
 })
 export class UserSettingsComponent {
-  userName: string = 'John Pork';
-  userPhone: string = '(248) 434-5508';
-  userEmail: string = 'jporksigma.com';
-  userAccountInfo: string = 'aktivní účet od: 1992';
+  userName: string = User.Name;
+  userPhone: string = User.Phone;
+  userEmail: string = User.Email;
+  userAccountInfo: string = 'Ativní od ' + User.Active;
 
   isEditingName: boolean = false;
   isEditingPhone: boolean = false;
@@ -27,10 +31,16 @@ export class UserSettingsComponent {
     email: 30,
   };
 
-  constructor(private router: Router, private sanitizer: DomSanitizer) {} // Inject DomSanitizer
+  constructor(
+    private redirecter: Redirecter, 
+    private sanitizer: DomSanitizer,
+    private usrCtrl: UserControlService,
+  ) {}
 
   ngOnInit() {
     document.body.style.overflow = 'hidden'; // Disable scrolling
+
+
   }
 
   ngOnDestroy() {
@@ -41,15 +51,29 @@ export class UserSettingsComponent {
     this.updateCharacterLimits(); // Initial calculation
   }
 
-  gotomainPage(): void {
-    console.debug('Navigating to main page'); // Debug log for troubleshooting
-    this.router.navigate(['/main']);
+  saveAndReturn(): void {
+    this.usrCtrl.updateUserData(this.userName, this.userEmail, this.userPhone)
+    .subscribe({
+      next: response => {
+        if (response.success) {
+          User.Data = new UserDataModel(
+            this.userName, this.userEmail, this.userPhone, User.Active);
+        } else {
+          console.error('Failed to save changes!', response.description);
+        }
+      },
+      error: err => {
+        console.error('Error occurred while saving changes:', err);
+      }
+    });
+      
+    this.redirecter.LastGroup();
   }
 
   @HostListener('document:keydown', ['$event'])
   onKeydown(event: KeyboardEvent) {
     if (event.key === 'Escape') {
-      this.gotomainPage();
+      this.saveAndReturn();
     } else if (event.key === 'Enter') {
       if (this.isEditingName) {
         this.confirmEdit('name');

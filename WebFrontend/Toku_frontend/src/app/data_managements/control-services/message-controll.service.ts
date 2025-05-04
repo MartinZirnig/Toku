@@ -7,6 +7,7 @@ import { MessageModel } from '../models/message-model';
 import { RequestResultModel } from '../models/result-model';
 import { MessageEditModel } from '../models/message-edit-model';
 import { MessageRemoveModel } from '../models/message-remove-model';
+import { MessageService } from '../services/message.service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,7 @@ import { MessageRemoveModel } from '../models/message-remove-model';
 export class MessageControllService {
 
   constructor(
-  private service: GroupService
+  private service: MessageService
   ) {}
 
   public loadMessages(groupId: number): Observable<Array<StoredMessageModel>> {

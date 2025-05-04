@@ -16,7 +16,7 @@ import { StoredMessageModel } from '../../data_managements/models/stored-message
   selector: 'app-message',
   templateUrl: './message_sender.component.html',
   styleUrls: ['./message_sender.component.scss'],
-  imports: [NgIf, NgClass, FormsModule, NgStyle, ReactionCounterComponent, EmojisPopUpComponent], // Add FormsModule
+  imports: [NgIf, NgClass, FormsModule, NgStyle, ReactionCounterComponent], // Add FormsModule
 })
 export class 
 Message_senderComponent implements OnInit {

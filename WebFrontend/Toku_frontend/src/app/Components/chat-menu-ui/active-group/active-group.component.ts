@@ -49,4 +49,8 @@ export class ActiveGroupComponent {
       }
     })
   }
+
+  editClicked() {
+    this.redirecter.GroupSettings(this.data.groupId);
+  }
 }

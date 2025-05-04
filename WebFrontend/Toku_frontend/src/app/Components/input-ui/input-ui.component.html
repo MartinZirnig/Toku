@@ -24,6 +24,11 @@
                 (input)="onInput()"
                 (scroll)="onScroll()"
             ></textarea>
+
+            <!-- Vlastní scrollbar -->
+            <div class="custom-scrollbar-track" #customScrollbarTrack>
+                <div id="custom-scrollbar-thumb" class="custom-scrollbar-thumb" #customScrollbarThumb (mousedown)="onThumbMouseDown($event)"></div>
+            </div>
         </div>
 
         <!-- Emoji Popup -->

@@ -23,4 +23,6 @@ internal class UserLogin
     [Required]
     public DateTime LashHearthBeat { get; set; }
     public DateTime? LoggedOut { get; set; }
+    [Required]
+    public int TimeZoneOffset { get; set; }
 }

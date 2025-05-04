@@ -1,21 +1,15 @@
 import { Component, HostListener, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { OpenAndcloseMenuService } from '../../services/open-andclose-menu.service';
 import { CommonModule, NgIf } from '@angular/common';
-import {
-  chatItemBackground,
-  chatItemHoverBackground,
-  chatItemTextColor,
-  chatItemSubTextColor,
-  chatItemTimeColor,
-  blurredBackground
-} from '../../services/colors.service';
 import { ActiveGroupComponent } from './active-group/active-group.component';
 import { ActiveGroupMenuService } from '../../services/active-group-menu-service.service';
 import { GroupsLoaderService } from '../../data_managements/control-services/groups-loader.service';
 import { AvailableGroupsModel } from '../../data_managements/models/available-groups-model';
 import { GroupReloadService } from '../../services/group-reload.service';
-import { Route, Router } from '@angular/router';
 import { NavigationService } from '../../services/navigation.service';
+import { Redirecter } from '../../data_managements/redirecter.service';
+import { User } from '../../data_managements/user';
+
 
 
 @Component({
@@ -35,14 +29,17 @@ export class ChatMenuUiComponent {
     public loader: GroupsLoaderService,
     public reloader: GroupReloadService,
     private cdr: ChangeDetectorRef, // Inject ChangeDetectorRef
-    public navigationService: NavigationService, private router: Router
+    public navigationService: NavigationService,
+    private redirecter: Redirecter,
   ) {
     reloader.groupReload = this.reload.bind(this);
   }
 
-  navigateToGroupSettings(): void {
-    this.router.navigate(['/group-settings']);
+  appenfGroup(){
+    this.redirecter.AddGroup();
   }
+
+
 
   @HostListener('window:resize', ['$event'])
   onResize(event: Event): void {
@@ -100,6 +97,9 @@ export class ChatMenuUiComponent {
       next: response => {
         console.log(response)
         this.items = response;
+
+        User.Groups = response
+          .map(group => String(group.groupId));
       },
       error: err => {
         console.error('cannot load groups', err)

@@ -3,6 +3,7 @@
 namespace BackendInterface.Models;
 public record UserLoginModel(
     string UserName,
-    string Password
+    string Password,
+    int TimeZone
     );
 

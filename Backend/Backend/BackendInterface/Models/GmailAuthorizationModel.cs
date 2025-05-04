@@ -4,7 +4,8 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 
 namespace BackendInterface.Models;
-public record GmailAuthorizationModel(string Credentials, string Select_by)
+public record GmailAuthorizationModel(
+    string Credentials, string Select_by, int TimeZoneOffset)
 {
     private readonly Dictionary<string, string> ParsedCredentials
         = ParseCredential(Credentials);
@@ -21,7 +22,7 @@ public record GmailAuthorizationModel(string Credentials, string Select_by)
     public UserRegistrationModel DeriveRegistration()
     {
         return new UserRegistrationModel(
-            Name, Email, Token);
+            Name, Email, Token, TimeZoneOffset);
     }
 
     private static Dictionary<string, string> ParseCredential(string credential)

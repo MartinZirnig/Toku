@@ -1,4 +1,4 @@
-import { Component, importProvidersFrom } from '@angular/core';
+import { Component, importProvidersFrom, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
@@ -18,7 +18,7 @@ import { Heart } from '../../data_managements/heart.service';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit{
   loginForm: FormGroup;
   errorMessage: string = '';
 
@@ -33,6 +33,10 @@ export class LoginComponent {
       name: ['', Validators.required],
       password: ['', Validators.required]
     });
+  }
+
+  ngOnInit(){
+    window.history.pushState({}, '', '/login');
   }
 
   printError(message: string) {
@@ -60,6 +64,8 @@ export class LoginComponent {
         next: response => {
           if (response.userIdentification.trim()) {
             User.Id = response.userIdentification;
+            console.log('user id: ', User.Id);
+            this.loadUserData();
             this.redirecter.Group(response.lastGroupId);
             this.heart.startBeat();
           }
@@ -70,6 +76,18 @@ export class LoginComponent {
         this.printError('cannot login user, user data is not valid');
       }
 
+    })
+  }
+  private loadUserData() {
+    const request = this.usrCtrl.getUserData();
+    request.subscribe({
+      next: response => {
+        console.log('user data: ', response);
+        User.Data = response;
+      },
+      error: err => {
+        this.printError('cannot load user data');
+      }
     })
   }
 

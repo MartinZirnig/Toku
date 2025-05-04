@@ -9,7 +9,7 @@ namespace Backend.Controllers;
 [ApiController]
 [Route("[controller]")]
 [Authorization]
-public class GroupController : ControllerBase
+public sealed class GroupController : ControllerBase
 {
     private readonly ILogger<GroupController> _logger;
     private readonly IDatabaseServiceProvider _serviceProvider;
@@ -21,7 +21,7 @@ public class GroupController : ControllerBase
         _serviceProvider = serviceProvider;
     }
 
-    [HttpPost("create-group")]
+    [HttpPost("create")]
     public async Task<IActionResult> CreateGroupAsync([FromBody] GroupCreationModel model)
     {
         using var service = _serviceProvider.GetGroupService();
@@ -30,16 +30,32 @@ public class GroupController : ControllerBase
 
         return Ok(result);
     }
+    [HttpPatch("update")]
+    public async Task<IActionResult> UpdateGroupAsync([FromBody] GroupUpdateModel model)
+    {
+        using var service = _serviceProvider.GetGroupService();
 
-    [HttpPost("add-group-user")]
+        var executor = (Guid)AuthorizationAttribute.GetUID(HttpContext)!;
+        var result = await service
+            .UpdateGroupAsync(model, executor)
+            .ConfigureAwait(false);
+
+        return Ok(result);
+    }
+
+    [HttpPost("add-user")]
     public async Task<IActionResult> AddGroupUserAsync([FromBody] GroupAddUserModel model)
     {
         using var service = _serviceProvider.GetGroupService();
 
-        var executor = Guid.Parse(HttpContext.Items[AuthorizationAttribute.UserIdentificationKey]!.ToString()!);
+        var executor = AuthorizationAttribute.GetUID(HttpContext);
+        if (executor is null)
+            return Unauthorized();
 
-        var permission = await service.GetUsersPermissionsAsync(executor, model.groupId)
+        var permission = await service
+            .GetUsersPermissionsAsync((Guid)executor, model.groupId)
             .ConfigureAwait(false);
+
         if (!permission.Contains(GroupClientPermission.Admin))
             return Unauthorized();
 
@@ -51,9 +67,12 @@ public class GroupController : ControllerBase
     public async Task<IActionResult> GetUserGroupsAsync()
     {
         using var service = _serviceProvider.GetGroupService();
-        var user = Guid.Parse(HttpContext.Items[AuthorizationAttribute.UserIdentificationKey]!.ToString()!);
 
-        var result = await service.GetAvailableGroupsAsync(user)
+        var executor = AuthorizationAttribute.GetUID(HttpContext);
+        if (executor is null)
+            return Unauthorized();
+
+        var result = await service.GetAvailableGroupsAsync((Guid)executor)
             .ConfigureAwait(false);
         return Ok(result);
     }
@@ -86,65 +105,36 @@ public class GroupController : ControllerBase
         return Ok(result);
     }
 
-
-
-
-
-
-
-    [HttpPost("send-message")]
-    public async Task<IActionResult> SendMessageAsync([FromBody] MessageModel model)
+    [HttpPatch("update-access")]
+    public async Task<IActionResult> UpdateAccessAsync([FromBody] GroupUserAccessModel model)
     {
-        using var service = _serviceProvider.GetDataService();
-        var id = await service.ReceiveMessageAsync(model)
-            .ConfigureAwait(false);
-        if (id == 0)
-            return BadRequest("Message cannot be saved");
-        return Ok(id.ToString());
-    }
+        using var service = _serviceProvider.GetGroupService();
 
-    [HttpGet("get-messages")]
-    public async Task<IActionResult> GetMessagesAsync
-        ([FromQuery] string identification, [FromQuery] uint groupId, [FromQuery] uint? count)
-    {
-        using var service = _serviceProvider.GetDataService();
-
-        var uIdentification = Guid.Parse(identification);
-        var data = await service.GetGroupMessagesAsync(uIdentification, groupId, count)
-            .ConfigureAwait(false);
-        if (data is null)
-            return BadRequest("No accessible messages");
-        return Ok(data);
-    }
-    [HttpGet("get-message")]
-    public async Task<IActionResult> GetMessageAsync([FromQuery] uint messageId)
-    {
-        using var service = _serviceProvider.GetDataService();
-        var user = Guid.Parse(HttpContext.Items[AuthorizationAttribute.UserIdentificationKey]!.ToString()!);
-
-        var result = await service.GetMessageAsync(user, messageId)
-            .ConfigureAwait(false);
-        return Ok(result);
-    }
-
-    [HttpPatch("update-message")]
-    public async Task<IActionResult> UpdateMessageAsync([FromBody] MessageEditModel model)
-    {
-        using var service = _serviceProvider.GetDataService();
-        var result = await service.UpdateMessageAsync(model)
-            .ConfigureAwait(false);
-        return Ok(result);
-    }
-    [HttpDelete("remove-message")]
-    public async Task<IActionResult> RemoveMessageAsync([FromQuery] MessageRemoveModel model)
-    {
-        using var service = _serviceProvider.GetDataService();
-
-        var result = await service
-            .RemoveMessageAsync(model)
+        var result = await service.UpdatePermissionAsync(model)
             .ConfigureAwait(false);
 
         return Ok(result);
     }
+    [HttpGet("get-members")]
+    public async Task<IActionResult> GetMembersAsync([FromQuery] uint groupId)
+    {
+        using var service = _serviceProvider.GetGroupService();
 
+        var executor = (Guid)AuthorizationAttribute.GetUID(HttpContext)!;
+        var result = await service.GetGroupMembersAsync(executor, groupId);
+
+        return Ok(result);
+    }
+    [HttpGet("get-data")]
+    public async Task<IActionResult> GetGroupDataAsync([FromQuery] uint groupId)
+    {
+        using var service = _serviceProvider.GetGroupService();
+
+        var executor = (Guid)AuthorizationAttribute.GetUID(HttpContext)!;
+        var result = await service.GetGroupAsync(executor, groupId);
+
+        if (result is null)
+            return BadRequest();
+        return Ok(result);
+    }
 }

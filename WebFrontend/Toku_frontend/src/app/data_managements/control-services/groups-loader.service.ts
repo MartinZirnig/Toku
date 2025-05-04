@@ -5,6 +5,8 @@ import { AvailableGroupsModel } from '../models/available-groups-model';
 import { UserGroupModel } from '../models/last-group-model';
 import { User } from '../user';
 import { RequestResultModel } from '../models/result-model';
+import { GroupUserAccessModel } from '../models/group-user-access-model';
+import { GroupDataModel } from '../models/group-data-model';
 
 @Injectable({
   providedIn: 'root'
@@ -28,5 +30,11 @@ export class GroupsLoaderService {
       User.Id ?? '', groupId
     );
     return this.service.readGroup(model);
+  }
+  public loadMembers(roomId: number): Observable<GroupUserAccessModel[]>{
+    return this.service.loadMembers(roomId);
+  }
+  public loadData(roomId: number) : Observable<GroupDataModel>{
+    return this.service.getData(roomId);
   }
 }
