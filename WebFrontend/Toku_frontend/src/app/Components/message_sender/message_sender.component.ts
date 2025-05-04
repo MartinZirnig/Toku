@@ -3,7 +3,6 @@ import { Component, HostListener, OnInit, ViewChild, ElementRef, Input, input } 
 import { MenuService } from '../../services/menu.service'; // Ensure the correct path to MenuService
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser'; // Import DomSanitizer
 import { NgModel, FormsModule } from '@angular/forms'; // Import FormsModule for two-way binding
-import { EmojiPopUpOpenService } from '../../services/emoji-pop-up-open.service'; // Import the emoji popup service
 import { PopUpService } from '../../services/pop-up.service'; // Import the popup service
 
 import { ReactionCounterComponent} from '../reaction-counter/reaction-counter.component'; 
@@ -28,10 +27,10 @@ Message_senderComponent implements OnInit {
   @Input() previewText!: string | null; // New input for preview text
   @Input() hasFile: boolean = false; // New input to indicate if the previous message has a file
   @Input() timeStamp!: string | null; // New input for timestamp
-  @Input() reaction: string = '👌';
+  @Input() reaction: string = '';
   @Input() onDeleteMessage!: () => void; // Callback to notify parent component about deletion
 
-  @Input() reactionsData: string = '😂😂😂😂👍😊🚲🚲🤣🤦‍♂️🤦‍♂️😊😁😁'; // Input for reaction data
+  @Input() reactionsData: string = ''; // Input for reaction data
 
   @Input() declare raw: StoredMessageModel;
 
@@ -48,13 +47,10 @@ Message_senderComponent implements OnInit {
   editableText!: string; // Store the editable text
   showReaction: boolean = true; // Track if the reaction menu is visible
 
-  emojiPopupVisible = false;
-  emojiPopupPosition = { x: 0, y: 0 };
-
   constructor(
     private menuService: MenuService, 
     private sanitizer: DomSanitizer, 
-    private emojiPopUp: EmojiPopUpOpenService,
+    
     private msgCtrl: MessageControllService,
     private popupService: PopUpService // Inject the popup service
   ) {} // Inject DomSanitizer
@@ -261,24 +257,28 @@ Message_senderComponent implements OnInit {
     return Math.max(lines, 1); // Ensure at least 1 row
   }
 
-  onReact(event: MouseEvent): void {
-    this.emojiPopUp.openEmojiPopup(); // Open the emoji popup
-  }
+  onReact(): void {
+    // Find the input-ui component
+    const inputUiComponent = document.querySelector('app-input-ui') as any;
+    if (inputUiComponent) {
+      // Open the emoji popup
+      inputUiComponent.emojiPopupVisible = true;
 
-  closeEmojiPopup(): void {
-    this.emojiPopUp.closeEmojiPopup(); // Close the emoji popup
-  }
-
-  onEmojiSelected(emoji: string): void {
-    console.log('Selected emoji:', emoji);
-    this.emojiPopUp.closeEmojiPopup();
+      // Temporarily override the onEmojiSelected method to handle emoji selection for this message
+      const originalOnEmojiSelected = inputUiComponent.onEmojiSelected.bind(inputUiComponent);
+      inputUiComponent.onEmojiSelected = (emoji: string) => {
+        this.reactionsData += emoji; // Append the selected emoji to reactionsData
+        inputUiComponent.emojiPopupVisible = false; // Close the emoji popup
+        inputUiComponent.onEmojiSelected = originalOnEmojiSelected; // Restore the original method
+      };
+    }
   }
 
   copyToClipboard(): void {
     if (this.text) {
       navigator.clipboard.writeText(this.text).then(() => {
         console.log('Message copied to clipboard:', this.text);
-        this.popupService.showMessage('Zkopírováno', 5000, '#3b82f6', '#5EA6FF'); // Show popup message
+        this.popupService.showMessage('Zkopírováno', 1000, '#1d2f47','#ffffff'); // Show popup message
       }).catch(err => {
         console.error('Failed to copy message to clipboard:', err);
       });

@@ -14,6 +14,8 @@ export class MessageAdresatorComponent implements OnInit {
   @Input() text!: string;
   @Input() image!: string | null;
   @Input() time!: string;
+  @Input() previewText!: string | null; // New input for preview text
+  @Input() hasFile: boolean = false; // New input to indicate if the previous message has a file
   @Input() onDeleteMessage!: () => void; // Callback to notify parent component about deletion
   @Input() reactionsData!: string; // Input for reaction data
 
@@ -25,7 +27,7 @@ export class MessageAdresatorComponent implements OnInit {
   constructor(private menuService: MenuService, private popupService: PopUpService) {} // Inject the popup service
 
   ngOnInit(): void {
-    console.log('Message initialized:', { text: this.text, image: this.image, time: this.time });
+    console.log('Message initialized:', { text: this.text, image: this.image, time: this.time, previewText: this.previewText, hasFile: this.hasFile });
     this.isLongText = this.text.length > 50; // Adjust threshold as needed
   }
 
@@ -65,7 +67,7 @@ export class MessageAdresatorComponent implements OnInit {
     if (this.text) {
       navigator.clipboard.writeText(this.text).then(() => {
         console.log('Message copied to clipboard:', this.text);
-        this.popupService.showMessage('123456789.123456789.123456789.123456789',2000); // Show popup message this.popUpService.showMessage('Zkopírováno'); // Show popup message
+        this.popupService.showMessage('Zkopírováno', 1000, '#1d2f47','#ffffff'); // Show popup message
       }).catch(err => {
         console.error('Failed to copy message to clipboard:', err);
       });

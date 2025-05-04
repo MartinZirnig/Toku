@@ -1,8 +1,7 @@
-<div class="fixed flex items-center justify-center py-3 px-6 rounded-full shadow-lg text-center pop-up-container z-[9999]"
+<div class="fixed flex items-center justify-center py-3 px-6 rounded-full shadow-lg text-center pop-up-container z-[9999] max-w-[90%] w-auto"
      [style.background-color]="backgroundColor || '#ffffff'"
-     [style.color]="textColor || '#000000'"
-     [style.width]="dynamicWidth">
-  <span [innerHTML]="truncatedMessage"></span>
+     [style.color]="textColor || '#000000'">
+  <span [innerHTML]="truncatedMessage" class="whitespace-nowrap"></span>
   <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-2/3 h-1 rounded-full"
        [style.background-color]="darkerBackgroundColor">
     <div class="h-full rounded-full" [style.background-color]="progressColor" [style.width.%]="progress"></div>

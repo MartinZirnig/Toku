@@ -1,4 +1,4 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { OpenAndcloseMenuService } from '../../services/open-andclose-menu.service';
 import { CommonModule, NgIf } from '@angular/common';
 import {
@@ -14,6 +14,8 @@ import { ActiveGroupMenuService } from '../../services/active-group-menu-service
 import { GroupsLoaderService } from '../../data_managements/control-services/groups-loader.service';
 import { AvailableGroupsModel } from '../../data_managements/models/available-groups-model';
 import { GroupReloadService } from '../../services/group-reload.service';
+import { Route, Router } from '@angular/router';
+import { NavigationService } from '../../services/navigation.service';
 
 
 @Component({
@@ -24,16 +26,22 @@ import { GroupReloadService } from '../../services/group-reload.service';
 })
 export class ChatMenuUiComponent {
   declare public items: [AvailableGroupsModel];
-
- 
+  @ViewChild('chatMenuContainer') chatMenuContainer!: ElementRef;
+  private scrollPosition = 0;
 
   constructor(
     public menuService: OpenAndcloseMenuService,
     public activeMenuService: ActiveGroupMenuService,
     public loader: GroupsLoaderService,
-    public reloader: GroupReloadService
+    public reloader: GroupReloadService,
+    private cdr: ChangeDetectorRef, // Inject ChangeDetectorRef
+    public navigationService: NavigationService, private router: Router
   ) {
     reloader.groupReload = this.reload.bind(this);
+  }
+
+  navigateToGroupSettings(): void {
+    this.router.navigate(['/group-settings']);
   }
 
   @HostListener('window:resize', ['$event'])
@@ -47,6 +55,45 @@ export class ChatMenuUiComponent {
   ngOnInit() {
     this.reload();
   }
+
+  ngAfterViewInit() {
+    if (this.chatMenuContainer) {
+      this.chatMenuContainer.nativeElement.addEventListener('scroll', this.onScroll.bind(this));
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.chatMenuContainer) {
+      this.chatMenuContainer.nativeElement.removeEventListener('scroll', this.onScroll.bind(this));
+    }
+  }
+
+  private onScroll(): void {
+    if (this.chatMenuContainer) {
+      this.scrollPosition = this.chatMenuContainer.nativeElement.scrollTop;
+    }
+  }
+
+  public toggleMenu(): void {
+    if (this.menuService.showDropdown) {
+      // Save scroll position when closing
+      this.scrollPosition = this.chatMenuContainer.nativeElement.scrollTop;
+    }
+    this.menuService.showDropdown = !this.menuService.showDropdown;
+
+    if (!this.menuService.showDropdown) {
+      return; // No need to restore scroll position if the menu is closed
+    }
+
+    // Use ChangeDetectorRef to ensure the DOM is updated before restoring scroll position
+    this.cdr.detectChanges();
+    setTimeout(() => {
+      if (this.chatMenuContainer) {
+        this.chatMenuContainer.nativeElement.scrollTop = this.scrollPosition;
+      }
+    }, 0); // Minimal delay to ensure the DOM is ready
+  }
+
   reload(){
     const request = this.loader.getGroups()
     request.subscribe({

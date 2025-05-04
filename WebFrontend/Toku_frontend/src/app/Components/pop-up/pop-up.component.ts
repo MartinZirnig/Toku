@@ -10,6 +10,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
   styleUrl: './pop-up.component.scss'
 })
 export class PopUpComponent implements OnInit, OnDestroy, OnChanges {
+  @Input() id!: number; // Add the id property
   @Input() message: string = '';
   @Input() backgroundColor: string = '#3b82f6';
   @Input() textColor: string = '#ffffff';
@@ -18,7 +19,7 @@ export class PopUpComponent implements OnInit, OnDestroy, OnChanges {
   truncatedMessage: SafeHtml = ''; // Use SafeHtml for sanitized content
   darkerBackgroundColor: string = '#1e40af';
   progressColor: string = '#93c5fd';
-  dynamicWidth: string = 'auto'; // Dynamically calculated width
+  isVisible: boolean = false; // Controls the "in" animation
   private intervalId: any;
 
   constructor(private sanitizer: DomSanitizer) {}
@@ -28,13 +29,21 @@ export class PopUpComponent implements OnInit, OnDestroy, OnChanges {
     this.darkerBackgroundColor = this.adjustColorBrightness(this.backgroundColor, -20);
     this.progressColor = this.adjustColorBrightness(this.backgroundColor, 40);
 
+    // Show the pop-up with "in" animation
+    setTimeout(() => {
+      this.isVisible = true;
+    }, 0);
+
     // Start the progress bar timer
-    const decrementAmount = 100 / (this.duration / 100); // Calculate decrement per 100ms
+    const decrementAmount = 95 / (this.duration / 100); // Calculate decrement per 100ms
     this.intervalId = setInterval(() => {
       this.progress -= decrementAmount;
       if (this.progress <= 0) {
         this.progress = 0;
         clearInterval(this.intervalId);
+
+        // Remove the pop-up after its duration ends
+        this.isVisible = false;
       }
     }, 100);
   }
@@ -52,30 +61,6 @@ export class PopUpComponent implements OnInit, OnDestroy, OnChanges {
       );
     } else {
       this.truncatedMessage = this.sanitizer.bypassSecurityTrustHtml(this.message);
-    }
-
-    // Recalculate width after the DOM is updated
-    setTimeout(() => {
-      this.adjustDynamicWidth();
-    }, 0);
-  }
-
-  private adjustDynamicWidth(): void {
-    const container = document.querySelector('.pop-up-container') as HTMLElement;
-    const span = container?.querySelector('span') as HTMLElement;
-
-    if (span && container) {
-      // Temporarily reset the width to auto to allow recalculation
-      this.dynamicWidth = 'auto';
-
-      // Use the span's scrollWidth to get the full width of the rendered content
-      const contentWidth = span.scrollWidth;
-
-      // Set the dynamic width based on the content width and add consistent padding
-      this.dynamicWidth = `calc(${contentWidth}px + 2rem)`;
-
-      // Apply the recalculated width to the container
-      container.style.width = this.dynamicWidth;
     }
   }
 

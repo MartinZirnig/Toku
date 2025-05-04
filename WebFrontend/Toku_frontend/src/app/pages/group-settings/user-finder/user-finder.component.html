@@ -1,0 +1,55 @@
+<div class="fixed inset-0 flex items-center justify-center bg-transparent z-1000">
+  <div class="bg-white/60 backdrop-blur-lg p-8 rounded-lg shadow-lg w-full w-xs">
+    <input
+      type="text"
+      placeholder="Search users..."
+      class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 mb-4"
+      (input)="search($event)"
+    />
+    <ul class="mb-4 max-h-48 overflow-y-auto border rounded-md">
+      <li
+        *ngFor="let user of filteredUsers"
+        class="py-2 px-3 border-b hover:bg-gray-100 cursor-pointer flex justify-between items-center"
+      >
+        {{ user }}
+        <button
+          class="text-sm text-white bg-blue-500 px-2 py-1 rounded hover:bg-blue-600"
+          (click)="addUser(user)"
+        >
+          Add
+        </button>
+      </li>
+    </ul>
+    <div *ngIf="selectedUsers.length > 0" class="mt-4 max-h-12 scroll-hidden rounded-md">
+      <div class="flex gap-2 flex-wrap">
+        <button
+          *ngFor="let user of selectedUsers"
+          class="relative text-sm text-gray-800 bg-gray-200 px-3 py-2 rounded-full hover:bg-red-500 hover:text-red-500 transition-all duration-300 group"
+          (click)="removeUser(user)"
+          [title]="user"
+        >
+          {{ getInitials(user) }}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="absolute inset-0 w-6 h-6 m-auto text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          >
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <button
+      class="mt-4 w-full py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-all duration-300"
+      (click)="submitUsers()"
+    >
+      Submit Users
+    </button>
+  </div>
+</div>

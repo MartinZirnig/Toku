@@ -4,6 +4,7 @@ import { RegisterComponent } from './pages/register/register.component';
 import { ChangePasswordComponent } from './pages/change-password/change-password.component';
 import { MainPageComponent } from './pages/main-page/main-page.component';
 import { UserSettingsComponent } from './pages/user-settings/user-settings.component';
+import { GroupSettingsComponent } from './pages/group-settings/group-settings.component';
 
 export const routes: Routes = [
     {path: '', component: LoginComponent},
@@ -13,4 +14,5 @@ export const routes: Routes = [
     {path: 'main', component: MainPageComponent, children: 
         [{path: 'user-settings', component: UserSettingsComponent}],
     },
+    {path: 'group-settings', component: GroupSettingsComponent},
 ];

@@ -12,6 +12,15 @@
       <app-dummy-message-adresator></app-dummy-message-adresator>
       <app-dummy-message-adresator></app-dummy-message-adresator>
       <app-dummy-message-sender></app-dummy-message-sender>
+      <app-dummy-message-adresator></app-dummy-message-adresator>
+      <app-dummy-message-sender></app-dummy-message-sender>
+      <app-dummy-message-adresator></app-dummy-message-adresator>
+      <app-dummy-message-sender></app-dummy-message-sender>
+      <app-dummy-message-sender></app-dummy-message-sender>
+      <app-dummy-message-adresator></app-dummy-message-adresator>
+      <app-dummy-message-adresator></app-dummy-message-adresator>
+      <app-dummy-message-adresator></app-dummy-message-adresator>
+      <app-dummy-message-sender></app-dummy-message-sender>
     </div>
 
     <div *ngFor="let message of messages; let i = index" 
@@ -43,9 +52,23 @@
     </div>
   </div>
 </div>
+<app-message
+[text]="'aaaaa'"
+          [time]="'11'"
+          [status]="'delivered'"
+          [previewText]="'aaa'"
+          [hasFile]="false"
+          [timeStamp]="'11'"
+          [onDeleteMessage]="onDeleteMessage.bind(this, 5)"
 
+          [reactionsData]="'aaa'"
+
+          >
+  
+</app-message>
 <div *ngFor="let popUp of popUps" class="z-999999 fixed left-1/2 transform -translate-x-1/2 top-2">
   <app-pop-up
+    [id]="popUp.id"
     [message]="popUp.message"
     [backgroundColor]="popUp.backgroundColor"
     [textColor]="popUp.textColor"

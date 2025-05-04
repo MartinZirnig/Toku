@@ -1,5 +1,5 @@
 <div>
-    <div class="w-full max-w-2xl mx-auto flex items-center gap-2 bg-white/10 backdrop-blur-lg rounded-full shadow-lg p-2">
+    <div class="w-full max-w-2xl mx-auto flex items-center gap-2 bg-white/10 backdrop-blur-lg rounded-full shadow-lg p-2 relative">
         <!-- Pin Button -->
         <button id="pin-button" class="rounded-full p-3 flex items-center justify-center transition-colors cursor-pointer">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -7,7 +7,14 @@
             </svg>
         </button>
 
-        <!-- Textarea s Custom Scrollbarem -->
+        <!-- Emoji Button -->
+        <button id="emoji-button" class="rounded-full bg-gray-800 p-3 flex items-center justify-center transition-colors cursor-pointer" (click)="toggleEmojiPopup()">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9.172 9.172a4 4 0 015.656 0M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+        </button>
+
+        <!-- Textarea -->
         <div class="custom-scrollbar-container flex-1 w-3/4 relative" #customScrollbarContainer>
             <textarea 
                 id="chat-textarea" 
@@ -17,14 +24,15 @@
                 (input)="onInput()"
                 (scroll)="onScroll()"
             ></textarea>
-            <!-- Vlastní scrollbar -->
-            <div class="custom-scrollbar-track" #customScrollbarTrack>
-                <div id="custom-scrollbar-thumb" class="custom-scrollbar-thumb" #customScrollbarThumb (mousedown)="onThumbMouseDown($event)"></div>
-            </div>
+        </div>
+
+        <!-- Emoji Popup -->
+        <div *ngIf="emojiPopupVisible" class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 z-50">
+            <app-emoji (emojiSelected)="onEmojiSelected($event)"></app-emoji>
         </div>
 
         <!-- Send Button -->
-        <button id="send-button" class="rounded-full p-3 flex items-center justify-center transition-colors cursor-pointer" (click)="send()">
+        <button id="send-button" class="rounded-full p-3  flex items-center justify-center transition-colors cursor-pointer" (click)="send()">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
             </svg>

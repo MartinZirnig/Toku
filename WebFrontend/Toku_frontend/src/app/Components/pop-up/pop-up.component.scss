@@ -11,9 +11,20 @@ div {
   position: absolute;
 }
 
+@keyframes slideIn {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
 
-
-
+.pop-up-container {
+  animation: slideIn 0.3s ease-in-out forwards; // Apply the "in" animation
+}
 
 .w-full {
   width: 100%;

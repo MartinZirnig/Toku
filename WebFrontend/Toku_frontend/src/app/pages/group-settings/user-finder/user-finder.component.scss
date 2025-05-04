@@ -1,0 +1,58 @@
+/* Hide scrollbar for WebKit-based browsers */
+.scroll-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for Firefox */
+.scroll-hidden {
+  scrollbar-width: none;
+}
+
+/* Ensure scrolling functionality remains */
+.scroll-hidden {
+  -ms-overflow-style: none; /* IE and Edge */
+  overflow-y: scroll;
+}
+
+/* Apply custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px; /* Width of the scrollbar */
+  height: 8px; /* Height of the scrollbar for horizontal scrolling */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #a0aec0; /* Subtle gray color for the thumb */
+  border-radius: 4px; /* Rounded corners for the thumb */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #718096; /* Slightly darker gray on hover */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* Transparent track to make it less visible */
+}
+
+/* Custom scrollbar styles */
+ul {
+  overflow-y: auto; /* Enable vertical scrolling for the user list */
+  scrollbar-width: thin; /* For Firefox: thin scrollbar */
+  scrollbar-color: #cbd5e0 transparent; /* Thumb and track colors for Firefox */
+}
+
+ul::-webkit-scrollbar {
+  width: 8px; /* Width of the scrollbar */
+}
+
+ul::-webkit-scrollbar-thumb {
+  background-color: #cbd5e0; /* Subtle gray color for the thumb */
+  border-radius: 4px; /* Rounded corners for the thumb */
+}
+
+ul::-webkit-scrollbar-thumb:hover {
+  background-color: #a0aec0; /* Slightly darker gray on hover */
+}
+
+ul::-webkit-scrollbar-track {
+  background: transparent; /* Transparent track to make it less visible */
+}

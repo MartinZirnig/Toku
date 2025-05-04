@@ -1,26 +1,24 @@
-import { Component, AfterViewInit, Output, EventEmitter } from '@angular/core';
-
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, Output, EventEmitter } from '@angular/core';
+import { PickerComponent } from '@ctrl/ngx-emoji-mart';
 
 @Component({
   selector: 'app-emoji',
   templateUrl: './emojis-pop-up.component.html',
+  styleUrls: ['./emojis-pop-up.component.scss'],
   standalone: true,
-  imports: [],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  imports: [PickerComponent],
 })
-export class EmojisPopUpComponent implements AfterViewInit {
+export class EmojisPopUpComponent {
   @Output() emojiSelected = new EventEmitter<string>();
-  selectedEmoji = '';
 
-  ngAfterViewInit() {
-    //import('emoji-picker-element');
-  }
-
-  onEmojiClick(event: any) {
-    this.selectedEmoji = event.detail.unicode;
-    this.emojiSelected.emit(this.selectedEmoji);
+  onEmojiClick(event: any): void {
+    this.emojiSelected.emit(event.emoji.native);
   }
 }
+
+
+
+
+
 
 

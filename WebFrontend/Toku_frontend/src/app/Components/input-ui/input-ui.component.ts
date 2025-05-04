@@ -15,7 +15,7 @@ import {
 } from '../../services/colors.service';
 import { EmojisPopUpComponent } from '../emojis-pop-up/emojis-pop-up.component';
 import { NgIf } from '@angular/common';
-import { EmojiPopUpOpenService } from '../../services/emoji-pop-up-open.service';
+
 import { GroupService } from '../../data_managements/services/group-service.service';
 import { MainInputService } from '../../services/main-input.service';
 import { GroupReloadService } from '../../services/group-reload.service';
@@ -36,13 +36,21 @@ export class InputUiComponent implements OnInit {
   private mouseMoveListener!: () => void;
   private mouseUpListener!: () => void;
   private animationFrameId: number | null = null;
+  emojiPopupVisible = false; // Initially hidden
 
   constructor(
     private renderer: Renderer2, 
-    public emojiPopUp: EmojiPopUpOpenService,
     private service: MainInputService,
     private reloader: GroupReloadService
-  ) {}
+  ) {
+    // Close emoji popup when clicking outside
+    this.renderer.listen('document', 'click', (event: Event) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('#emoji-button') && !target.closest('app-emoji')) {
+        this.emojiPopupVisible = false;
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.setupChatUI();
@@ -199,9 +207,14 @@ export class InputUiComponent implements OnInit {
     this.updateScrollThumbPosition();
   }
 
+  toggleEmojiPopup(): void {
+    this.emojiPopupVisible = !this.emojiPopupVisible;
+  }
+
   onEmojiSelected(emoji: string): void {
-    console.log('Selected emoji:', emoji);
-    
+    const textarea = this.textarea.nativeElement;
+    textarea.value += emoji;
+    this.emojiPopupVisible = false; // Close popup after selecting an emoji
   }
 
   send(): void {

@@ -1,0 +1,68 @@
+.user-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); // Adjust columns dynamically
+    gap: 1rem; // Space between items
+}
+
+
+
+.member-item.bg-blue-500 {
+    background-color: #3b82f6; // Highlight selected user
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .member-item {
+        aspect-ratio: auto; // Allow rectangles on smaller screens
+    }
+}
+
+/* Custom scrollbar styles */
+.group-settings-container {
+  overflow-y: auto; /* Enable vertical scrolling */
+  scrollbar-width: thin; /* For Firefox: thin scrollbar */
+  scrollbar-color: #cbd5e0 transparent; /* Thumb and track colors for Firefox */
+}
+
+.group-settings-container::-webkit-scrollbar {
+  width: 8px; /* Width of the scrollbar */
+}
+
+.group-settings-container::-webkit-scrollbar-thumb {
+  background-color: #cbd5e0; /* Subtle gray color for the thumb */
+  border-radius: 4px; /* Rounded corners for the thumb */
+}
+
+.group-settings-container::-webkit-scrollbar-thumb:hover {
+  background-color: #a0aec0; /* Slightly darker gray on hover */
+}
+
+.group-settings-container::-webkit-scrollbar-track {
+  background: transparent; /* Transparent track to make it less visible */
+}
+
+/* Ensure the permissions name container only shows the vertical scrollbar when necessary */
+.permissions-name-container {
+  max-height: 3rem; /* Constrain the height to avoid unnecessary vertical scrolling */
+  overflow-y: auto; /* Allow vertical scrolling only */
+  overflow-x: hidden; /* Explicitly hide horizontal scrolling */
+  scrollbar-width: thin; /* For Firefox: thin scrollbar */
+  scrollbar-color: #cbd5e0 transparent; /* Thumb and track colors for Firefox */
+}
+
+.permissions-name-container::-webkit-scrollbar {
+  width: 4px; /* Narrow scrollbar width */
+}
+
+.permissions-name-container::-webkit-scrollbar-thumb {
+  background-color: #cbd5e0; /* Subtle gray color for the thumb */
+  border-radius: 2px; /* Rounded corners for the thumb */
+}
+
+.permissions-name-container::-webkit-scrollbar-thumb:hover {
+  background-color: #a0aec0; /* Slightly darker gray on hover */
+}
+
+.permissions-name-container::-webkit-scrollbar-track {
+  background: transparent; /* Transparent track to make it less visible */
+}
