@@ -22,7 +22,7 @@
       <app-dummy-message-adresator></app-dummy-message-adresator>
       <app-dummy-message-sender></app-dummy-message-sender>
     </div>
-
+<!-- V REACTION DATA BUDE MUSET BÝT "message.reactionsData" ZATÍM TAM BUDE NULL -->
     <div *ngFor="let message of messages; let i = index" 
          [ngClass]="{'flex justify-end': message.isSender, 'flex justify-start': !message.isSender}">
       <ng-container *ngIf="message.isSender; else adresatorTemplate">
@@ -34,11 +34,8 @@
           [hasFile]="message.hasFile"
           [timeStamp]="message.timeStamp"
           [onDeleteMessage]="onDeleteMessage.bind(this, i)"
-
-          [reactionsData]="message.reactionsData"
-
+          [reactionsData]="''"
           [raw]="message.raw">
-
         </app-message>
       </ng-container>
       <ng-template #adresatorTemplate>
@@ -58,7 +55,8 @@
     [message]="popUp.message"
     [backgroundColor]="popUp.backgroundColor"
     [textColor]="popUp.textColor"
-    [duration]="popUp.duration">
+    [duration]="popUp.duration"
+    >
   </app-pop-up>
 </div>
 

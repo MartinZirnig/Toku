@@ -14,17 +14,20 @@ import {
   sendButtonHoverBackground,
 } from '../../services/colors.service';
 import { EmojisPopUpComponent } from '../emojis-pop-up/emojis-pop-up.component';
-import { NgIf } from '@angular/common';
+import { NgIf, NgStyle } from '@angular/common';
 
 import { GroupService } from '../../data_managements/services/group-service.service';
 import { MainInputService } from '../../services/main-input.service';
 import { GroupReloadService } from '../../services/group-reload.service';
+import { EmojiPopupService } from '../../services/emoji-popup.service';
+import { FileFormComponent } from './file-form/file-form.component';
+import { FileUploadService } from '../../services/file-upload.service';
 
 @Component({
   selector: 'app-input-ui',
   templateUrl: './input-ui.component.html',
   styleUrls: ['./input-ui.component.scss'], 
-  imports: [EmojisPopUpComponent,NgIf]
+  imports: [EmojisPopUpComponent, NgIf, FileFormComponent, NgStyle]
 })
 export class InputUiComponent implements OnInit {
   @ViewChild('chatTextarea', { static: true }) textarea!: ElementRef<HTMLTextAreaElement>;
@@ -36,26 +39,40 @@ export class InputUiComponent implements OnInit {
   private mouseMoveListener!: () => void;
   private mouseUpListener!: () => void;
   private animationFrameId: number | null = null;
-  emojiPopupVisible = false; // Initially hidden
+
+  hasFiles = false;
+  isFileFormVisible = false;
 
   constructor(
     private renderer: Renderer2, 
     private service: MainInputService,
-    private reloader: GroupReloadService
+    private reloader: GroupReloadService,
+    public emojiPopupService: EmojiPopupService, // Inject EmojiPopupService
+    private fileUploadService: FileUploadService
   ) {
     // Close emoji popup when clicking outside
     this.renderer.listen('document', 'click', (event: Event) => {
       const target = event.target as HTMLElement;
       if (!target.closest('#emoji-button') && !target.closest('app-emoji')) {
-        this.emojiPopupVisible = false;
+        this.emojiPopupService.emojiPopupVisible = false;
       }
     });
+
+    this.fileUploadService.files$.subscribe(
+      (files) => (this.hasFiles = files.length > 0)
+    );
+    this.fileUploadService.isVisible$.subscribe(
+      (isVisible) => (this.isFileFormVisible = isVisible)
+    );
   }
 
   ngOnInit(): void {
     this.setupChatUI();
     this.checkScrollability();
     this.updateScrollThumbPosition();
+    this.emojiPopupService.openForInput(this.textarea.nativeElement); // Set input context
+    this.emojiPopupService.emojiPopupVisible = false;
+    this.emojiPopupService.emojiPopupVisible = false;
   }
 
   setupChatUI(): void {
@@ -208,13 +225,12 @@ export class InputUiComponent implements OnInit {
   }
 
   toggleEmojiPopup(): void {
-    this.emojiPopupVisible = !this.emojiPopupVisible;
+    console.log('Toggling emoji popup');
+    this.emojiPopupService.emojiPopupVisible = !this.emojiPopupService.emojiPopupVisible;
   }
 
   onEmojiSelected(emoji: string): void {
-    const textarea = this.textarea.nativeElement;
-    textarea.value += emoji;
-    this.emojiPopupVisible = false; // Close popup after selecting an emoji
+    this.emojiPopupService.insertEmoji(emoji);
   }
 
   send(): void {
@@ -224,7 +240,11 @@ export class InputUiComponent implements OnInit {
     this.textarea.nativeElement.value = '';
 
     setTimeout(() => {
-    this.reloader.groupReload();
+      this.reloader.groupReload();
     }, 1000);
+  }
+
+  toggleFileForm(): void {
+    this.fileUploadService.toggleVisibility();
   }
 }

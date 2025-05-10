@@ -4,6 +4,7 @@ import { MenuService } from '../../services/menu.service'; // Ensure the correct
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser'; // Import DomSanitizer
 import { NgModel, FormsModule } from '@angular/forms'; // Import FormsModule for two-way binding
 import { PopUpService } from '../../services/pop-up.service'; // Import the popup service
+import { EmojiPopupService } from '../../services/emoji-popup.service'; // Import EmojiPopupService
 
 import { ReactionCounterComponent} from '../reaction-counter/reaction-counter.component'; 
 import { EmojisPopUpComponent } from '../emojis-pop-up/emojis-pop-up.component';
@@ -52,7 +53,8 @@ Message_senderComponent implements OnInit {
     private sanitizer: DomSanitizer, 
     
     private msgCtrl: MessageControllService,
-    private popupService: PopUpService // Inject the popup service
+    private popupService: PopUpService, // Inject the popup service
+    private emojiPopupService: EmojiPopupService // Inject EmojiPopupService
   ) {} // Inject DomSanitizer
 
   private startX = 0; // Initial position
@@ -258,20 +260,11 @@ Message_senderComponent implements OnInit {
   }
 
   onReact(): void {
-    // Find the input-ui component
-    const inputUiComponent = document.querySelector('app-input-ui') as any;
-    if (inputUiComponent) {
-      // Open the emoji popup
-      inputUiComponent.emojiPopupVisible = true;
-
-      // Temporarily override the onEmojiSelected method to handle emoji selection for this message
-      const originalOnEmojiSelected = inputUiComponent.onEmojiSelected.bind(inputUiComponent);
-      inputUiComponent.onEmojiSelected = (emoji: string) => {
-        this.reactionsData += emoji; // Append the selected emoji to reactionsData
-        inputUiComponent.emojiPopupVisible = false; // Close the emoji popup
-        inputUiComponent.onEmojiSelected = originalOnEmojiSelected; // Restore the original method
-      };
-    }
+    
+    this.emojiPopupService.openForReaction((emoji: string) => {
+      this.reactionsData += emoji; // Append the selected emoji to reactionsData
+      console.log('Emoji added to reactionsData:', this.reactionsData);
+    });
   }
 
   copyToClipboard(): void {

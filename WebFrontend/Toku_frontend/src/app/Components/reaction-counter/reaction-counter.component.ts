@@ -16,7 +16,7 @@ import {
   imports: [NgIf,NgFor],
   styleUrls: ['./reaction-counter.component.scss'],
 })
-export class ReactionCounterComponent implements OnInit {
+export class ReactionCounterComponent implements OnInit, OnChanges {
   @Input() reactionsData!: string;
 
   @ViewChild('reactionsContainer') reactionsContainer!: ElementRef;
@@ -28,24 +28,25 @@ export class ReactionCounterComponent implements OnInit {
   mouseInPopup = false;
   reactionsvisible = false;
 
-  ngOnInit(): void {
-    
-    
-  
-    if (this.reactionsData === '' || this.reactionsData === undefined || this.reactionsData === null) {
-      this.reactionsvisible = false;
-      
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['reactionsData'] && changes['reactionsData'].currentValue !== undefined) {
+      const newReactionsData = changes['reactionsData'].currentValue;
+      if (newReactionsData === '' || newReactionsData === null) {
+        this.reactionsvisible = false;
+      } else {
+        this.reactionsvisible = true;
+        this.processReactions(newReactionsData);
+      }
     }
-    else {
+  }
+
+  ngOnInit(): void {
+    // Initial setup if needed
+    if (this.reactionsData) {
       this.reactionsvisible = true;
       this.processReactions(this.reactionsData);
     }
-    
-    
   }
-
- 
-
 
   processReactions(reactionsString: string): void {
     const emojis = Array.from(reactionsString);
@@ -72,7 +73,6 @@ export class ReactionCounterComponent implements OnInit {
   }
 
   onMouseEnter(event: MouseEvent): void {
-    
     if (this.allReactions.length > 3) {
       setTimeout(() => {
         this.showAllReactions = true;
@@ -88,27 +88,22 @@ export class ReactionCounterComponent implements OnInit {
 
   handleMouseLeave(): void {
     if (this.mouseInPopup) {
-    setTimeout(() => {
-      if (!this.mouseInPopup) {
-        this.showAllReactions = false;
-      }
-    }, 501);
-  }
+      setTimeout(() => {
+        if (!this.mouseInPopup) {
+          this.showAllReactions = false;
+        }
+      }, 501);
+    }
   }
 
   handleClick(event: MouseEvent): void {
     if (this.allReactions.length > 3) {
-      
-    this.showAllReactions = !this.showAllReactions;
-      
+      this.showAllReactions = !this.showAllReactions;
     }
-    
   }
 
   @HostListener('document:click', ['$event'])
   handleClickOutside(event: MouseEvent): void {
-    
-    
     if (
       this.reactionsContainer &&
       !this.reactionsContainer.nativeElement.contains(event.target) &&
@@ -119,14 +114,11 @@ export class ReactionCounterComponent implements OnInit {
     }
   }
 
-onPopupMouseEnter(): void {
-  this.mouseInPopup = true;
-  
-}
+  onPopupMouseEnter(): void {
+    this.mouseInPopup = true;
+  }
 
-onPopupMouseLeave(): void {
-  this.mouseInPopup = false;
-}
-
-  
+  onPopupMouseLeave(): void {
+    this.mouseInPopup = false;
+  }
 }

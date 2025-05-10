@@ -3,6 +3,7 @@ import { Component, ElementRef, Input, OnInit, ViewChild, HostListener } from '@
 import { MenuService } from '../../services/menu.service'; // Ensure the correct path to MenuService
 import { PopUpService } from '../../services/pop-up.service'; // Import the popup service
 import { ReactionCounterComponent } from '../reaction-counter/reaction-counter.component';
+import { EmojiPopupService } from '../../services/emoji-popup.service'; // Import EmojiPopupService
 
 @Component({
   selector: 'app-message-adresator',
@@ -24,7 +25,11 @@ export class MessageAdresatorComponent implements OnInit {
   menuVisible = false;
   isLongText = false;
 
-  constructor(private menuService: MenuService, private popupService: PopUpService) {} // Inject the popup service
+  constructor(
+    private menuService: MenuService,
+    private popupService: PopUpService,
+    private emojiPopupService: EmojiPopupService // Inject EmojiPopupService
+  ) {}
 
   ngOnInit(): void {
     console.log('Message initialized:', { text: this.text, image: this.image, time: this.time, previewText: this.previewText, hasFile: this.hasFile });
@@ -72,6 +77,13 @@ export class MessageAdresatorComponent implements OnInit {
         console.error('Failed to copy message to clipboard:', err);
       });
     }
+  }
+
+  onReact(): void {
+    this.emojiPopupService.openForReaction((emoji: string) => {
+      this.reactionsData += emoji; // Append the selected emoji to reactionsData
+      console.log('Emoji added to reactionsData:', emoji);
+    });
   }
 
   @HostListener('document:click', ['$event'])
