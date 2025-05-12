@@ -42,6 +42,7 @@ export class InputUiComponent implements OnInit {
 
   hasFiles = false;
   isFileFormVisible = false;
+  totalFileSize = '';
 
   constructor(
     private renderer: Renderer2, 
@@ -58,9 +59,20 @@ export class InputUiComponent implements OnInit {
       }
     });
 
-    this.fileUploadService.files$.subscribe(
-      (files) => (this.hasFiles = files.length > 0)
-    );
+    this.fileUploadService.files$.subscribe((files) => {
+      this.hasFiles = files.length > 0;
+      const totalSizeInBytes = files.reduce((sum, file) => sum + file.size, 0);
+
+      if (totalSizeInBytes < 1024) {
+        this.totalFileSize = `${totalSizeInBytes} B`;
+      } else if (totalSizeInBytes < 1024 * 1024) {
+        this.totalFileSize = `${(totalSizeInBytes / 1024).toFixed(2)} KB`;
+      } else if (totalSizeInBytes < 1024 * 1024 * 1024) {
+        this.totalFileSize = `${(totalSizeInBytes / (1024 * 1024)).toFixed(2)} MB`;
+      } else {
+        this.totalFileSize = `${(totalSizeInBytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+      }
+    });
     this.fileUploadService.isVisible$.subscribe(
       (isVisible) => (this.isFileFormVisible = isVisible)
     );
