@@ -64,3 +64,4 @@
 <app-menu-ui></app-menu-ui>
 <router-outlet></router-outlet>
 
+<app-file-download *ngIf="showFileDownloadPopup" (close)="fileDownloadPopupService.close()"></app-file-download>

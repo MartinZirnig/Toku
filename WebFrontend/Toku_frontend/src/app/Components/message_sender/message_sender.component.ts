@@ -5,6 +5,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser'; // Import Do
 import { NgModel, FormsModule } from '@angular/forms'; // Import FormsModule for two-way binding
 import { PopUpService } from '../../services/pop-up.service'; // Import the popup service
 import { EmojiPopupService } from '../../services/emoji-popup.service'; // Import EmojiPopupService
+import { FileDownloadPopupService } from '../../services/file-download-popup.service';
 
 import { ReactionCounterComponent} from '../reaction-counter/reaction-counter.component'; 
 import { EmojisPopUpComponent } from '../emojis-pop-up/emojis-pop-up.component';
@@ -35,6 +36,9 @@ Message_senderComponent implements OnInit {
 
   @Input() declare raw: StoredMessageModel;
 
+  @Input() fileCount: number = 0; // Number of files
+  @Input() fileTotalSize: number = 0; // Total size in bytes
+
 
   @ViewChild('menuTrigger') menuTrigger!: ElementRef;
   @ViewChild('messageContainer') messageContainer!: ElementRef;
@@ -54,7 +58,8 @@ Message_senderComponent implements OnInit {
     
     private msgCtrl: MessageControllService,
     private popupService: PopUpService, // Inject the popup service
-    private emojiPopupService: EmojiPopupService // Inject EmojiPopupService
+    private emojiPopupService: EmojiPopupService, // Inject EmojiPopupService
+    private fileDownloadPopupService: FileDownloadPopupService // Inject new service
   ) {} // Inject DomSanitizer
 
   private startX = 0; // Initial position
@@ -276,6 +281,18 @@ Message_senderComponent implements OnInit {
         console.error('Failed to copy message to clipboard:', err);
       });
     }
+  }
+
+  onFilesPreviewClick(): void {
+    this.fileDownloadPopupService.open();
+  }
+
+  formatFileSize(bytes: number): string {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
   
 }

@@ -23,6 +23,8 @@ import { PopUpService } from '../../services/pop-up.service';
 import { Redirecter } from '../../data_managements/redirecter.service';
 import { Cache } from '../../data_managements/cache';
 import { User } from '../../data_managements/user';
+import { FileDownloadComponent } from '../../Components/file-download/file-download.component';
+import { FileDownloadPopupService } from '../../services/file-download-popup.service';
 
 @Component({
   selector: 'app-main-page',
@@ -38,7 +40,8 @@ import { User } from '../../data_managements/user';
     NgIf,
     DummyMessageAdresatorComponent,
     DummyMessageSenderComponent,
-    PopUpComponent
+    PopUpComponent,
+    FileDownloadComponent
 ],
   templateUrl: './main-page.component.html',
   styleUrls: ['./main-page.component.scss']
@@ -50,6 +53,7 @@ export class MainPageComponent implements OnInit {
   public dummyVisible: boolean = true;
   public popUps: Array<{ message: string; backgroundColor: string; textColor: string; id: number; duration: number }> = [];
   private popUpIdCounter: number = 0;
+  showFileDownloadPopup = false;
 
 constructor(
   private route: ActivatedRoute,
@@ -58,7 +62,8 @@ constructor(
   private sendService: MainInputService,
   private ngZone: NgZone,
   private popUpService: PopUpService,
-  private redirecter: Redirecter
+  private redirecter: Redirecter,
+  public fileDownloadPopupService: FileDownloadPopupService
 ) {}
 
 ngOnInit(): void {
@@ -97,6 +102,10 @@ ngOnInit(): void {
         console.log('MainPageComponent: Received pop-up data:', { message, duration, backgroundColor, textColor });
         this.addPopUp(message, duration, backgroundColor, textColor);
       }
+    });
+
+    this.fileDownloadPopupService.visible$.subscribe(visible => {
+      this.showFileDownloadPopup = visible;
     });
   }
   

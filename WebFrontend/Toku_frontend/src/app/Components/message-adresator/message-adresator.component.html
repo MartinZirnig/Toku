@@ -10,6 +10,16 @@
         </svg>
         <span>{{ previewText }}</span>
       </div>
+      <!-- Preview of files -->
+      <div *ngIf="fileCount > 0" 
+           class="bg-blue-900 text-blue-100 text-sm rounded-lg p-3 shadow-md flex items-center space-x-2 mb-2 cursor-pointer"
+           (click)="onFilesPreviewClick()">
+        <svg class="h-5 w-5 text-blue-300" fill="none" viewBox="0 0 24 24">
+          <path stroke="currentColor" stroke-width="2" d="M4 4h16v16H4z"/>
+          <path stroke="currentColor" stroke-width="2" d="M8 8h8v8H8z"/>
+        </svg>
+        <span>{{ fileCount }} dokument{{ fileCount === 1 ? '' : 'ů' }} ({{ formatFileSize(fileTotalSize) }})</span>
+      </div>
       <!-- Message content -->
       <div class="p-4 rounded-lg shadow-md relative backdrop-blur-md bg-white/80 text-gray-800 break-words" [ngClass]="{'long-text': isLongText}">
         <!-- Image content -->

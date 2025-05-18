@@ -4,6 +4,7 @@ import { MenuService } from '../../services/menu.service'; // Ensure the correct
 import { PopUpService } from '../../services/pop-up.service'; // Import the popup service
 import { ReactionCounterComponent } from '../reaction-counter/reaction-counter.component';
 import { EmojiPopupService } from '../../services/emoji-popup.service'; // Import EmojiPopupService
+import { FileDownloadPopupService } from '../../services/file-download-popup.service'; // Import new service
 
 @Component({
   selector: 'app-message-adresator',
@@ -19,6 +20,8 @@ export class MessageAdresatorComponent implements OnInit {
   @Input() hasFile: boolean = false; // New input to indicate if the previous message has a file
   @Input() onDeleteMessage!: () => void; // Callback to notify parent component about deletion
   @Input() reactionsData!: string; // Input for reaction data
+  @Input() fileCount: number = 0;
+  @Input() fileTotalSize: number = 0;
 
   @ViewChild('menuTrigger', { static: false }) menuTrigger!: ElementRef;
 
@@ -28,7 +31,8 @@ export class MessageAdresatorComponent implements OnInit {
   constructor(
     private menuService: MenuService,
     private popupService: PopUpService,
-    private emojiPopupService: EmojiPopupService // Inject EmojiPopupService
+    private emojiPopupService: EmojiPopupService, // Inject EmojiPopupService
+    private fileDownloadPopupService: FileDownloadPopupService // Inject new service
   ) {}
 
   ngOnInit(): void {
@@ -84,6 +88,18 @@ export class MessageAdresatorComponent implements OnInit {
       this.reactionsData += emoji; // Append the selected emoji to reactionsData
       console.log('Emoji added to reactionsData:', emoji);
     });
+  }
+
+  onFilesPreviewClick(): void {
+    this.fileDownloadPopupService.open();
+  }
+
+  formatFileSize(bytes: number): string {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 
   @HostListener('document:click', ['$event'])
