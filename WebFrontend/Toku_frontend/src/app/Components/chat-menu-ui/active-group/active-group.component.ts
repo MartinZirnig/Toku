@@ -17,6 +17,7 @@ export class ActiveGroupComponent {
   declare public time: string;
   
   @Input() data: any;
+  @Input() active: boolean = false;
   ngOnChanges() {
     if (this.data) {
       this.load(this.data);

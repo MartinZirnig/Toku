@@ -7,6 +7,7 @@ import { User } from '../../data_managements/user';
 import { Redirecter } from '../../data_managements/redirecter.service';
 import { UserControlService } from '../../data_managements/control-services/user-control-service.service';
 import { UserDataModel } from '../../data_managements/models/user-data-model';
+import { PopUpService } from '../../services/pop-up.service';
 
 @Component({
   selector: 'app-user-settings',
@@ -21,6 +22,11 @@ export class UserSettingsComponent {
   userEmail: string = User.Email;
   userAccountInfo: string = 'Ativní od ' + User.Active;
 
+  // Store original values for cancel
+  private originalName: string = User.Name;
+  private originalPhone: string = User.Phone;
+  private originalEmail: string = User.Email;
+
   isEditingName: boolean = false;
   isEditingPhone: boolean = false;
   isEditingEmail: boolean = false;
@@ -31,16 +37,24 @@ export class UserSettingsComponent {
     email: 30,
   };
 
+  selectedTab: 'user' | 'general' = 'user';
+
+  invalidEmail: boolean = false;
+  invalidPhone: boolean = false;
+
   constructor(
     private redirecter: Redirecter, 
     private sanitizer: DomSanitizer,
     private usrCtrl: UserControlService,
+    private popupService: PopUpService // <-- přidej popupService
   ) {}
 
   ngOnInit() {
     document.body.style.overflow = 'hidden'; // Disable scrolling
-
-
+    // Store original values on open
+    this.originalName = this.userName;
+    this.originalPhone = this.userPhone;
+    this.originalEmail = this.userEmail;
   }
 
   ngOnDestroy() {
@@ -51,7 +65,37 @@ export class UserSettingsComponent {
     this.updateCharacterLimits(); // Initial calculation
   }
 
+  // saveAndReturn() => uloží změny a zavře
   saveAndReturn(): void {
+    this.invalidEmail = false;
+    this.invalidPhone = false;
+
+    // Email validace
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Telefon validace (povolí čísla, mezery, +, -, min. 6 číslic)
+    const phoneRegex = /^[\d\s+\-()]{6,}$/;
+
+    let hasError = false;
+
+    if (!emailRegex.test(this.userEmail)) {
+      this.invalidEmail = true;
+      hasError = true;
+    }
+    if (!phoneRegex.test(this.userPhone)) {
+      this.invalidPhone = true;
+      hasError = true;
+    }
+
+    if (hasError) {
+      this.popupService.showMessage(
+        'Zkontrolujte správnost emailu a telefonu',
+        2000,
+        '#dc2626', // Tailwind red-600
+        '#fff'
+      );
+      return;
+    }
+
     this.usrCtrl.updateUserData(this.userName, this.userEmail, this.userPhone)
     .subscribe({
       next: response => {
@@ -70,10 +114,20 @@ export class UserSettingsComponent {
     this.redirecter.LastGroup();
   }
 
+  // closeWithoutSave() => zavře bez uložení a obnoví původní hodnoty
+  // Close settings without saving changes
+  closeWithoutSave(): void {
+    // Restore original values
+    this.userName = this.originalName;
+    this.userPhone = this.originalPhone;
+    this.userEmail = this.originalEmail;
+    this.redirecter.LastGroup();
+  }
+
   @HostListener('document:keydown', ['$event'])
   onKeydown(event: KeyboardEvent) {
     if (event.key === 'Escape') {
-      this.saveAndReturn();
+      this.closeWithoutSave();
     } else if (event.key === 'Enter') {
       if (this.isEditingName) {
         this.confirmEdit('name');
@@ -129,7 +183,6 @@ export class UserSettingsComponent {
         }
       } else if (field === 'email') {
         if (this.isEditingEmail) {
-          alert('Email is not valid!'); // Alert if email is invalid
           this.confirmEdit('email'); // Close edit if already active
         } else {
           this.isEditingEmail = true;

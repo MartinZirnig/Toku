@@ -17,7 +17,7 @@
   @keyframes fadeInSlide {
     from {
       opacity: 0;
-      transform: translateY(-100px);
+      transform: translateY(-1000px);
     }
     to {
       opacity: 1;
@@ -32,7 +32,7 @@
     }
     to {
       opacity: 0;
-      transform: translateY(-100px);
+      transform: translateY(-1000px);
     }
   }
   
@@ -53,14 +53,14 @@
     right: 0;
   }
   to {
-    width: calc(100vw - 338px); /* Shrink by 350px */
+    width: calc(100vw - 400px); /* Shrink by 350px */
     right: 0;
   }
 }
 
 @keyframes fadeOutSlideLeft {
   from {
-    width: calc(100vw - 375px); /* Start at 350px less than full width */
+    width: calc(100vw - 400px); /* Start at 350px less than full width */
     right: 0;
   }
   to {
@@ -68,4 +68,6 @@
     right: 0;
   }
 }
+
+
 

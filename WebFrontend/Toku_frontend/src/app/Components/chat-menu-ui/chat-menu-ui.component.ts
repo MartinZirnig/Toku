@@ -9,17 +9,21 @@ import { GroupReloadService } from '../../services/group-reload.service';
 import { NavigationService } from '../../services/navigation.service';
 import { Redirecter } from '../../data_managements/redirecter.service';
 import { User } from '../../data_managements/user';
+import { FormsModule } from '@angular/forms';
 
 
 
 @Component({
   selector: 'app-chat-menu-ui',
   templateUrl: './chat-menu-ui.component.html',
-  imports: [CommonModule, NgIf, ActiveGroupComponent], // Ensure CommonModule is imported
+  imports: [CommonModule, NgIf, FormsModule, ActiveGroupComponent],
   styleUrl: './chat-menu-ui.component.scss'
 })
 export class ChatMenuUiComponent {
-  declare public items: [AvailableGroupsModel];
+  items: AvailableGroupsModel[] = []; // <-- oprav deklaraci na pole
+  filteredItems: AvailableGroupsModel[] = [];
+  search: string = '';
+  activeGroupId: string | number | null = null;
   @ViewChild('chatMenuContainer') chatMenuContainer!: ElementRef;
   private scrollPosition = 0;
 
@@ -28,14 +32,15 @@ export class ChatMenuUiComponent {
     public activeMenuService: ActiveGroupMenuService,
     public loader: GroupsLoaderService,
     public reloader: GroupReloadService,
-    private cdr: ChangeDetectorRef, // Inject ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
     public navigationService: NavigationService,
     private redirecter: Redirecter,
   ) {
     reloader.groupReload = this.reload.bind(this);
   }
 
-  appenfGroup(){
+  // Oprava názvu metody na appendGroup (správně)
+  appendGroup() {
     this.redirecter.AddGroup();
   }
 
@@ -96,15 +101,28 @@ export class ChatMenuUiComponent {
     request.subscribe({
       next: response => {
         console.log(response)
-        this.items = response;
-
-        User.Groups = response
-          .map(group => String(group.groupId));
+        this.items = response || [];
+        this.filteredItems = this.items; // vždy nastav i filteredItems
+        User.Groups = this.items.map(group => String(group.groupId));
       },
       error: err => {
         console.error('cannot load groups', err)
+        this.items = [];
+        this.filteredItems = [];
       }
     });
+  }
+
+  onSearch(): void {
+    const term = this.search.trim().toLowerCase();
+    if (!term) {
+      this.filteredItems = this.items;
+    } else {
+      this.filteredItems = this.items.filter(g =>
+        g.groupName?.toLowerCase().includes(term) ||
+        g.lastDecryptedMessage?.toLowerCase().includes(term)
+      );
+    }
   }
 
   public onEditClick(): void {
