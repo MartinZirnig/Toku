@@ -1,55 +1,76 @@
-<div class="fixed inset-0 flex items-center justify-center bg-transparent z-1000">
-  <div class="bg-white/60 backdrop-blur-lg p-8 rounded-lg shadow-lg w-full w-xs">
-    <input
-      type="text"
-      placeholder="Search users..."
-      class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 mb-4"
-      (input)="search($event)"
-    />
-    <ul class="mb-4 max-h-48 overflow-y-auto border rounded-md">
+<div class="fixed inset-0 flex items-center justify-center bg-black/40 z-1000">
+  <div class="bg-gray-900/95 backdrop-blur-lg p-8 rounded-2xl shadow-2xl w-full max-w-md relative border border-gray-700">
+    <!-- Close button -->
+    <button
+      class="absolute top-4 right-4 p-2 rounded-full bg-gray-700 hover:bg-gray-600 text-white transition"
+      (click)="closeFinder.emit()"
+      title="Close"
+      type="button"
+    >
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </button>
+    <!-- Header -->
+    <h2 class="text-xl font-bold text-white mb-6 text-center tracking-wide">Add Users to Group</h2>
+    <!-- Search -->
+    <div class="mb-4">
+      <input
+        type="text"
+        placeholder="Search users..."
+        class="w-full px-4 py-2 rounded-lg bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+        (input)="search($event)"
+      />
+    </div>
+    <!-- User List -->
+    <ul class="mb-4 max-h-56 overflow-y-auto rounded-lg bg-gray-800 border border-gray-700 divide-y divide-gray-700 shadow-inner">
       <li
         *ngFor="let user of filteredUsers"
-        class="py-2 px-3 border-b hover:bg-gray-100 cursor-pointer flex justify-between items-center"
+        class="flex items-center justify-between px-4 py-2 hover:bg-gray-700 transition cursor-pointer"
       >
-        {{ user }}
+        <span class="text-white font-medium truncate">{{ user }}</span>
         <button
-          class="text-sm text-white bg-blue-500 px-2 py-1 rounded hover:bg-blue-600"
+          class="ml-2 px-3 py-1 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow transition"
           (click)="addUser(user)"
+          type="button"
         >
           Add
         </button>
       </li>
     </ul>
-    <div *ngIf="selectedUsers.length > 0" class="mt-4 max-h-12 scroll-hidden rounded-md">
-      <div class="flex gap-2 flex-wrap">
-        <button
-          *ngFor="let user of selectedUsers"
-          class="relative text-sm text-gray-800 bg-gray-200 px-3 py-2 rounded-full hover:bg-red-500 hover:text-red-500 transition-all duration-300 group"
-          (click)="removeUser(user)"
-          [title]="user"
-        >
-          {{ getInitials(user) }}
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="absolute inset-0 w-6 h-6 m-auto text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-          >
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
+    <!-- Selected Users -->
+    <div class="mb-4 max-h-20 overflow-y-auto px-2 py-1">
+      <div class="flex flex-wrap gap-2">
+        <span class="text-gray-400 text-xs font-semibold w-full">Selected:</span>
+        <ng-container *ngIf="selectedUsers.length > 0; else noSelected">
+          <ng-container *ngFor="let user of selectedUsers">
+            <span class="flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-800 font-semibold text-xs relative group max-w-[160px] truncate">
+              <span class="truncate max-w-[120px] text-gray-700">{{ user.name }}</span>
+              <button
+                class="ml-2 p-1 rounded-full bg-red-500 hover:bg-red-600 text-white transition-opacity opacity-80 hover:opacity-100"
+                (click)="removeUser(user)"
+                title="Remove"
+                type="button"
+              >
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </button>
+            </span>
+          </ng-container>
+        </ng-container>
+        <ng-template #noSelected>
+          <span class="text-gray-400 text-xs italic">No users selected</span>
+        </ng-template>
       </div>
     </div>
+    <!-- Submit Button -->
     <button
-      class="mt-4 w-full py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-all duration-300"
+      class="w-full py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-bold text-base shadow-lg mt-2 transition"
       (click)="submitUsers()"
+      type="button"
     >
-      Submit Users
+      Add Selected Users
     </button>
   </div>
 </div>

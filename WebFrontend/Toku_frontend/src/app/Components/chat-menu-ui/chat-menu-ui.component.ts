@@ -61,18 +61,45 @@ export class ChatMenuUiComponent {
   ngAfterViewInit() {
     if (this.chatMenuContainer) {
       this.chatMenuContainer.nativeElement.addEventListener('scroll', this.onScroll.bind(this));
+      this.chatMenuContainer.nativeElement.addEventListener('mouseenter', this.onScrollbarHover.bind(this));
+      this.chatMenuContainer.nativeElement.addEventListener('mouseleave', this.onScrollbarLeave.bind(this));
     }
   }
 
   ngOnDestroy() {
     if (this.chatMenuContainer) {
       this.chatMenuContainer.nativeElement.removeEventListener('scroll', this.onScroll.bind(this));
+      this.chatMenuContainer.nativeElement.removeEventListener('mouseenter', this.onScrollbarHover.bind(this));
+      this.chatMenuContainer.nativeElement.removeEventListener('mouseleave', this.onScrollbarLeave.bind(this));
     }
   }
+
+  private scrollTimeout: any = null;
 
   private onScroll(): void {
     if (this.chatMenuContainer) {
       this.scrollPosition = this.chatMenuContainer.nativeElement.scrollTop;
+      this.showScrollbar();
+    }
+  }
+
+  private onScrollbarHover(): void {
+    this.showScrollbar();
+  }
+
+  private onScrollbarLeave(): void {
+    if (this.chatMenuContainer) {
+      this.chatMenuContainer.nativeElement.classList.remove('show-scrollbar');
+    }
+  }
+
+  private showScrollbar(): void {
+    if (this.chatMenuContainer) {
+      this.chatMenuContainer.nativeElement.classList.add('show-scrollbar');
+      if (this.scrollTimeout) clearTimeout(this.scrollTimeout);
+      this.scrollTimeout = setTimeout(() => {
+        this.chatMenuContainer.nativeElement.classList.remove('show-scrollbar');
+      }, 1000);
     }
   }
 
@@ -133,5 +160,15 @@ export class ChatMenuUiComponent {
     if (!this.activeMenuService.inEditMode) {
       alert(`Clicked on chat: ${chatName}`);
     }
+  }
+
+  onGroupMenuClick(item: AvailableGroupsModel, event: MouseEvent) {
+    event.stopPropagation();
+    // Zde otevřete menu, dialog, nebo proveďte další akce
+    console.log('Menu pro skupinu:', item);
+  }
+
+  public setActiveGroup(groupId: string | number) {
+    this.activeGroupId = groupId;
   }
 }

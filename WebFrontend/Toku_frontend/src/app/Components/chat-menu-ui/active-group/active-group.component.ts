@@ -54,4 +54,10 @@ export class ActiveGroupComponent {
   editClicked() {
     this.redirecter.GroupSettings(this.data.groupId);
   }
+
+  onMenuClick(event: MouseEvent) {
+    event.stopPropagation();
+    // Zde otevřete menu, dialog, nebo proveďte další akce pro tuto skupinu
+    console.log('Menu pro skupinu:', this.data);
+  }
 }

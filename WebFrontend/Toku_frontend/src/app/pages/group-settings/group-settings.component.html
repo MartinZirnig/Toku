@@ -1,142 +1,201 @@
-<div class="fixed left-0 top-0 right-0 bottom-0 w-full h-screen z-1000">
-    <div class="absolute left-5 top-5 right-5 bottom-5 bg-gray-950/60 p-8 rounded-lg z-1001 group-settings-container overflow-y-auto">
-        <!-- Close Button -->
-        <div class="flex justify-end items-center space-x-4">
-            <span class="text-white text-sm opacity-50">Esc</span>
-            <button class="w-15 h-15 flex items-center justify-center bg-gray-500 text-black rounded-full hover:bg-gray-600 cursor-pointer" (click)="fynishEdit()">
-                <svg class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M6 18L18 6M6 6l12 12" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<div class="fixed inset-0 z-5000 flex bg-gray-900">
+  <!-- Esc button in the top right corner -->
+  <button
+    class="absolute top-6 right-8 z-50 flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white"
+    (click)="fynishEdit()"
+  >
+    <span class="opacity-60 text-xs">Esc</span>
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+  <!-- Sidebar: Tabs -->
+  <aside class="w-72 bg-gray-800 border-r border-gray-700 flex flex-col py-8 px-4">
+    <h2 class="text-gray-300 text-lg font-bold mb-8 pl-2">Group Settings</h2>
+    <nav class="flex-1">
+      <ul class="space-y-1">
+        <li>
+          <button type="button"
+            class="w-full text-left flex items-center px-3 py-2 rounded-lg transition font-semibold"
+            [ngClass]="selectedTab === 'general' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white'"
+            (click)="selectedTabSafe = 'general'">
+            <span class="material-icons text-base mr-2 opacity-80">settings</span>
+            General
+          </button>
+        </li>
+        <li>
+          <button type="button"
+            class="w-full text-left flex items-center px-3 py-2 rounded-lg transition font-semibold"
+            [ngClass]="selectedTab === 'members' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white'"
+            (click)="selectedTabSafe = 'members'">
+            <span class="material-icons text-base mr-2 opacity-80">group_add</span>
+            Members
+          </button>
+        </li>
+        <li>
+          <button type="button"
+            class="w-full text-left flex items-center px-3 py-2 rounded-lg transition font-semibold"
+            [ngClass]="selectedTab === 'permissions' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white'"
+            (click)="selectedTabSafe = 'permissions'">
+            <span class="material-icons text-base mr-2 opacity-80">vpn_key</span>
+            Permissions
+          </button>
+        </li>
+        <li>
+          <button type="button"
+            class="w-full text-left flex items-center px-3 py-2 rounded-lg transition font-semibold"
+            [ngClass]="selectedTab === 'log' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white'"
+            (click)="selectedTabSafe = 'log'">
+            <span class="material-icons text-base mr-2 opacity-80">history</span>
+            Log
+          </button>
+        </li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Main content -->
+  <main class="flex-1 mt-20 p-5 flex items-start justify-center">
+    <div class="w-full max-w-2xl bg-gray-800 rounded-2xl shadow-xl p-10 relative">
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <h2 class="text-2xl font-bold text-white mb-1">
+            Group settings
+          </h2>
+          <p class="text-gray-400 text-sm">
+            Manage group info and member permissions
+          </p>
+        </div>
+      </div>
+
+      <!-- General Tab -->
+      <div *ngIf="selectedTab === 'general'" class="space-y-8">
+        <!-- Group Name -->
+        <div>
+          <label class="block text-gray-300 text-sm mb-1">Group name</label>
+          <div class="flex items-center bg-gray-700 rounded-lg px-4 py-3">
+            <span *ngIf="!isEditingName" class="flex-1 text-white font-medium" [innerHTML]="getTruncatedTextWithGradient(groupName, 20, true)"></span>
+            <input *ngIf="isEditingName" [(ngModel)]="groupName"
+              class="flex-1 bg-transparent text-white border-none outline-none"
+              (keydown.enter)="confirmEdit('name')" />
+            <button class="ml-3 p-2 rounded-full hover:bg-gray-600 focus:outline-none cursor-pointer"
+              [ngClass]="{'bg-blue-500': isEditingName}"
+              (click)="toggleEdit('name')">
+              <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+                <path d="M18 2L22 6M2 22L3.2764 17.3199C3.35968 17.0145 3.40131 16.8619 3.46523 16.7195C3.52199 16.5931 3.59172 16.4729 3.67332 16.3609C3.76521 16.2348 3.87711 16.1229 4.1009 15.8991L14.4343 5.56569C14.6323 5.36768 14.7313 5.26867 14.8455 5.23158C14.9459 5.19895 15.0541 5.19895 15.1545 5.23158C15.2687 5.26867 15.3677 5.36768 15.5657 5.56569L18.4343 8.43431C18.6323 8.63232 18.7313 8.73133 18.7684 8.84549C18.8011 8.94591 18.8011 9.05409 18.7684 9.15451C18.7313 9.26867 18.6323 9.36768 18.4343 9.56569L8.1009 19.8991C7.87711 20.1229 7.76521 20.2348 7.63908 20.3267C7.52709 20.4083 7.40692 20.478 7.28052 20.5348C7.13815 20.5987 6.98548 20.6403 6.68014 20.7236L2 22Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <!-- Description -->
+        <div>
+          <label class="block text-gray-300 text-sm mb-1">Description</label>
+          <input type="text" [(ngModel)]="groupDescription"
+            class="w-full bg-gray-700 rounded-lg px-4 py-3 text-white border-none outline-none"
+            placeholder="Popis skupiny" />
+        </div>
+        <!-- Password -->
+        <div>
+          <label class="block text-gray-300 text-sm mb-1">Password</label>
+          <input type="password" [(ngModel)]="groupPassword"
+            class="w-full bg-gray-700 rounded-lg px-4 py-3 text-white border-none outline-none"
+            placeholder="Heslo skupiny" />
+        </div>
+      </div>
+
+      <!-- Members Tab -->
+      <div *ngIf="selectedTab === 'members'" class="space-y-8">
+        <div>
+          <label class="block text-gray-300 text-sm mb-1">Members</label>
+          <div class="rounded-lg bg-gray-700 p-4">
+            <div class="flex flex-wrap gap-4">
+              <div *ngFor="let member of groupMembers"
+                class="flex items-center gap-2 bg-gray-600 rounded-lg px-4 py-2 text-white cursor-pointer max-w-xs"
+                [ngClass]="selectedMember === member ? 'ring-2 ring-blue-500' : ''"
+                style="min-width: 0;">
+                <svg class="w-6 h-6 text-white bg-gray-700 rounded-full p-1" viewBox="0 0 24 24">
+                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                 </svg>
-            </button>
-        </div>
-
-        <!-- Header -->
-        <div class="header flex items-center space-x-4 mb-6">
-            <!-- Group Picture -->
-            <div class="group-picture w-50 h-50 rounded-full overflow-hidden flex items-center justify-center bg-gray-700">
-                <svg class="w-40 h-40 text-white" viewBox="0 0 24 24">
-                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                <span class="truncate max-w-[120px] flex-1" title="{{ member.name }}">{{ member.name }}</span>
+                <button class="p-2 rounded-full hover:bg-red-500 transition" (click)="removeMember(member); $event.stopPropagation()">
+                  <svg class="w-4 h-4 text-red-400" fill="none" viewBox="0 0 24 24">
+                    <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+              <!-- OPRAVA: Zajistěte, že tlačítko není disabled a není překryté -->
+              <button
+                type="button"
+                class="flex items-center justify-center px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition z-10"
+                (click)="toggleUserFinder(); $event.stopPropagation();"
+                style="position:relative;"
+              >
+                <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v14m7-7H5"/>
                 </svg>
+                Add member
+              </button>
             </div>
-            <!-- Group Name -->
-            <div class="flex-1">
-                <h1 class="underline text-white group-name text-4xl font-semibold flex items-center">
-                    <span *ngIf="!isEditingName" [innerHTML]="getTruncatedTextWithGradient(groupName, 20, true)"></span>
-                    <input *ngIf="isEditingName" [(ngModel)]="groupName" 
-                           class="bg-transparent text-white border-none outline-none w-full"
-                           placeholder="Název skupiny"
-                           (keydown.enter)="confirmEdit('name')" />
-                    <button class="ml-3 p-2 rounded-full hover:bg-gray-600 focus:outline-none cursor-pointer" 
-                            [ngClass]="{'bg-blue-500': isEditingName}" 
-                            (click)="toggleEdit('name')">
-                        <svg class="w-6 h-6 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-                            <path d="M18 2L22 6M2 22L3.2764 17.3199C3.35968 17.0145 3.40131 16.8619 3.46523 16.7195C3.52199 16.5931 3.59172 16.4729 3.67332 16.3609C3.76521 16.2348 3.87711 16.1229 4.1009 15.8991L14.4343 5.56569C14.6323 5.36768 14.7313 5.26867 14.8455 5.23158C14.9459 5.19895 15.0541 5.19895 15.1545 5.23158C15.2687 5.26867 15.3677 5.36768 15.5657 5.56569L18.4343 8.43431C18.6323 8.63232 18.7313 8.73133 18.7684 8.84549C18.8011 8.94591 18.8011 9.05409 18.7684 9.15451C18.7313 9.26867 18.6323 9.36768 18.4343 9.56569L8.1009 19.8991C7.87711 20.1229 7.76521 20.2348 7.63908 20.3267C7.52709 20.4083 7.40692 20.478 7.28052 20.5348C7.13815 20.5987 6.98548 20.6403 6.68014 20.7236L2 22Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-                        </svg>
-                    </button>
-                </h1>
-            </div>
+          </div>
         </div>
+      </div>
 
-        <!-- Group Members and Permissions -->
-        <div class="rounded-lg bg-gray-600 p-6 flex flex-wrap md:flex-nowrap h-100 justify-between">
-            <!-- User List -->
-            <div class="rounded-lg bg-gray-500 p-4 flex-1 md:mr-4">
-                <div class="grid grid-cols-[repeat(auto-fit,97px)] gap-4 max-h-64 w-full overflow-y-auto">
-                    <div *ngFor="let member of groupMembers" 
-                         class="member-item flex flex-col items-center justify-center bg-gray-400 p-2 text-sm border border-black rounded-lg cursor-pointer w-[100px] h-[100px]"
-                         [class.bg-blue-500]="selectedMember === member" 
-                         (click)="selectMember(member)"
-                         (swipeup)="removeMember(member)">
-                        <svg class="w-8 h-8 text-black mb-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                        </svg>
-                        <span class="text-center" [innerHTML]="getTruncatedTextWithGradient(member.name, 10)"></span>
-                        <button class="mt-2 p-2 rounded-full hover:bg-red-500 focus:outline-none cursor-pointer" (click)="removeMember(member)">
-                            <svg class="w-4 h-4 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-                                <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="flex justify-center items-center bg-gray-400 rounded-lg cursor-pointer hover:bg-gray-500 w-[100px] h-[100px]" (click)="toggleUserFinder()">
-                        <svg class="w-8 h-8 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-                            <path d="M12 5v14m7-7H5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                    </div>
-                </div>
+      <!-- Permissions Tab -->
+      <div *ngIf="selectedTab === 'permissions'" class="space-y-8">
+        <div>
+          <label class="block text-gray-300 text-sm mb-1">Permissions for member</label>
+          <div class="bg-gray-700 rounded-lg px-4 py-3">
+            <div class="flex flex-wrap gap-2 mb-4">
+              <div *ngFor="let member of groupMembers"
+                class="flex items-center gap-2 bg-gray-600 rounded-lg px-3 py-1 text-white cursor-pointer max-w-xs"
+                [ngClass]="selectedMember === member ? 'ring-2 ring-blue-500' : ''"
+                (click)="selectMember(member)"
+                style="min-width: 0;">
+                <svg class="w-5 h-5 text-white bg-gray-700 rounded-full p-1" viewBox="0 0 24 24">
+                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+                <span class="truncate max-w-[80px] flex-1" title="{{ member.name }}">{{ member.name }}</span>
+              </div>
             </div>
-
-            <!-- User Permissions -->
-            <div class="w-full md:w-2/5 bg-gray-500 p-4 rounded-lg flex flex-col items-center mt-6 md:mt-0 md:ml-4">
-                <div class="w-16 h-16 rounded-full bg-gray-700 mb-4 overflow-hidden flex items-center justify-center">
-                    <svg
-                        *ngIf="selectedMember; else noUserIcon"
-                        class="w-12 h-12 text-white"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
-                        />
-                    </svg>
-                    <ng-template #noUserIcon>
-                        <svg
-                            class="w-12 h-12 text-gray-400"
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
-                            />
-                        </svg>
-                    </ng-template>
-                </div>
-                <div
-                    class="text-white text-lg font-semibold mb-4 w-full text-center border border-gray-400 rounded-md p-2 permissions-name-container"
-                >
-                    {{ selectedMember?.name || 'Vyberte uživatele' }}
-                </div>
-                <form
-                    [formGroup]="permissionsForm"
-                    class="w-full bg-gray-300 p-4 rounded-lg max-h-48 overflow-y-auto"
-                >
-                    <label
-                        *ngFor="let permission of permissions"
-                        class="flex items-center justify-between border-b border-gray-400 py-2"
-                    >
-                        <span>{{ permission }}</span>
-                        <input
-                            type="checkbox"
-                            [formControlName]="permission"
-                            [disabled]="!selectedMember"
-                            (change)="updatePermissions()"
-                        />
-                    </label>
-                </form>
+            <div *ngIf="selectedMember; else noMember" class="space-y-4">
+              <div *ngFor="let permission of permissions" class="flex items-center justify-between">
+                <span class="text-white">{{ permission }}</span>
+                <label class="switch">
+                  <input
+                    type="checkbox"
+                    [formControlName]="permission"
+                    [disabled]="!selectedMember"
+                    (change)="updatePermissions()"
+                  />
+                  <span class="slider"></span>
+                </label>
+              </div>
             </div>
+            <ng-template #noMember>
+              <span class="text-gray-400">Select a member to edit permissions</span>
+            </ng-template>
+          </div>
         </div>
+      </div>
 
-        <!-- Description and Password -->
-        <div class="flex flex-col space-y-4 mt-6">
-            <div class="flex items-center space-x-4">
-                <span class="text-white w-32">Description</span>
-                <input type="text" [(ngModel)]="groupDescription" class="flex-grow bg-gray-400 p-2 rounded-lg text-black" placeholder="Popis skupiny" />
-            </div>
-            <div class="flex items-center space-x-4">
-                <span class="text-white w-32">Password</span>
-                <input type="password" [(ngModel)]="groupPassword" class="flex-grow bg-gray-400 p-2 rounded-lg text-black" placeholder="Heslo skupiny" />
-            </div>
+      <!-- Log Tab -->
+      <div *ngIf="selectedTab === 'log'" class="space-y-8">
+        <div>
+          <label class="block text-gray-300 text-sm mb-1">Log</label>
+          <div class="bg-gray-700 rounded-lg px-4 py-3 text-white max-h-64 overflow-y-auto">
+            <pre class="whitespace-pre-wrap break-all">Zde bude log</pre>
+          </div>
         </div>
+      </div>
 
-        <!-- Action Buttons -->
-        <div class="flex justify-end space-x-4 mt-6">
-            <button class="bg-blue-400 text-black p-4 rounded-full hover:bg-blue-500" (click)="saveGroupSettings()">
-                Uložit
-            </button>
-            <button class="bg-gray-400 text-black p-4 rounded-full hover:bg-gray-500" (click)="logGroupSettings()">
-                Log
-            </button>
-        </div>
+      <!-- Action Buttons -->
+      <div class="flex justify-end mt-10">
+        <button class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow" (click)="saveGroupSettings()">Save</button>
+        <button class="ml-4 bg-gray-600 hover:bg-gray-700 text-white font-semibold px-6 py-2 rounded-lg shadow" (click)="logGroupSettings()">Log</button>
+      </div>
     </div>
+  </main>
 </div>
 
 <app-user-finder

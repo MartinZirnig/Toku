@@ -34,14 +34,34 @@
   backdrop-filter: blur(100%);
 }
 
-.chat-item {
-  // Colors are now set dynamically
+
+/* Custom scrollbar: hidden by default, visible on hover/scroll with smooth transition */
+:host ::ng-deep .chat-menu-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #334155 transparent;
 }
 
-.chat-item-subtext {
-  // Colors are now set dynamically
+/* Webkit browsers */
+:host ::ng-deep .chat-menu-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  background: transparent;
+  transition: background 0.3s cubic-bezier(.4,0,.2,1);
 }
 
-.chat-item-time {
-  // Colors are now set dynamically
+:host ::ng-deep .chat-menu-scrollbar::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 6px;
+  opacity: 0;
+  transition: opacity 0.3s cubic-bezier(.4,0,.2,1), background 0.3s cubic-bezier(.4,0,.2,1);
+  pointer-events: none;
+}
+
+:host ::ng-deep .chat-menu-scrollbar.show-scrollbar::-webkit-scrollbar-thumb,
+:host ::ng-deep .chat-menu-scrollbar:hover::-webkit-scrollbar-thumb {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+:host ::ng-deep .chat-menu-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #2563eb;
 }

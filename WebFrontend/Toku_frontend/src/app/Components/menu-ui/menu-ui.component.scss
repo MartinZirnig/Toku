@@ -17,7 +17,7 @@
   @keyframes fadeInSlide {
     from {
       opacity: 0;
-      transform: translateY(-1000px);
+      transform: translateY(-100px);
     }
     to {
       opacity: 1;
@@ -32,7 +32,7 @@
     }
     to {
       opacity: 0;
-      transform: translateY(-1000px);
+      transform: translateY(-100px);
     }
   }
   

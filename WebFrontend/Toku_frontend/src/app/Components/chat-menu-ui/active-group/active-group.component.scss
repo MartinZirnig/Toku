@@ -1,0 +1,8 @@
+// Zobrazit tři tečky pouze při hover/focus nebo při scrollování (přes třídu .show-menu-btn)
+.chat-item .show-menu-btn,
+.chat-item .group-hover\:opacity-100,
+.chat-item .group-focus-within\:opacity-100 {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transition: opacity 0.25s cubic-bezier(.4,0,.2,1);
+}

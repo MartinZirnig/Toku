@@ -1,5 +1,5 @@
 import { formatPercent, NgClass, NgFor, NgIf } from '@angular/common';
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, Pipe, PipeTransform } from '@angular/core';
 import { FormsModule, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { UserFinderComponent } from './user-finder/user-finder.component';
@@ -24,9 +24,16 @@ export class GroupMember {
   ) {}
 }
 
+@Pipe({ name: 'stringify', standalone: true })
+export class StringifyPipe implements PipeTransform {
+  transform(value: any): string {
+    return JSON.stringify(value, null, 2);
+  }
+}
+
 @Component({
   selector: 'app-group-settings',
-  imports: [FormsModule, ReactiveFormsModule, NgIf, NgClass, NgFor, UserFinderComponent],
+  imports: [FormsModule, ReactiveFormsModule, NgIf, NgClass, NgFor, UserFinderComponent, StringifyPipe],
   standalone: true,
   templateUrl: './group-settings.component.html',
   styleUrls: ['./group-settings.component.scss']
@@ -47,6 +54,8 @@ export class GroupSettingsComponent {
 
   permissions = ['Admin', 'Chat Manager', 'Can Edit Group', 'Can Delete Messages', 'Can Delete Messagesdd'];
   permissionsForm: FormGroup;
+
+  selectedTab: 'general' | 'members' | 'permissions' | 'log' = 'general';
 
   constructor(
     private sanitizer: DomSanitizer,
@@ -144,6 +153,9 @@ export class GroupSettingsComponent {
 
   ngOnDestroy() {
     window.removeEventListener('resize', this.calculateMaxNameLength.bind(this));
+    if (this.permissionSyncSub) {
+      this.permissionSyncSub.unsubscribe();
+    }
     document.body.style.overflow = '';
   }
 
@@ -213,14 +225,81 @@ export class GroupSettingsComponent {
     this.groupMembers = this.groupMembers.filter(m => m !== member);
   }
 
-  selectMember(member: GroupMember): void {
-    this.selectedMember = member;
+  // Ukládání permicí při přepnutí uživatele nebo záložky
+  private saveCurrentMemberPermissions() {
+    if (!this.selectedMember) return;
     this.permissions.forEach(permission => {
       const key = this.mapPermissionToKey(permission);
-      if (this.selectedMember && key in this.selectedMember) {
-        this.permissionsForm.get(permission)?.setValue(this.selectedMember[key] || false);
+      const control = this.permissionsForm.get(permission);
+      // Oprava: kontrola existence selectedMember a control
+      if (control && this.selectedMember) {
+        (this.selectedMember as any)[key] = control.value as never;
       }
     });
+  }
+
+  // Při výběru uživatele v permissions záložce
+  selectMember(member: GroupMember): void {
+    this.saveCurrentMemberPermissions();
+    this.selectedMember = null; // Force Angular to re-render the *ngIf block
+    setTimeout(() => {
+      this.selectedMember = member;
+      // Pokud uživatel ještě nemá žádné permice, nastav všechny na false
+      this.permissions.forEach(permission => {
+        const key = this.mapPermissionToKey(permission);
+        if (!(key in member)) {
+          (member as any)[key] = false;
+        }
+        this.permissionsForm.get(permission)?.setValue((member as any)[key] || false, { emitEvent: false });
+      });
+      this.setupPermissionSync();
+    }, 0);
+  }
+
+  // Synchronizace změn ve formuláři do vybraného uživatele
+  private permissionSyncSub: any = null;
+  private setupPermissionSync() {
+    if (this.permissionSyncSub) {
+      this.permissionSyncSub.unsubscribe();
+    }
+    this.permissionSyncSub = this.permissionsForm.valueChanges.subscribe(values => {
+      if (this.selectedMember) {
+        this.permissions.forEach(permission => {
+          const key = this.mapPermissionToKey(permission);
+          (this.selectedMember as any)[key] = values[permission];
+        });
+      }
+    });
+  }
+
+  // Při přepnutí záložky ulož permice a při návratu do permissions načti permice pro vybraného uživatele
+  set selectedTabSafe(tab: 'general' | 'members' | 'permissions' | 'log') {
+    if (this.selectedTab === 'permissions') {
+      this.saveCurrentMemberPermissions();
+      if (this.permissionSyncSub) {
+        this.permissionSyncSub.unsubscribe();
+      }
+    }
+    this.selectedTab = tab;
+    if (tab === 'permissions' && this.selectedMember) {
+      // Force re-render to ensure correct permission display
+      const member = this.selectedMember;
+      this.selectedMember = null;
+      setTimeout(() => {
+        this.selectedMember = member;
+        this.permissions.forEach(permission => {
+          const key = this.mapPermissionToKey(permission);
+          if (!(key in member)) {
+            (member as any)[key] = false;
+          }
+          this.permissionsForm.get(permission)?.setValue((member as any)[key] || false, { emitEvent: false });
+        });
+        this.setupPermissionSync();
+      }, 0);
+    }
+  }
+  get selectedTabSafe() {
+    return this.selectedTab;
   }
 
   updatePermissions(): void {
@@ -372,5 +451,11 @@ export class GroupSettingsComponent {
         }
       });
     });
+  }
+
+  // Předpřipravená metoda pro budoucí logování
+  getGroupLog(): string {
+    // Zde bude načtení logu ze služby nebo backendu
+    return 'Zde bude log';
   }
 }
