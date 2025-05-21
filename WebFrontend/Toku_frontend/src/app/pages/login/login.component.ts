@@ -10,11 +10,12 @@ import { UserLoginResponseModel } from '../../data_managements/models/user-login
 import { User } from '../../data_managements/user';
 import { GoogleAuthenticationService } from '../../data_managements/services/google-authentication-service.service';
 import { Heart } from '../../data_managements/heart.service';
+import { IconComponent } from '../../Components/icon/icon.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, BackgroundLoginComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, BackgroundLoginComponent, IconComponent],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })

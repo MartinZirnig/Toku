@@ -19,7 +19,7 @@ export class Redirecter {
    this.router.navigate(['chagepass']);
  }
  public Settings() {
-  this.router.navigate(['/main/user-settings']);
+  this.router.navigate(['/user-settings']);
  }
  
  public LastGroup(){

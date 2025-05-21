@@ -1,1 +1,63 @@
-// ...existing code or leave empty for now...
+.file-download-popup {
+  position: relative;
+  border-radius: 1.25rem;
+  border: 2px solid transparent;
+  background: rgba(30, 41, 59, 0.98);
+  box-shadow: 0 8px 40px 0 #23293a88, 0 2px 8px 0 #ff73e344;
+  overflow: hidden;
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 1.25rem;
+    padding: 2px;
+    background: linear-gradient(135deg,
+      #46f3ff 0%,
+      #528aa9 9.2%,
+      #576086 45.4%,
+      #576086 56.8%,
+      #7b649a 79.2%,
+      #9967ab 93.2%,
+      #ff73e3 100%
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box, 
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 1;
+  }
+}
+
+.file-download-popup > * {
+  position: relative;
+  z-index: 2;
+}
+
+.download-btn {
+  background: linear-gradient(135deg,
+    #46f3ff 0%,
+    #528aa9 9.2%,
+    #576086 45.4%,
+    #576086 56.8%,
+    #7b649a 79.2%,
+    #9967ab 93.2%,
+    #ff73e3 100%
+  );
+  color: #fff;
+  border-radius: 0.75rem;
+  border: none;
+  transition: background 0.18s, box-shadow 0.18s;
+}
+
+.download-btn:hover {
+  background: linear-gradient(135deg,
+    #ff73e3 0%,
+    #9967ab 20%,
+    #7b649a 40%,
+    #576086 60%,
+    #528aa9 80%,
+    #46f3ff 100%
+  );
+}

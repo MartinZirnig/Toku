@@ -39,35 +39,67 @@
 
 
 
-.animate-fade-in-right
-{
-  animation: fadeInSlideRight 400ms ease-in forwards;
-}
-.animate-fade-out-left
-{
-  animation: fadeOutSlideLeft 400ms ease-out forwards;
-}
-@keyframes fadeInSlideRight {
-  from {
-    width: 105vw; /* Full viewport width */
-    right: 0;
-  }
-  to {
-    width: calc(100vw - 400px); /* Shrink by 350px */
-    right: 0;
-  }
+.animate-fade-in-right {
+  animation: none;
+  transition: left 0.4s cubic-bezier(.4,0,.2,1);
 }
 
-@keyframes fadeOutSlideLeft {
-  from {
-    width: calc(100vw - 400px); /* Start at 350px less than full width */
-    right: 0;
-  }
-  to {
-    width: 100vw; /* Expand to full viewport width */
-    right: 0;
-  }
+.animate-fade-out-left {
+  animation: none;
+
+  transition: left 0.4s cubic-bezier(.4,0,.2,1);
+
 }
 
+.menu-btn-gradient,
+.user-btn-gradient {
+  background: none;
+  transition: background 0.18s;
+}
+
+.menu-btn-gradient:hover,
+.menu-btn-gradient:focus,
+.user-btn-gradient:hover,
+.user-btn-gradient:focus {
+  background: linear-gradient(135deg,
+    rgba(70,243,255,0.38) 0%,
+    rgba(82,138,169,0.38) 12%,
+    rgba(87,96,134,0.38) 45%,
+    rgba(123,100,154,0.38) 80%,
+    rgba(255,115,227,0.38) 100%
+  );
+}
+
+.menu-ui-fixed-right {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 384px; // w-96 (chat-menu-ui)
+  height: 4.5rem; // výška pouze jako horní panel chat-menu-ui
+  width: auto;
+  min-width: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: row; // zpět na řádek
+  justify-content: flex-start;
+  align-items: center;
+  padding-left: 0;
+  padding-right: 1.25rem;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
+  transition: left 0.4s cubic-bezier(.4,0,.2,1);
+  will-change: left;
+}
+
+.menu-ui-fixed-right.menu-full-width {
+  left: 0;
+}
+
+
+
+// Zajisti, že tlačítka jsou vždy relativní a neabsolutní
+.menu-btn-gradient,
+.user-btn-gradient {
+  position: relative;
+}
 
 

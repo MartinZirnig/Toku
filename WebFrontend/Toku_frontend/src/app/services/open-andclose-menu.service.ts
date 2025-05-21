@@ -29,7 +29,7 @@ export class OpenAndcloseMenuService {
       this.showDropdown = !this.showDropdown;
     }
     else {
-      setTimeout( () => this.showDropdown = !this.showDropdown, 400);
+      setTimeout( () => this.showDropdown = !this.showDropdown, 0);
     }
     
 }

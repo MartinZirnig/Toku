@@ -8,11 +8,12 @@ import { Redirecter } from '../../data_managements/redirecter.service';
 import { UserControlService } from '../../data_managements/control-services/user-control-service.service';
 import { User } from '../../data_managements/user';
 import { Heart } from '../../data_managements/heart.service';
+import { IconComponent } from '../../Components/icon/icon.component';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, BackgroundLoginComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, BackgroundLoginComponent, IconComponent],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss']
 })

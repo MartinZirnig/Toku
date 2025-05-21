@@ -14,7 +14,7 @@ import {
   sendButtonHoverBackground,
 } from '../../services/colors.service';
 import { EmojisPopUpComponent } from '../emojis-pop-up/emojis-pop-up.component';
-import { NgIf, NgStyle } from '@angular/common';
+import { NgClass, NgIf, NgStyle } from '@angular/common';
 
 import { GroupService } from '../../data_managements/services/group-service.service';
 import { MainInputService } from '../../services/main-input.service';
@@ -27,7 +27,7 @@ import { FileUploadService } from '../../services/file-upload.service';
   selector: 'app-input-ui',
   templateUrl: './input-ui.component.html',
   styleUrls: ['./input-ui.component.scss'], 
-  imports: [EmojisPopUpComponent, NgIf, FileFormComponent, NgStyle]
+  imports: [EmojisPopUpComponent, NgIf, FileFormComponent, NgStyle, NgClass]
 })
 export class InputUiComponent implements OnInit {
   @ViewChild('chatTextarea', { static: true }) textarea!: ElementRef<HTMLTextAreaElement>;
@@ -43,6 +43,7 @@ export class InputUiComponent implements OnInit {
   hasFiles = false;
   isFileFormVisible = false;
   totalFileSize = '';
+  fileCount = 0; // přidáno
 
   constructor(
     private renderer: Renderer2, 
@@ -61,6 +62,7 @@ export class InputUiComponent implements OnInit {
 
     this.fileUploadService.files$.subscribe((files) => {
       this.hasFiles = files.length > 0;
+      this.fileCount = files.length; // přidáno
       const totalSizeInBytes = files.reduce((sum, file) => sum + file.size, 0);
 
       if (totalSizeInBytes < 1024) {

@@ -62,3 +62,426 @@
     opacity: 1; /* Viditelný */
     display: block; /* Ujistíme se, že jsou viditelné */
 }
+
+.input-bar {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  background: rgba(30, 41, 59, 0.92);
+  border-radius: 2rem;
+  box-shadow: 0 4px 32px 0 #33415533;
+  padding: 0.75rem 1.25rem;
+  position: relative;
+}
+
+.input-bar button {
+  background: none;
+  border: none;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+  padding: 0.5rem;
+  min-width: 40px;
+  min-height: 40px;
+  color: #a5b4fc;
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+.input-bar button:focus,
+.input-bar button:hover {
+  background: rgba(59, 130, 246, 0.12);
+  color: #38bdf8;
+}
+
+.input-bar #pin-button[ngStyle] {
+  background: #2563eb;
+  color: #fff;
+}
+
+.input-bar #pin-button[ngStyle]:hover,
+.input-bar #pin-button[ngStyle]:focus {
+  background: #1e40af;
+  color: #fff;
+}
+
+.input-bar #emoji-button {
+  background: linear-gradient(135deg,
+    #46f3ff 0%,
+    #528aa9 9.2%,
+    #576086 45.4%,
+    #576086 56.8%,
+    #7b649a 79.2%,
+    #9967ab 93.2%,
+    #ff73e3 100%
+  );
+  color: #fff;
+  border-radius: 50%;
+  min-width: 40px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  transition: background 0.18s, box-shadow 0.18s;
+}
+
+.input-bar #emoji-button:hover,
+.input-bar #emoji-button:focus {
+  background: linear-gradient(135deg,
+    #ff73e3 0%,
+    #9967ab 20%,
+    #7b649a 40%,
+    #576086 60%,
+    #528aa9 80%,
+    #46f3ff 100%
+  );
+  color: #fff;
+}
+
+.input-bar #send-button {
+  background: linear-gradient(135deg,
+    #46f3ff 0%,
+    #528aa9 9.2%,
+    #576086 45.4%,
+    #576086 56.8%,
+    #7b649a 79.2%,
+    #9967ab 93.2%,
+    #ff73e3 100%
+  );
+  color: #fff;
+  box-shadow: 0 2px 8px 0 #7c3aed33;
+  border-radius: 50%;
+  min-width: 40px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  transition: background 0.18s, box-shadow 0.18s;
+}
+
+.input-bar #send-button:hover,
+.input-bar #send-button:focus {
+  background: linear-gradient(135deg,
+    #ff73e3 0%,
+    #9967ab 20%,
+    #7b649a 40%,
+    #576086 60%,
+    #528aa9 80%,
+    #46f3ff 100%
+  );
+  color: #fff;
+}
+
+.input-bar #pin-button.has-files {
+  background: linear-gradient(135deg,
+    #46f3ff 0%,
+    #528aa9 9.2%,
+    #576086 45.4%,
+    #576086 56.8%,
+    #7b649a 79.2%,
+    #9967ab 93.2%,
+    #ff73e3 100%
+  );
+  color: #fff;
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px 0 #7c3aed33;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 0;
+  transition: background 0.18s, box-shadow 0.18s;
+}
+
+.input-bar #pin-button.has-files:hover,
+.input-bar #pin-button.has-files:focus {
+  background: linear-gradient(135deg,
+    #ff73e3 0%,
+    #9967ab 20%,
+    #7b649a 40%,
+    #576086 60%,
+    #528aa9 80%,
+    #46f3ff 100%
+  );
+}
+
+.file-count-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  background: transparent;
+  /* parent already has gradient */
+  padding: 0;
+}
+
+.input-bar .custom-scrollbar-container {
+  flex: 1 1 0%;
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: flex-end;
+}
+
+.input-bar textarea {
+  width: 100%;
+  min-height: 2.8rem;
+  max-height: 8rem;
+  border: none;
+  outline: none;
+  border-radius: 1.5rem;
+  background: #23293a;
+  color: #f1f5f9;
+  font-size: 1.08rem;
+  padding: 0.7rem 1.2rem;
+  resize: none;
+  box-shadow: none;
+  transition: background 0.18s, box-shadow 0.18s;
+  line-height: 1.5;
+  font-family: inherit;
+}
+
+.input-bar textarea:focus {
+  background: #1e293b;
+  box-shadow: 0 0 0 2px #38bdf880;
+}
+
+.input-bar textarea::placeholder {
+  color: #64748b;
+  opacity: 1;
+}
+
+.input-bar .custom-scrollbar-track {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  bottom: 8px;
+  width: 8px;
+  background: transparent;
+  border-radius: 4px;
+  z-index: 10;
+}
+
+.input-bar .custom-scrollbar-thumb {
+  position: absolute;
+  right: 0;
+  width: 14px;
+  height: 14px;
+  background: linear-gradient(135deg,
+    #46f3ff 0%,
+    #528aa9 9.2%,
+    #576086 45.4%,
+    #576086 56.8%,
+    #7b649a 79.2%,
+    #9967ab 93.2%,
+    #ff73e3 100%
+  );
+  border-radius: 50%;
+  transition: background 0.2s, transform 0.2s, opacity 0.2s;
+  cursor: pointer;
+  user-select: none;
+  z-index: 20;
+  opacity: 0;
+  box-shadow: 0 2px 8px 0 #7c3aed33;
+}
+
+.input-bar .custom-scrollbar-thumb:hover {
+  background: linear-gradient(135deg,
+    #ff73e3 0%,
+    #9967ab 20%,
+    #7b649a 40%,
+    #576086 60%,
+    #528aa9 80%,
+    #46f3ff 100%
+  );
+  opacity: 1;
+}
+
+/* Zobrazení scrollbaru, když je potřeba posouvat */
+.input-bar .custom-scrollbar-container.scrollable .custom-scrollbar-track,
+.input-bar .custom-scrollbar-container.scrollable .custom-scrollbar-thumb {
+  opacity: 1;
+  display: block;
+}
+
+.input-bar .custom-scrollbar-container.scrollable .custom-scrollbar-thumb {
+  opacity: 1;
+}
+
+.input-bar .custom-scrollbar-container .custom-scrollbar-thumb {
+  opacity: 0;
+}
+
+.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:active {
+  opacity: 1;
+}
+
+.input-bar .custom-scrollbar-container .custom-scrollbar-track {
+  background: transparent;
+}
+
+.input-bar .custom-scrollbar-container .custom-scrollbar-thumb {
+  background: linear-gradient(135deg,
+    #46f3ff 0%,
+    #528aa9 9.2%,
+    #576086 45.4%,
+    #576086 56.8%,
+    #7b649a 79.2%,
+    #9967ab 93.2%,
+    #ff73e3 100%
+  );
+}
+
+.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:hover {
+  background: linear-gradient(135deg,
+    #ff73e3 0%,
+    #9967ab 20%,
+    #7b649a 40%,
+    #576086 60%,
+    #528aa9 80%,
+    #46f3ff 100%
+  );
+}
+
+.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:active {
+  background: linear-gradient(135deg,
+    #ff73e3 0%,
+    #9967ab 20%,
+    #7b649a 40%,
+    #576086 60%,
+    #528aa9 80%,
+    #46f3ff 100%
+  );
+}
+
+.input-bar .custom-scrollbar-container .custom-scrollbar-thumb {
+  box-shadow: 0 2px 8px 0 #7c3aed33;
+}
+
+.input-bar .custom-scrollbar-container .custom-scrollbar-track {
+  box-shadow: none;
+}
+
+.input-bar .custom-scrollbar-container .custom-scrollbar-thumb {
+  transition: background 0.2s, opacity 0.2s, transform 0.2s;
+}
+
+.input-bar .custom-scrollbar-container .custom-scrollbar-thumb {
+  opacity: 0;
+}
+
+.input-bar .custom-scrollbar-container.scrollable .custom-scrollbar-thumb {
+  opacity: 1;
+}
+
+.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:active {
+  opacity: 1;
+}
+
+.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:focus {
+  opacity: 1;
+}
+
+.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:focus-visible {
+  opacity: 1;
+}
+
+.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:focus-within {
+  opacity: 1;
+}
+
+.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:focus:active {
+  opacity: 1;
+}
+
+.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:focus-visible:active {
+  opacity: 1;
+}
+
+.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:focus-within:active {
+  opacity: 1;
+}
+
+.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:active {
+  opacity: 1;
+}
+
+.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:focus {
+  opacity: 1;
+}
+
+.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:focus-visible {
+  opacity: 1;
+}
+
+.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:focus-within {
+  opacity: 1;
+}
+
+.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:focus:active {
+  opacity: 1;
+}
+
+.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:focus-visible:active {
+  opacity: 1;
+}
+
+.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:focus-within:active {
+  opacity: 1;
+}
+
+.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:active {
+  opacity: 1;
+}
+
+.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:focus {
+  opacity: 1;
+}
+
+.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:focus-visible {
+  opacity: 1;
+}
+
+.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:focus-within {
+  opacity: 1;
+}
+
+.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:focus:active {
+  opacity: 1;
+}
+
+.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:focus-visible:active {
+  opacity: 1;
+}
+
+.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:focus-within:active {
+  opacity: 1;
+}
+
+.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:active {
+  opacity: 1;
+}
+
+@media (max-width: 700px) {
+  .input-bar {
+    max-width: 98vw;
+    padding: 0.5rem 0.3rem;
+  }
+}

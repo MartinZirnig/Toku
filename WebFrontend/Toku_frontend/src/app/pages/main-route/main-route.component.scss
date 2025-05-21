@@ -1,0 +1,55 @@
+.flex {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+}
+
+.main-content-area {
+  // Průsvitné pozadí přes celou výšku a šířku mezi chat-menu-ui a pravým okrajem
+  position: fixed;
+  top: 0;
+  left: 384px; // w-96 (chat-menu-ui)
+  right: 0;
+  height: 100vh;
+  width: calc(100vw - 384px);
+  background: rgba(30, 41, 59, 0.82);
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow-y: auto;
+  transition: left 0.4s cubic-bezier(.4,0,.2,1), width 0.4s cubic-bezier(.4,0,.2,1);
+}
+
+// Pokud je chat-menu-ui zavřený, roztáhni oblast přes celou obrazovku
+.main-content-area.menu-full-width {
+  left: 0;
+  width: 100vw;
+}
+
+// Animace pro fade-in a fade-out (stejné jako pro chat-menu-ui)
+.animate-fade-in-right {
+  animation: none;
+  left: 384px;
+  width: calc(100vw - 384px);
+  transition: left 0.4s cubic-bezier(.4,0,.2,1), width 0.4s cubic-bezier(.4,0,.2,1);
+}
+
+.animate-fade-out-left {
+  animation: none;
+  left: 0;
+  width: 100vw;
+  transition: left 0.4s cubic-bezier(.4,0,.2,1), width 0.4s cubic-bezier(.4,0,.2,1);
+}
+
+.main-page-inner {
+ 
+  width: 100%;
+  
+  
+  
+  
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}

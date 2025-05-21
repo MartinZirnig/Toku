@@ -1,33 +1,32 @@
-<div class = "fixed justify-center top-0 left-0 w-full">
-  <app-background-login class="w-full absolute"></app-background-login>
-</div>
-
-<div class="flex items-center justify-center min-h-screen bg-transparent">
-  <div class="bg-white/80 backdrop-blur-md p-8 rounded-lg shadow-lg w-full max-w-md">
-    <h2 class="text-center text-2xl font-semibold text-gray-800 mb-6">Register</h2>
+<div class="register-overlay">
+  <div class="register-card">
+    <div class="logo-corner">
+      <app-icon></app-icon>
+    </div>
+    <h2>Register</h2>
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-      <div class="mb-4">
-        <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
-        <input id="name" formControlName="name" type="text" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" />
+      <div>
+        <label for="name">Name</label>
+        <input id="name" formControlName="name" type="text" />
       </div>
-      <div class="mb-4">
-        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-        <input id="email" formControlName="email" type="email" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" />
+      <div>
+        <label for="email">Email</label>
+        <input id="email" formControlName="email" type="email" />
       </div>
-      <div class="mb-4">
-        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-        <input id="password" formControlName="password" type="password" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" />
+      <div>
+        <label for="password">Password</label>
+        <input id="password" formControlName="password" type="password" />
       </div>
-      <div class="mb-4 text-gray-800">
-        <label for="confirmPassword" class="block text-sm font-medium text-gray-800 mb-1">Confirm Password</label>
-        <input id="confirmPassword" formControlName="confirmPassword" type="password" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-gray-800 focus:ring-green-500" />
+      <div>
+        <label for="confirmPassword">Confirm Password</label>
+        <input id="confirmPassword" formControlName="confirmPassword" type="password" />
       </div>
-      <button type="submit" class="w-full py-2 bg-gradient-to-r from-green-300 to-blue-300 text-white rounded-md hover:from-green-400 hover:to-blue-400 transition-all duration-300 shadow-md">Register</button>
+      <button type="submit">Register</button>
     </form>
-    <p class="text-center text-sm text-gray-600 mt-4">
-      Already registered? <a routerLink="/login" class="text-green-600 hover:underline">Login</a>
+    <p class="text-center">
+      Already registered? <a routerLink="/login">Login</a>
     </p>
-    <div *ngIf="errorMessage" class="text-center text-red-500 mt-4 font-medium">
+    <div *ngIf="errorMessage" class="error-message">
       {{ errorMessage }}
     </div>
   </div>

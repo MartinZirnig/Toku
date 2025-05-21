@@ -56,3 +56,76 @@ ul::-webkit-scrollbar-thumb:hover {
 ul::-webkit-scrollbar-track {
   background: transparent; /* Transparent track to make it less visible */
 }
+
+.user-finder-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 1.5rem;
+  border: 2px solid transparent;
+  background: rgba(30, 41, 59, 0.98);
+  box-shadow: 0 8px 40px 0 #23293a88, 0 2px 8px 0 #ff73e344;
+  padding: 2.5rem 2rem;
+  max-width: 440px;
+  width: 96vw;
+  max-height: 90vh;
+  min-height: 320px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 100000;
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 1.5rem;
+    padding: 2px;
+    background: linear-gradient(135deg,
+      #46f3ff 0%,
+      #528aa9 20%,
+      #576086 50%,
+      #7b649a 80%,
+      #ff73e3 100%
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box, 
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 1;
+  }
+}
+
+.user-finder-popup > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* Gradient button only for main action */
+.gradient-btn {
+  background: linear-gradient(135deg,
+    #46f3ff 0%,
+    #528aa9 20%,
+    #576086 50%,
+    #7b649a 80%,
+    #ff73e3 100%
+  );
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 12px 0 #7c3aed33;
+  transition: background 0.18s, box-shadow 0.18s;
+}
+
+.gradient-btn:hover {
+  background: linear-gradient(135deg,
+    #ff73e3 0%,
+    #7b649a 20%,
+    #576086 50%,
+    #528aa9 80%,
+    #46f3ff 100%
+  );
+  box-shadow: 0 4px 24px 0 #7c3aed33;
+}

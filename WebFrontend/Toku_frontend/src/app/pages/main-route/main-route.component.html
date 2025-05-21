@@ -1,0 +1,16 @@
+<div class="flex w-full h-full">
+  <app-chat-menu-ui></app-chat-menu-ui>
+  <div
+    
+    class="main-content-area flex-1 flex z-0 justify-center items-start bg-transparent transition-all"
+    [ngClass]="{
+      'animate-fade-in-right': activate,
+      'animate-fade-out-left': !activate
+    }"
+  >
+    <div class="main-page-inner bg-gray-900/95 overflow-y-auto">
+      <app-main-page></app-main-page>
+    </div>
+  </div>
+  <app-menu-ui></app-menu-ui>
+</div>

@@ -1,5 +1,5 @@
 <div class="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-  <div class="bg-gray-800 text-white p-8 rounded-lg shadow-lg w-full max-w-lg relative">
+  <div class="file-download-popup bg-gray-800 text-white p-8 rounded-lg shadow-lg w-full max-w-lg relative">
     <!-- Close button -->
     <button (click)="onClose()"
       class="absolute top-4 right-4 text-gray-300 hover:text-white text-2xl font-bold focus:outline-none"
@@ -18,7 +18,7 @@
             <span class="text-sm text-gray-400">{{ formatFileSize(file.size) }}</span>
             <!-- Download button -->
             <button
-              class="absolute right-0 top-0 h-full w-12 bg-blue-600 text-white font-bold text-lg flex items-center justify-center transform translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-in-out"
+              class="download-btn absolute right-0 top-0 h-full w-12 text-white font-bold text-lg flex items-center justify-center transform translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-in-out"
               (click)="downloadFile(file)"
               title="Stáhnout"
             >

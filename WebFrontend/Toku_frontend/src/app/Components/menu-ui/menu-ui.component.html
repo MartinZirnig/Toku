@@ -1,12 +1,13 @@
-<div class="fixed top-0 right-0 h-15 flex items-center px-5 z-9999 transition-all bg-linear-to-t from-trannsparent to-black backdrop-blur-[1px] duration-400"
+<div class="menu-ui-fixed-right backdrop-blur-xs"
      [ngClass]="{
-       'animate-fade-out-left': !menuService.isVisible,
-       'animate-fade-in-right':menuService.isVisible
+       'menu-full-width': !menuService.showDropdown,
+       'animate-fade-in-right': menuService.isVisible,
+       'animate-fade-out-left': !menuService.isVisible
      }">
     <!-- Levé tlačítko -->
-    <button class="w-12 h-12 rounded-full flex items-center justify-center bg-black/30 hover:bg-black/50 transition-all duration-300 cursor-pointer"
+    <button class="menu-btn-gradient w-11 h-11 rounded-full flex items-center justify-center bg-black/30 transition-all duration-300 cursor-pointer"
             (click)="showMenu()">
-      <svg class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M3 12H21M3 6H21M3 18H21" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+      <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M3 12H21M3 6H21M3 18H21" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
     </button>
 
     <!-- Ikona a text -->
@@ -17,7 +18,7 @@
 
     <!-- Pravé tlačítko s dropdown -->
     <div class="relative ml-auto backdrop-blur-md">
-      <button class="w-12 h-12 rounded-full flex items-center justify-center bg-black/30 hover:bg-black/50 transition-all duration-300 cursor-pointer"
+      <button class="user-btn-gradient w-12 h-12 rounded-full flex items-center justify-center bg-black/30 transition-all duration-300 cursor-pointer"
               (click)="toggleDropdown()">
         <svg class="w-8 h-8 text-white" viewBox="0 0 24 24">
           <path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>

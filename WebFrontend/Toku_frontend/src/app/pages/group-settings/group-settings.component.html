@@ -56,7 +56,7 @@
 
   <!-- Main content -->
   <main class="flex-1 mt-20 p-5 flex items-start justify-center">
-    <div class="w-full max-w-2xl bg-gray-800 rounded-2xl shadow-xl p-10 relative">
+    <div class="group-settings-popup w-full max-w-2xl bg-gray-800 rounded-2xl shadow-xl p-10 relative">
       <!-- Header -->
       <div class="flex items-center justify-between mb-8">
         <div>
@@ -191,7 +191,7 @@
 
       <!-- Action Buttons -->
       <div class="flex justify-end mt-10">
-        <button class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow" (click)="saveGroupSettings()">Save</button>
+        <button class="update-btn px-6 py-2 font-semibold shadow" (click)="saveGroupSettings()">Save</button>
         <button class="ml-4 bg-gray-600 hover:bg-gray-700 text-white font-semibold px-6 py-2 rounded-lg shadow" (click)="logGroupSettings()">Log</button>
       </div>
     </div>

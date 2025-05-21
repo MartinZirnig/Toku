@@ -5,16 +5,15 @@ import { ChangePasswordComponent } from './pages/change-password/change-password
 import { MainPageComponent } from './pages/main-page/main-page.component';
 import { UserSettingsComponent } from './pages/user-settings/user-settings.component';
 import { GroupSettingsComponent } from './pages/group-settings/group-settings.component';
+import { MainRouteComponent } from './pages/main-route/main-route.component';
 
 export const routes: Routes = [
     {path: '', component: LoginComponent},
     {path: 'login', component: LoginComponent},
     {path: 'register', component: RegisterComponent},
     {path: 'changepass', component: ChangePasswordComponent},
-    {path: 'main', component: MainPageComponent, children: 
-        [{path: 'user-settings', component: UserSettingsComponent}],
-    },
+    {path: 'main', component: MainRouteComponent},
+    {path: 'user-settings', component: UserSettingsComponent},
     {path: 'group-settings', component: GroupSettingsComponent},
-
     {path: '**', component: LoginComponent}
 ];
