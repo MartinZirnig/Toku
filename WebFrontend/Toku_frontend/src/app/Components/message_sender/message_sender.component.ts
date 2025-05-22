@@ -51,6 +51,7 @@ Message_senderComponent implements OnInit {
   isEditing = false; // Track if the message is in edit mode
   editableText!: string; // Store the editable text
   showReaction: boolean = true; // Track if the reaction menu is visible
+  private hasAnimated = false;
 
   constructor(
     private menuService: MenuService, 
@@ -73,6 +74,18 @@ Message_senderComponent implements OnInit {
     this.formattedPreviewText = this.sanitizer.bypassSecurityTrustHtml(this.applyGradientToLastCharacters(truncatedText, 10)); // Apply gradient to last 10 characters
   
   
+  }
+
+  ngAfterViewInit(): void {
+    if (this.messageContainer && !this.hasAnimated) {
+      this.messageContainer.nativeElement.classList.add('message-appear');
+      this.hasAnimated = true;
+      setTimeout(() => {
+        if (this.messageContainer) {
+          this.messageContainer.nativeElement.classList.remove('message-appear');
+        }
+      }, 500);
+    }
   }
 
   private getTruncatedPreviewText(text: string | null, wordLimit: number): string {

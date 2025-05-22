@@ -1,6 +1,5 @@
 import { formatPercent, NgClass, NgFor, NgIf } from '@angular/common';
-import { Component, HostListener, Pipe, PipeTransform } from '@angular/core';
-import { FormsModule, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { Component, HostListener, NgModule, Pipe, PipeTransform } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { UserFinderComponent } from './user-finder/user-finder.component';
 import { GroupSettingsService } from './group-settings.service';
@@ -10,6 +9,10 @@ import { GroupEditService } from '../../data_managements/control-services/group-
 import { GroupsLoaderService } from '../../data_managements/control-services/groups-loader.service';
 import { GroupUserAccessModel } from '../../data_managements/models/group-user-access-model';
 import { EventInfoWrapper } from '@angular/core/primitives/event-dispatch';
+import { FormsModule } from '@angular/forms';
+import { AreYouSurePopUpService } from '../../Components/are-you-sure-pop-up/are-you-sure-pop-up.service';
+import { AreYouSurePopUpComponent } from '../../Components/are-you-sure-pop-up/are-you-sure-pop-up.component';
+
 
 
 export class GroupMember {
@@ -33,7 +36,7 @@ export class StringifyPipe implements PipeTransform {
 
 @Component({
   selector: 'app-group-settings',
-  imports: [FormsModule, ReactiveFormsModule, NgIf, NgClass, NgFor, UserFinderComponent, StringifyPipe],
+  imports: [NgIf, NgClass, NgFor, UserFinderComponent, StringifyPipe, FormsModule, AreYouSurePopUpComponent],
   standalone: true,
   templateUrl: './group-settings.component.html',
   styleUrls: ['./group-settings.component.scss']
@@ -53,26 +56,20 @@ export class GroupSettingsComponent {
   declare roomId: string;
 
   permissions = ['Admin', 'Chat Manager', 'Can Edit Group', 'Can Delete Messages', 'Can Delete Messagesdd'];
-  permissionsForm: FormGroup;
 
   selectedTab: 'general' | 'members' | 'permissions' | 'log' = 'general';
+
+  showAreYouSure: boolean = false;
 
   constructor(
     private sanitizer: DomSanitizer,
     private groupSettingsService: GroupSettingsService,
-    private fb: FormBuilder,
     private redirecter: Redirecter,
     private route: ActivatedRoute,
     private grpEdi: GroupEditService,
-    private grpLdr: GroupsLoaderService
-  ) {
-    this.permissionsForm = this.fb.group(
-      this.permissions.reduce<Record<string, boolean>>((acc, permission) => {
-        acc[permission] = false;
-        return acc;
-      }, {})
-    );
-  }
+    private grpLdr: GroupsLoaderService,
+    private areYouSureService: AreYouSurePopUpService
+  ) {}
 
   ngOnInit() {
     this.onResize();
@@ -153,9 +150,6 @@ export class GroupSettingsComponent {
 
   ngOnDestroy() {
     window.removeEventListener('resize', this.calculateMaxNameLength.bind(this));
-    if (this.permissionSyncSub) {
-      this.permissionSyncSub.unsubscribe();
-    }
     document.body.style.overflow = '';
   }
 
@@ -169,7 +163,41 @@ export class GroupSettingsComponent {
   }
 
   fynishEdit(): void {
-    this.redirecter.LastGroup();
+    if (this.hasUnsavedChanges()) {
+      this.showAreYouSure = true;
+      this.areYouSureService.open(
+        (result) => {
+          this.showAreYouSure = false;
+          if (result === 'yes') { // podporuj i 'leave'
+            this.discardChanges();
+            this.closeGroupSettings();
+          } else if (result === 'update') {
+            this.saveGroupSettings();
+          }
+          // 'no' => zůstat na stránce
+        },
+        'You have unsaved changes. Do you want to leave without saving, or update your changes?',
+        'Leave',
+        'Stay',
+        'Update'
+      );
+      return;
+    }
+    this.closeGroupSettings();
+  }
+
+  // Implementujte podle vaší logiky
+  hasUnsavedChanges(): boolean {
+    // ...detekce změn v group settings...
+    return true; // nebo vaše vlastní podmínka
+  }
+
+  discardChanges(): void {
+    // ...obnovit původní hodnoty...
+  }
+
+  closeGroupSettings(): void {
+    // ...zavřít group settings popup nebo navigace zpět...
   }
 
   @HostListener('document:keydown', ['$event'])
@@ -225,100 +253,37 @@ export class GroupSettingsComponent {
     this.groupMembers = this.groupMembers.filter(m => m !== member);
   }
 
-  // Ukládání permicí při přepnutí uživatele nebo záložky
-  private saveCurrentMemberPermissions() {
-    if (!this.selectedMember) return;
-    this.permissions.forEach(permission => {
-      const key = this.mapPermissionToKey(permission);
-      const control = this.permissionsForm.get(permission);
-      // Oprava: kontrola existence selectedMember a control
-      if (control && this.selectedMember) {
-        (this.selectedMember as any)[key] = control.value as never;
-      }
-    });
-  }
-
   // Při výběru uživatele v permissions záložce
   selectMember(member: GroupMember): void {
-    this.saveCurrentMemberPermissions();
-    this.selectedMember = null; // Force Angular to re-render the *ngIf block
-    setTimeout(() => {
-      this.selectedMember = member;
-      // Pokud uživatel ještě nemá žádné permice, nastav všechny na false
-      this.permissions.forEach(permission => {
-        const key = this.mapPermissionToKey(permission);
-        if (!(key in member)) {
-          (member as any)[key] = false;
-        }
-        this.permissionsForm.get(permission)?.setValue((member as any)[key] || false, { emitEvent: false });
-      });
-      this.setupPermissionSync();
-    }, 0);
+    this.selectedMember = member;
   }
 
-  // Synchronizace změn ve formuláři do vybraného uživatele
-  private permissionSyncSub: any = null;
-  private setupPermissionSync() {
-    if (this.permissionSyncSub) {
-      this.permissionSyncSub.unsubscribe();
-    }
-    this.permissionSyncSub = this.permissionsForm.valueChanges.subscribe(values => {
-      if (this.selectedMember) {
-        this.permissions.forEach(permission => {
-          const key = this.mapPermissionToKey(permission);
-          (this.selectedMember as any)[key] = values[permission];
-        });
-      }
-    });
+  // Helper to get the value of a permission for a member
+  getPermissionValue(member: GroupMember, permission: string): boolean {
+    const key = this.mapPermissionToKey(permission);
+    return !!(member as any)[key];
   }
 
-  // Při přepnutí záložky ulož permice a při návratu do permissions načti permice pro vybraného uživatele
-  set selectedTabSafe(tab: 'general' | 'members' | 'permissions' | 'log') {
-    if (this.selectedTab === 'permissions') {
-      this.saveCurrentMemberPermissions();
-      if (this.permissionSyncSub) {
-        this.permissionSyncSub.unsubscribe();
-      }
-    }
-    this.selectedTab = tab;
-    if (tab === 'permissions' && this.selectedMember) {
-      // Force re-render to ensure correct permission display
-      const member = this.selectedMember;
-      this.selectedMember = null;
-      setTimeout(() => {
-        this.selectedMember = member;
-        this.permissions.forEach(permission => {
-          const key = this.mapPermissionToKey(permission);
-          if (!(key in member)) {
-            (member as any)[key] = false;
-          }
-          this.permissionsForm.get(permission)?.setValue((member as any)[key] || false, { emitEvent: false });
-        });
-        this.setupPermissionSync();
-      }, 0);
-    }
-  }
-  get selectedTabSafe() {
-    return this.selectedTab;
-  }
-
-  updatePermissions(): void {
-    if (this.selectedMember) {
-      this.permissions.forEach(permission => {
-        const key = this.mapPermissionToKey(permission);
-        const control = this.permissionsForm.get(permission);
-        if (control) {
-          if (this.selectedMember)
-              this.selectedMember[key]  = control.value as never;
-        }
-      });
-    }
+  // Helper to update the permission when switch is toggled
+  updatePermissionSwitch(permission: string, event: Event): void {
+    if (!this.selectedMember) return;
+    const key = this.mapPermissionToKey(permission);
+    const input = event.target as HTMLInputElement;
+    (this.selectedMember as any)[key] = input.checked;
   }
 
   private mapPermissionToKey(permission: string): keyof GroupMember {
     return permission
       .replace(/\s+/g, '')
       .replace(/^\w/, c => c.toLowerCase()) as keyof GroupMember;
+  }
+
+  // Při přepnutí záložky ulož permice a při návratu do permissions načti permice pro vybraného uživatele
+  set selectedTabSafe(tab: 'general' | 'members' | 'permissions' | 'log') {
+    this.selectedTab = tab;
+  }
+  get selectedTabSafe() {
+    return this.selectedTab;
   }
 
   saveGroupSettings(): void {
@@ -360,13 +325,6 @@ export class GroupSettingsComponent {
     }).join('');
     const truncatedPart = visiblePart.slice(0, -3) + gradientPart + ellipsis;
     return this.sanitizer.bypassSecurityTrustHtml(truncatedPart);
-  }
-
-  updatePermission(permission: keyof Omit<GroupMember, 'name' | 'userId'>, event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (this.selectedMember && input) {
-      this.selectedMember[permission] = input.checked;
-    }
   }
 
   loadExistingGroupSettings(id: string): void {}
@@ -437,20 +395,7 @@ export class GroupSettingsComponent {
   }
 
   private setPermissions(): void {
-    this.groupMembers.forEach(user => {
-      const permissions = this.permissionsForm.value;
-      const response = this.grpEdi.setUserAccess(Number(this.roomId), Number(user.userId), permissions);
-      response.subscribe({
-        next: response => {
-          if (!response.success) {
-            console.error('Error updating user permissions:', response.description);
-          }
-        },
-        error: (error) => {
-          console.error('Error updating user permissions:', error);
-        }
-      });
-    });
+    // You may want to implement this to save permissions to backend if needed
   }
 
   // Předpřipravená metoda pro budoucí logování

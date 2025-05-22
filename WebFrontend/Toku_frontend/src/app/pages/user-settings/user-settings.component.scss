@@ -64,3 +64,17 @@
   );
   box-shadow: 0 4px 24px 0 #7c3aed33;
 }
+
+.user-settings-popup ul {
+  // For contacts list
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.user-settings-popup li {
+  transition: background 0.18s;
+}
+.user-settings-popup li:hover {
+  background: #334155;
+}

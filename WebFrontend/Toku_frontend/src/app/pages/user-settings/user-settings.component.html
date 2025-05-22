@@ -32,6 +32,15 @@
             General
           </button>
         </li>
+        <li>
+          <button type="button"
+            class="w-full text-left flex items-center px-3 py-2 rounded-lg transition font-semibold"
+            [ngClass]="selectedTab === 'contacts' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white'"
+            (click)="selectedTab = 'contacts'">
+            <span class="material-icons text-base mr-2 opacity-60">contacts</span>
+            Contacts
+          </button>
+        </li>
       </ul>
     </nav>
   </aside>
@@ -140,10 +149,51 @@
         </div>
       </div>
 
+      <!-- Contacts tab -->
+      <div *ngIf="selectedTab === 'contacts'" class="space-y-8">
+        <div class="flex items-center justify-between mb-4">
+          <label class="block text-gray-300 text-lg font-bold">Contacts</label>
+          <button class="update-btn px-4 py-2 flex items-center gap-2" (click)="openUserFinder()">
+            <span class="material-icons text-base">person_add</span>
+            Add Contact
+          </button>
+        </div>
+        <!-- Kontakty jsou vždy viditelné -->
+        <div *ngIf="contacts.length > 0; else noContacts">
+          <ul class="divide-y divide-gray-700 rounded-lg bg-gray-700/50 border border-gray-700 shadow-inner">
+            <li *ngFor="let contact of contacts" class="flex items-center px-4 py-3">
+              <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-lg mr-4">
+                {{ contact.name ? contact.name.charAt(0).toUpperCase() : '?' }}
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-white font-medium truncate">{{ contact.name || contact.userId }}</div>
+                <div class="text-gray-400 text-xs truncate">
+                  {{contact.userId}}
+                </div>
+              </div>
+              <button
+                class="ml-4 px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-pink-500 text-white font-semibold shadow hover:from-red-600 hover:to-pink-600 transition"
+                (click)="onRemoveContactClick(contact)"
+                title="Remove contact"
+                type="button"
+              >
+                Remove
+              </button>
+            </li>
+          </ul>
+        </div>
+        <ng-template #noContacts>
+          <div class="text-gray-400 italic text-center py-8">No contacts yet.</div>
+        </ng-template>
+        
+      </div>
+
       <!-- Update button -->
       <div class="flex justify-end mt-10">
         <button class="update-btn px-6 py-2 font-semibold shadow" (click)="saveAndReturn()">Update</button>
       </div>
     </div>
+    <!-- Are you sure popup -->
+        <app-are-you-sure-pop-up *ngIf="showAreYouSure"></app-are-you-sure-pop-up>
   </main>
 </div>

@@ -172,8 +172,8 @@ export class InputUiComponent implements OnInit {
       const scrollTop = textarea.scrollTop;
 
       // Poloměr na ose X a Y (nezměněný)
-      const radiusX = scrollTrack.offsetWidth / 2; // Poloměr na ose X
-      const radiusY = scrollTrack.offsetHeight / 2 * 0.75; // Poloměr na ose Y
+      const radiusX = scrollTrack.offsetWidth / 2 * 1.2; // Poloměr na ose X
+      const radiusY = scrollTrack.offsetHeight / 2 * 0.8; // Poloměr na ose Y
 
       // Výpočet úhlu na základě scrollTop
       const scrollRatio = scrollTop / (scrollHeight - clientHeight);

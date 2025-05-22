@@ -10,3 +10,18 @@
   z-index: 9999; /* Ensure menu is above all other elements */
   z-index: 10; /* Ensure the message container has a stacking context */
 }
+
+@keyframes message-slide-in-up {
+  from {
+    opacity: 0.3;
+    transform: translateY(60px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.message-appear {
+  animation: message-slide-in-up 0.45s cubic-bezier(.4,0,.2,1) both;
+}

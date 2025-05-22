@@ -1,47 +1,39 @@
 import { AfterContentChecked, AfterContentInit, AfterViewChecked, AfterViewInit, Component, numberAttribute, OnInit, viewChild } from '@angular/core';
 import { InputUiComponent } from '../../Components/input-ui/input-ui.component';
-import { MenuUiComponent } from '../../Components/menu-ui/menu-ui.component';
-import { ChatMenuUiComponent } from '../../Components/chat-menu-ui/chat-menu-ui.component';
 import { Message_senderComponent } from '../../Components/message_sender/message_sender.component';
 import { MessageAdresatorComponent } from '../../Components/message-adresator/message-adresator.component';
 import { ActivatedRoute, RouterOutlet } from '@angular/router';
 import { DummyMessageSenderComponent } from '../../Components/dummy-message-sender/dummy-message-sender.component';
 import { DummyMessageAdresatorComponent } from '../../Components/dummy-message-adresator/dummy-message-adresator.component';
 import { NgClass, NgFor, NgIf } from '@angular/common';
-
-import { EmojisPopUpComponent } from "../../Components/emojis-pop-up/emojis-pop-up.component";
-import { ReactionCounterComponent } from '../../Components/reaction-counter/reaction-counter.component';
-
 import { MessageControllService } from '../../data_managements/control-services/message-controll.service';
 import { StoredMessageModel } from '../../data_managements/models/stored-message-model';
 import { MainInputService } from '../../services/main-input.service';
 import { NgZone } from '@angular/core';
 import { take } from 'rxjs';
 import { GroupsLoaderService } from '../../data_managements/control-services/groups-loader.service';
-import { PopUpComponent } from '../../Components/pop-up/pop-up.component';
 import { PopUpService } from '../../services/pop-up.service';
 import { Redirecter } from '../../data_managements/redirecter.service';
 import { Cache } from '../../data_managements/cache';
 import { User } from '../../data_managements/user';
 import { FileDownloadComponent } from '../../Components/file-download/file-download.component';
 import { FileDownloadPopupService } from '../../services/file-download-popup.service';
+import { ChatLoginComponent } from '../../Components/chat-login/chat-login.component';
 
 @Component({
   selector: 'app-main-page',
   imports: [
     InputUiComponent,
-    ChatMenuUiComponent,
     Message_senderComponent,
     MessageAdresatorComponent,
-    MenuUiComponent,
     RouterOutlet,
     NgClass,
     NgFor,
     NgIf,
     DummyMessageAdresatorComponent,
     DummyMessageSenderComponent,
-    PopUpComponent,
-    FileDownloadComponent
+    FileDownloadComponent,
+    ChatLoginComponent
 ],
   templateUrl: './main-page.component.html',
   styleUrls: ['./main-page.component.scss']
@@ -51,8 +43,7 @@ export class MainPageComponent implements OnInit {
   public rawMessages: Array<StoredMessageModel> = []
   public roomId: number = 0;
   public dummyVisible: boolean = true;
-  public popUps: Array<{ message: string; backgroundColor: string; textColor: string; id: number; duration: number }> = [];
-  private popUpIdCounter: number = 0;
+
   showFileDownloadPopup = false;
 
 constructor(
@@ -61,7 +52,6 @@ constructor(
   private grpCtrl: GroupsLoaderService,
   private sendService: MainInputService,
   private ngZone: NgZone,
-  private popUpService: PopUpService,
   private redirecter: Redirecter,
   public fileDownloadPopupService: FileDownloadPopupService
 ) {}
@@ -94,15 +84,7 @@ ngOnInit(): void {
       this.dummyVisible = false;
     }, 5);
 
-    this.popUpService.message$.subscribe((message) => {
-      if (message) {
-        const duration = this.popUpService.getDuration();
-        const backgroundColor = this.popUpService.getBackgroundColor();
-        const textColor = this.popUpService.getTextColor();
-        console.log('MainPageComponent: Received pop-up data:', { message, duration, backgroundColor, textColor });
-        this.addPopUp(message, duration, backgroundColor, textColor);
-      }
-    });
+
 
     this.fileDownloadPopupService.visible$.subscribe(visible => {
       this.showFileDownloadPopup = visible;
@@ -167,66 +149,33 @@ ngOnInit(): void {
         stat, msg.pinnedMessagePrewiev ?? null, 
         msg.pinnedMessageId !== null, msg.timeStamp ?? null, sender, msg
       ));
-    
-      this.ngZone.onStable.pipe(take(1)).subscribe(() => {
-        this.dummyVisible = false;
-        this.scrollDown();
-      });
+  
+  this.ngZone.onStable.pipe(take(1)).subscribe(() => {
+    this.dummyVisible = false;
+    this.scrollDown();
+  });
+}
 
-  }
+private scrollDown(){
+  // Scroll main-page-inner container if it exists, otherwise fallback to window
+  setTimeout(() => {
+    const container = document.querySelector('.main-page-inner');
+    if (container) {
+      container.scrollTop = container.scrollHeight;
+    } else {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+  }, 0);
+}
 
   onDeleteMessage(index: number): void {
     this.messages.splice(index, 1);
   }
 
 
-  private scrollDown(){
-    window.scroll({
-      top: document.documentElement.scrollHeight,
-      behavior: 'smooth'
-    });
-  }
+  
 
-  private addPopUp(message: string, duration: number, backgroundColor: string, textColor: string): void {
-    const id = this.popUpIdCounter++;
-    console.log('Adding pop-up:', { message, backgroundColor, textColor, id, duration });
-    this.popUps.push({ message, backgroundColor, textColor, id, duration });
 
-    // Reset the counter if it exceeds a safe threshold
-    if (this.popUpIdCounter > 1000000) {
-      console.log('Resetting popUpIdCounter to prevent overflow');
-      this.popUpIdCounter = 0;
-    }
-
-    // Trigger the "out" animation just before the pop-up is removed
-    setTimeout(() => {
-      console.log('Triggering "out" animation for pop-up with ID:', id);
-      const popUp = this.popUps.find((popUp) => popUp.id === id);
-      if (popUp) {
-        const element = document.querySelector(`.pop-up-container[data-id="${id}"]`) as HTMLElement;
-        if (element) {
-          element.classList.remove('visible');
-          element.classList.add('hidden');
-        }
-      }
-    }, duration - 300); // Start the "out" animation 300ms before removal
-
-    // Remove the pop-up after the animation completes
-    setTimeout(() => {
-      console.log('Removing pop-up with ID:', id);
-      this.removePopUp(id);
-    }, duration);
-  }
-
-  private removePopUp(id: number): void {
-    console.log('Before removal, popUps:', this.popUps);
-
-    // Add a delay to allow the "out" animation to complete
-    setTimeout(() => {
-      this.popUps = this.popUps.filter((popUp) => popUp.id !== id);
-      console.log('After removal, popUps:', this.popUps);
-    }, 300); // Match the animation duration (300ms)
-  }
 }
 class MessageFormat {
   constructor(

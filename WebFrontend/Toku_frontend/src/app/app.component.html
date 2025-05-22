@@ -1,2 +1,12 @@
 <router-outlet></router-outlet>
 
+<div *ngFor="let popUp of popUps" class="z-999999 fixed left-1/2 transform -translate-x-1/2 top-2">
+  <app-pop-up
+    [id]="popUp.id"
+    [message]="popUp.message"
+    [backgroundColor]="popUp.backgroundColor"
+    [textColor]="popUp.textColor"
+    [duration]="popUp.duration"
+    >
+  </app-pop-up>
+</div>

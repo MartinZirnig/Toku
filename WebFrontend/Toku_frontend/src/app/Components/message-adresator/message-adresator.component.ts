@@ -24,9 +24,11 @@ export class MessageAdresatorComponent implements OnInit {
   @Input() fileTotalSize: number = 0;
 
   @ViewChild('menuTrigger', { static: false }) menuTrigger!: ElementRef;
+  @ViewChild('messageContainer') messageContainer!: ElementRef;
 
   menuVisible = false;
   isLongText = false;
+  private hasAnimated = false;
 
   constructor(
     private menuService: MenuService,
@@ -38,6 +40,18 @@ export class MessageAdresatorComponent implements OnInit {
   ngOnInit(): void {
     console.log('Message initialized:', { text: this.text, image: this.image, time: this.time, previewText: this.previewText, hasFile: this.hasFile });
     this.isLongText = this.text.length > 50; // Adjust threshold as needed
+  }
+
+  ngAfterViewInit(): void {
+    if (this.messageContainer && !this.hasAnimated) {
+      this.messageContainer.nativeElement.classList.add('message-appear');
+      this.hasAnimated = true;
+      setTimeout(() => {
+        if (this.messageContainer) {
+          this.messageContainer.nativeElement.classList.remove('message-appear');
+        }
+      }, 500);
+    }
   }
 
   toggleMenu(event: MouseEvent): void {

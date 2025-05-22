@@ -77,6 +77,16 @@
   --toggle-wider: 3em;
   --color-grey: #cccccc;
   --color-green: #4296f4;
+  --gradient-on: linear-gradient(135deg,
+    #46f3ff 0%,
+    #528aa9 9.2%,
+    #576086 45.4%,
+    #576086 56.8%,
+    #7b649a 79.2%,
+    #9967ab 93.2%,
+    #ff73e3 100%
+  );
+  --gradient-off: linear-gradient(135deg, #e2e8f0 0%, #a0aec0 100%);
   display: inline-block;
   position: relative;
   vertical-align: middle;
@@ -90,7 +100,7 @@
   display: inline-block;
   width: var(--button-width);
   height: var(--button-height);
-  background-color: var(--color-grey);
+  background: var(--gradient-off);
   border-radius: calc(var(--button-height) / 2);
   position: relative;
   transition: background 0.3s cubic-bezier(.4,0,.2,1);
@@ -112,7 +122,7 @@
 }
 
 .switch input[type="checkbox"]:checked + .slider {
-  background-color: var(--color-green);
+  background: var(--gradient-on);
 }
 
 .switch input[type="checkbox"]:checked + .slider::after {

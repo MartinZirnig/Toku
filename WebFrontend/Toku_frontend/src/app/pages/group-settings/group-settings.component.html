@@ -164,9 +164,9 @@
                 <label class="switch">
                   <input
                     type="checkbox"
-                    [formControlName]="permission"
+                    [checked]="getPermissionValue(selectedMember, permission)"
                     [disabled]="!selectedMember"
-                    (change)="updatePermissions()"
+                    (change)="updatePermissionSwitch(permission, $event)"
                   />
                   <span class="slider"></span>
                 </label>
@@ -203,3 +203,6 @@
   class="fixed z-50000"
   (closeFinder)="toggleUserFinder(true)"
 ></app-user-finder>
+
+<!-- Are you sure popup -->
+<app-are-you-sure-pop-up *ngIf="showAreYouSure"></app-are-you-sure-pop-up>
