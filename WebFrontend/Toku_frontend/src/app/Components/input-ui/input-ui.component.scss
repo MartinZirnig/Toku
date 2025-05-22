@@ -100,15 +100,59 @@
   color: #38bdf8;
 }
 
-.input-bar #pin-button[ngStyle] {
-  background: #2563eb;
-  color: #fff;
+.input-bar #pin-button {
+  background: linear-gradient(135deg,
+    #46f3ff 0%,
+    #528aa9 9.2%,
+    #576086 45.4%,
+    #576086 56.8%,
+    #7b649a 79.2%,
+    #9967ab 93.2%,
+    #ff73e3 100%
+  ) !important;
+  color: #fff !important;
+  border-radius: 50%;
+  min-width: 40px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  transition: background 0.18s, box-shadow 0.18s;
 }
 
-.input-bar #pin-button[ngStyle]:hover,
-.input-bar #pin-button[ngStyle]:focus {
-  background: #1e40af;
-  color: #fff;
+.input-bar #pin-button:hover,
+.input-bar #pin-button:focus {
+  background: linear-gradient(135deg,
+    #ff73e3 0%,
+    #9967ab 20%,
+    #7b649a 40%,
+    #576086 60%,
+    #528aa9 80%,
+    #46f3ff 100%
+  ) !important;
+  color: #fff !important;
+}
+
+.input-bar #pin-button.has-files {
+  background: linear-gradient(135deg,
+    #fbbf24 0%,
+    #f59e42 30%,
+    #f43f5e 70%,
+    #a21caf 100%
+  ) !important;
+  color: #fff !important;
+}
+
+.input-bar #pin-button.has-files:hover,
+.input-bar #pin-button.has-files:focus {
+  background: linear-gradient(135deg,
+    #a21caf 0%,
+    #f43f5e 30%,
+    #f59e42 70%,
+    #fbbf24 100%
+  ) !important;
+  color: #fff !important;
 }
 
 .input-bar #emoji-button {
@@ -220,10 +264,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.2rem;
-  height: 2.2rem;
   border-radius: 50%;
-  font-size: 1.1rem;
+  font-size: 1.3rem;
   font-weight: 700;
   color: #fff;
   background: transparent;
