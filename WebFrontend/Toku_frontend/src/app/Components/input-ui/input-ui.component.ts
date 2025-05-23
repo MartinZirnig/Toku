@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild, HostListener, Renderer2 } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, HostListener, Renderer2, Input } from '@angular/core';
 import {
   buttonBackground,
   buttonHoverBackground,
@@ -20,16 +20,17 @@ import { GroupService } from '../../data_managements/services/group-service.serv
 import { MainInputService } from '../../services/main-input.service';
 import { GroupReloadService } from '../../services/group-reload.service';
 import { EmojiPopupService } from '../../services/emoji-popup.service';
-import { FileFormComponent } from './file-form/file-form.component';
 import { FileUploadService } from '../../services/file-upload.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-input-ui',
   templateUrl: './input-ui.component.html',
   styleUrls: ['./input-ui.component.scss'], 
-  imports: [EmojisPopUpComponent, NgIf, FileFormComponent, NgStyle, NgClass]
+  imports: [EmojisPopUpComponent, NgIf, NgStyle, NgClass, FormsModule]
 })
 export class InputUiComponent implements OnInit {
+  @Input() userTyping: string = '';
   @ViewChild('chatTextarea', { static: true }) textarea!: ElementRef<HTMLTextAreaElement>;
   @ViewChild('customScrollbarThumb', { static: true }) scrollThumb!: ElementRef<HTMLDivElement>;
   @ViewChild('customScrollbarTrack', { static: true }) scrollTrack!: ElementRef<HTMLDivElement>;
@@ -41,9 +42,9 @@ export class InputUiComponent implements OnInit {
   private animationFrameId: number | null = null;
 
   hasFiles = false;
-  isFileFormVisible = false;
   totalFileSize = '';
-  fileCount = 0; // přidáno
+  fileCount = 0;
+  
 
   constructor(
     private renderer: Renderer2, 
@@ -62,7 +63,7 @@ export class InputUiComponent implements OnInit {
 
     this.fileUploadService.files$.subscribe((files) => {
       this.hasFiles = files.length > 0;
-      this.fileCount = files.length; // přidáno
+      this.fileCount = files.length;
       const totalSizeInBytes = files.reduce((sum, file) => sum + file.size, 0);
 
       if (totalSizeInBytes < 1024) {
@@ -75,9 +76,6 @@ export class InputUiComponent implements OnInit {
         this.totalFileSize = `${(totalSizeInBytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
       }
     });
-    this.fileUploadService.isVisible$.subscribe(
-      (isVisible) => (this.isFileFormVisible = isVisible)
-    );
   }
 
   ngOnInit(): void {

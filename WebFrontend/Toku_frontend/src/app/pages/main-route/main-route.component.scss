@@ -17,7 +17,7 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  overflow-y: auto;
+  overflow-y: hidden; // zabrání scrollování celé oblasti
   transition: left 0.4s cubic-bezier(.4,0,.2,1), width 0.4s cubic-bezier(.4,0,.2,1);
 }
 
@@ -43,13 +43,86 @@
 }
 
 .main-page-inner {
- 
   width: 100%;
-  
-  
-  
-  
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  padding-bottom: 0; // odstraníme padding, už není potřeba
+  height: 100vh; // 80px = výška inputu, uprav dle potřeby
+
+  /* Profesionální tenký scrollbar pouze pro .main-page-inner */
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: rgba(179,179,179,0.3) transparent; /* 30% opacity */
+
+  /* Webkit (Chrome, Edge, Safari) */
+  &::-webkit-scrollbar {
+    width: 6px;
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #b3b3b3;
+    border-radius: 4px;
+    opacity: 0.3;
+    transition: opacity 0.5s cubic-bezier(.4,0,.2,1); // delší a plynulejší přechod
+  }
+  &::-webkit-scrollbar-thumb:hover,
+  &::-webkit-scrollbar-thumb:active {
+    opacity: 1;
+    /* transition zde není nutný, dědí se z výchozího stavu */
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+.main-input-ui {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 700px; // nebo podle potřeby
+  z-index: 900;
+  display: flex;
+  justify-content: center;
+  pointer-events: auto;
+}
+
+.scroll-btn {
+  position: absolute;
+  right: 18px;
+  background: rgba(30, 41, 59,1);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  opacity: 0.3;
+  transition: opacity 0.25s cubic-bezier(.4,0,.2,1), background 0.2s;
+  z-index: 9999;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+ 
+  padding: 0;
+}
+
+
+
+.scroll-btn-up-center {
+  top: 80px;
+  z-index: 99999;
+  right: 5;
+}
+
+.scroll-btn-down-center {
+  right: 5;
+  bottom: 125px;
+  
+}
+
+.scroll-btn:hover, .scroll-btn:focus {
+  opacity: 1;
+  background: rgba(55, 75, 108, 0.916);
 }

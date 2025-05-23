@@ -1,4 +1,4 @@
-<div class="menu-ui-fixed-right backdrop-blur-[1px] mr-4"
+<div class="menu-ui-fixed-right backdrop-blur-[1px]"
      [ngClass]="{
        'menu-full-width': !menuService.showDropdown,
        'animate-fade-in-right': menuService.isVisible,
@@ -17,8 +17,8 @@
     </div>
 
     <!-- Pravé tlačítko s dropdown -->
-    <div class="relative ml-auto backdrop-blur-md">
-      <button class="user-btn-gradient w-12 h-12 rounded-full flex items-center justify-center bg-black/30 transition-all duration-300 cursor-pointer"
+    <div class="relative ml-auto ">
+      <button class="w-12 h-12 rounded-full flex items-center justify-center bg-black/30 transition-all duration-300 cursor-pointer"
               (click)="toggleDropdown()">
         <svg class="w-8 h-8 text-white" viewBox="0 0 24 24">
           <path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>

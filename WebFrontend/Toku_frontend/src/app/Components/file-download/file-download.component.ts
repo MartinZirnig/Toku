@@ -1,10 +1,12 @@
+import { NgFor } from '@angular/common';
 import { Component, Input, Output, EventEmitter, HostListener } from '@angular/core';
 
 @Component({
   selector: 'app-file-download',
   templateUrl: './file-download.component.html',
   styleUrls: ['./file-download.component.scss'],
-  standalone: true
+  standalone: true,
+  imports: [NgFor]
 })
 export class FileDownloadComponent {
   @Input() files: { name: string, size: number, url: string }[] = [];

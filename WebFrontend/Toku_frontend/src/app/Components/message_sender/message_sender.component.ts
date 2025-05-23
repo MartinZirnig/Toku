@@ -6,9 +6,11 @@ import { NgModel, FormsModule } from '@angular/forms'; // Import FormsModule for
 import { PopUpService } from '../../services/pop-up.service'; // Import the popup service
 import { EmojiPopupService } from '../../services/emoji-popup.service'; // Import EmojiPopupService
 import { FileDownloadPopupService } from '../../services/file-download-popup.service';
+import { ContextMenuMessagesService } from '../../services/context-menu-messages.service';
 
 import { ReactionCounterComponent} from '../reaction-counter/reaction-counter.component'; 
 import { EmojisPopUpComponent } from '../emojis-pop-up/emojis-pop-up.component';
+import { ContextMenuMessagesComponent } from '../../context-menu-messages/context-menu-messages.component';
 
 import { MessageControllService } from '../../data_managements/control-services/message-controll.service';
 import { StoredMessageModel } from '../../data_managements/models/stored-message-model';
@@ -18,7 +20,7 @@ import { StoredMessageModel } from '../../data_managements/models/stored-message
   selector: 'app-message',
   templateUrl: './message_sender.component.html',
   styleUrls: ['./message_sender.component.scss'],
-  imports: [NgIf, NgClass, FormsModule, NgStyle, ReactionCounterComponent], // Add FormsModule
+  imports: [NgIf, NgClass, FormsModule, NgStyle, ReactionCounterComponent, ContextMenuMessagesComponent],
 })
 export class 
 Message_senderComponent implements OnInit {
@@ -53,6 +55,9 @@ Message_senderComponent implements OnInit {
   showReaction: boolean = true; // Track if the reaction menu is visible
   private hasAnimated = false;
 
+  menuX: number = 0;
+  menuY: number = 0;
+
   constructor(
     private menuService: MenuService, 
     private sanitizer: DomSanitizer, 
@@ -60,7 +65,8 @@ Message_senderComponent implements OnInit {
     private msgCtrl: MessageControllService,
     private popupService: PopUpService, // Inject the popup service
     private emojiPopupService: EmojiPopupService, // Inject EmojiPopupService
-    private fileDownloadPopupService: FileDownloadPopupService // Inject new service
+    private fileDownloadPopupService: FileDownloadPopupService, // Inject new service
+    private contextMenuMessagesService: ContextMenuMessagesService
   ) {} // Inject DomSanitizer
 
   private startX = 0; // Initial position
@@ -105,15 +111,27 @@ Message_senderComponent implements OnInit {
   }
 
   toggleMenu(event: MouseEvent): void {
-    event.stopPropagation(); // Prevent event propagation
-    if (this.menuVisible) {
-      this.menuVisible = false;
-      this.menuService.closeMenu(); // Notify service to close all menus
-    } else {
-      this.menuService.closeMenu(); // Close other menus
-      this.menuVisible = true;
-      this.menuService.setActiveMenu(this); // Set this menu as active
+    event.stopPropagation();
+    let x = event.clientX;
+    let y = event.clientY;
+    if (this.menuTrigger && this.menuTrigger.nativeElement) {
+      const rect = this.menuTrigger.nativeElement.getBoundingClientRect();
+      x = rect.right;
+      y = rect.bottom;
     }
+    this.contextMenuMessagesService.open({
+      x,
+      y,
+      showEdit: true,
+      showReply: true,
+      actions: {
+        edit: () => this.onEdit(),
+        delete: () => this.onDelete(),
+        react: () => this.onReact(),
+        copy: () => this.copyToClipboard(),
+        reply: () => this.onReply()
+      }
+    });
   }
 
   @HostListener('document:click', ['$event'])
@@ -129,12 +147,26 @@ Message_senderComponent implements OnInit {
   }
 
   onRightClick(event: MouseEvent): void {
-    event.preventDefault(); // Prevent the default context menu
-    event.stopPropagation(); // Stop event propagation
-    this.menuService.closeMenu(); // Close other menus
-    this.menuVisible = true; // Open the context menu
-    this.menuService.setActiveMenu(this); // Set this menu as active
-    console.log('Right-click menu opened'); // Debug log
+    event.preventDefault();
+    event.stopPropagation();
+    this.contextMenuMessagesService.open({
+      x: event.clientX,
+      y: event.clientY,
+      showEdit: true,
+      showReply: true,
+      actions: {
+        edit: () => this.onEdit(),
+        delete: () => this.onDelete(),
+        react: () => this.onReact(),
+        copy: () => this.copyToClipboard(),
+        reply: () => this.onReply()
+      }
+    });
+  }
+
+  private setMenuPosition(event: MouseEvent): void {
+    this.menuX = event.clientX - 300;
+    this.menuY = event.clientY - 50;
   }
 
   onEdit(): void {
@@ -306,6 +338,11 @@ Message_senderComponent implements OnInit {
     const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  onReply(): void {
+    // Implement your reply logic here, or just show an alert for now
+    alert('Odpovědět');
   }
   
 }

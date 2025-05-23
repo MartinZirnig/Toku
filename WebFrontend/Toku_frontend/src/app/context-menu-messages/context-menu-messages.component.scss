@@ -1,0 +1,20 @@
+div[ngStyle] {
+  pointer-events: auto;
+  box-sizing: border-box;
+  /* Debug border: */
+  // border: 2px dashed red; // Odstraň debug border
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden; // Přidej tuto řádku
+  max-width: none !important;
+  max-height: none !important;
+  /* Zabrání scrollbars na všech stranách */
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+div[ngStyle]::-webkit-scrollbar {
+  display: none !important;
+}
+ul, li {
+  overflow: visible !important;
+}

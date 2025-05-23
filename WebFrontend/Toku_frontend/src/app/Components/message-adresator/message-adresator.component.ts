@@ -5,12 +5,14 @@ import { PopUpService } from '../../services/pop-up.service'; // Import the popu
 import { ReactionCounterComponent } from '../reaction-counter/reaction-counter.component';
 import { EmojiPopupService } from '../../services/emoji-popup.service'; // Import EmojiPopupService
 import { FileDownloadPopupService } from '../../services/file-download-popup.service'; // Import new service
+import { ContextMenuMessagesService } from '../../services/context-menu-messages.service';
+import { ProfilePictureCircledComponent } from '../profile-picture-circled/profile-picture-circled.component';
 
 @Component({
   selector: 'app-message-adresator',
   templateUrl: './message-adresator.component.html',
   styleUrls: ['./message-adresator.component.scss'],
-  imports: [NgIf, NgClass,ReactionCounterComponent],
+  imports: [NgIf, NgClass, ReactionCounterComponent, ProfilePictureCircledComponent],
 })
 export class MessageAdresatorComponent implements OnInit {
   @Input() text!: string;
@@ -19,9 +21,10 @@ export class MessageAdresatorComponent implements OnInit {
   @Input() previewText!: string | null; // New input for preview text
   @Input() hasFile: boolean = false; // New input to indicate if the previous message has a file
   @Input() onDeleteMessage!: () => void; // Callback to notify parent component about deletion
-  @Input() reactionsData!: string; // Input for reaction data
+  @Input() reactionsData: string = ''; // Input for reaction data
   @Input() fileCount: number = 0;
   @Input() fileTotalSize: number = 0;
+  @Input() adresatorPicture?: string; // <-- přidáno pro avatar obrázek
 
   @ViewChild('menuTrigger', { static: false }) menuTrigger!: ElementRef;
   @ViewChild('messageContainer') messageContainer!: ElementRef;
@@ -29,12 +32,15 @@ export class MessageAdresatorComponent implements OnInit {
   menuVisible = false;
   isLongText = false;
   private hasAnimated = false;
+  menuX: number = 0;
+  menuY: number = 0;
 
   constructor(
     private menuService: MenuService,
     private popupService: PopUpService,
     private emojiPopupService: EmojiPopupService, // Inject EmojiPopupService
-    private fileDownloadPopupService: FileDownloadPopupService // Inject new service
+    private fileDownloadPopupService: FileDownloadPopupService, // Inject new service
+    private contextMenuMessagesService: ContextMenuMessagesService
   ) {}
 
   ngOnInit(): void {
@@ -55,24 +61,41 @@ export class MessageAdresatorComponent implements OnInit {
   }
 
   toggleMenu(event: MouseEvent): void {
-    event.stopPropagation(); // Prevent event propagation
-    if (this.menuVisible) {
-      this.menuVisible = false;
-      this.menuService.closeMenu(); // Notify service to close all menus
-    } else {
-      this.menuService.closeMenu(); // Close other menus
-      this.menuVisible = true;
-      this.menuService.setActiveMenu(this); // Set this menu as active
+    event.stopPropagation();
+    let x = event.clientX;
+    let y = event.clientY;
+    if (this.menuTrigger && this.menuTrigger.nativeElement) {
+      const rect = this.menuTrigger.nativeElement.getBoundingClientRect();
+      x = rect.right;
+      y = rect.bottom;
     }
+    this.contextMenuMessagesService.open({
+      x,
+      y,
+      showEdit: false,
+      showReply: false,
+      actions: {
+        delete: () => this.onDelete(),
+        react: () => this.onReact(),
+        copy: () => this.copyToClipboard()
+      }
+    });
   }
 
   onRightClick(event: MouseEvent): void {
-    event.preventDefault(); // Prevent the default context menu
-    event.stopPropagation(); // Stop event propagation
-    this.menuService.closeMenu(); // Close other menus
-    this.menuVisible = true; // Open the context menu
-    this.menuService.setActiveMenu(this); // Set this menu as active
-    console.log('Right-click menu opened'); // Debug log
+    event.preventDefault();
+    event.stopPropagation();
+    this.contextMenuMessagesService.open({
+      x: event.clientX,
+      y: event.clientY,
+      showEdit: false,
+      showReply: false,
+      actions: {
+        delete: () => this.onDelete(),
+        react: () => this.onReact(),
+        copy: () => this.copyToClipboard()
+      }
+    });
   }
 
   onEdit(): void {

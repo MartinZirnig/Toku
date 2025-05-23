@@ -1,13 +1,15 @@
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, HostListener, Input, OnChanges } from '@angular/core';
 import { CommonModule, NgIf } from '@angular/common';
 import { ActiveGroupMenuService} from '../../../services/active-group-menu-service.service';
 import { AvailableGroupsModel } from '../../../data_managements/models/available-groups-model';
 import { GroupsLoaderService } from '../../../data_managements/control-services/groups-loader.service';
 import { Redirecter } from '../../../data_managements/redirecter.service';
+import { ContextMenuGroupsService } from '../../../services/context-menu-groups.service';
+import { ProfilePictureCircledComponent } from '../../profile-picture-circled/profile-picture-circled.component';
 
 @Component({
   selector: 'app-active-group',
-  imports: [CommonModule, NgIf], 
+  imports: [CommonModule, NgIf, ProfilePictureCircledComponent], 
   templateUrl: './active-group.component.html',
   styleUrl: './active-group.component.scss'
 })
@@ -27,7 +29,8 @@ export class ActiveGroupComponent {
   constructor(
     public service: ActiveGroupMenuService,
     private loader: GroupsLoaderService,
-    private redirecter: Redirecter
+    private redirecter: Redirecter,
+    private contextMenuGroupsService: ContextMenuGroupsService
   ) { }
 
   public load(model: AvailableGroupsModel) : void {
@@ -57,7 +60,33 @@ export class ActiveGroupComponent {
 
   onMenuClick(event: MouseEvent) {
     event.stopPropagation();
-    // Zde otevřete menu, dialog, nebo proveďte další akce pro tuto skupinu
-    console.log('Menu pro skupinu:', this.data);
+    const rect = (event.target as HTMLElement).getBoundingClientRect();
+    this.contextMenuGroupsService.open({
+      x: rect.right,
+      y: rect.bottom,
+      actions: {
+        settings: () => this.editClicked(),
+        mute: () => this.muteGroup()
+      }
+    });
+  }
+
+  @HostListener('contextmenu', ['$event'])
+  onRightClick(event: MouseEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.contextMenuGroupsService.open({
+      x: event.clientX,
+      y: event.clientY,
+      actions: {
+        settings: () => this.editClicked(),
+        mute: () => this.muteGroup()
+      }
+    });
+  }
+
+  muteGroup() {
+    // Implementace ztišení skupiny
+    alert('Skupina ztišena!');
   }
 }

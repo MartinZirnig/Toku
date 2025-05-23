@@ -66,7 +66,7 @@
 .input-bar {
   width: 100%;
   max-width: 700px;
-  margin: 0 auto;
+ // margin: 0 auto;
   display: flex;
   align-items: flex-end;
   gap: 0.75rem;
@@ -286,10 +286,12 @@
   width: 100%;
   min-height: 2.8rem;
   max-height: 8rem;
-  border: none;
+  border: 2px solid transparent;
+  background: 
+    linear-gradient(#23293a, #23293a) padding-box,
+    linear-gradient(160deg, #303850ac 30%, #e5e7eb81 100%) border-box;
   outline: none;
   border-radius: 1.5rem;
-  background: #23293a;
   color: #f1f5f9;
   font-size: 1.08rem;
   padding: 0.7rem 1.2rem;
@@ -302,6 +304,10 @@
 
 .input-bar textarea:focus {
   background: #1e293b;
+  border: 2px solid transparent;
+  background: 
+    linear-gradient(#1e293b, #1e293b) padding-box,
+    linear-gradient(90deg, #1e293b 0%, #1e293b 100%) border-box;
   box-shadow: 0 0 0 2px #38bdf880;
 }
 
@@ -493,37 +499,66 @@
   opacity: 1;
 }
 
-.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:focus {
-  opacity: 1;
+.input-spinner-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  gap: 0.75rem;
+  justify-content: flex-start; // zarovnání vlevo
 }
 
-.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:focus-visible {
-  opacity: 1;
+.spinner {
+  --clr: rgba(255, 255, 255, 0.5);
+  --gap: 5px;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--gap);
 }
 
-.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:focus-within {
-  opacity: 1;
+.spinner span {
+  width: 7px;
+  height: 7px;
+  border-radius: 100%;
+  background-color: var(--clr);
+  opacity: 0;
 }
 
-.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:focus:active {
-  opacity: 1;
+.spinner span:nth-child(1) {
+  animation: fade 1s ease-in-out infinite;
 }
 
-.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:focus-visible:active {
-  opacity: 1;
+.spinner span:nth-child(2) {
+  animation: fade 1s ease-in-out 0.33s infinite;
 }
 
-.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:focus-within:active {
-  opacity: 1;
+.spinner span:nth-child(3) {
+  animation: fade 1s ease-in-out 0.66s infinite;
 }
 
-.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:active {
-  opacity: 1;
+@keyframes fade {
+  0%, 100% {
+    opacity: 1;
+  }
+  60% {
+    opacity: 0;
+  }
+}
+
+.spinner-text {
+  font-size: 1.08rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 500;
+  white-space: pre-line;
+  margin-right: -0.8rem; // zmenšení mezery mezi textem a spinnerem
+   // mezera mezi textem a spinnerem
 }
 
 @media (max-width: 700px) {
   .input-bar {
     max-width: 98vw;
-    padding: 0.5rem 0.3rem;
+  
   }
 }

@@ -61,6 +61,11 @@ export class GroupSettingsComponent {
 
   showAreYouSure: boolean = false;
 
+  private initialGroupName: string = '';
+  private initialGroupDescription: string = '';
+  private initialGroupPassword: string = '';
+  private initialGroupMembers: GroupMember[] = [];
+
   constructor(
     private sanitizer: DomSanitizer,
     private groupSettingsService: GroupSettingsService,
@@ -69,6 +74,7 @@ export class GroupSettingsComponent {
     private grpEdi: GroupEditService,
     private grpLdr: GroupsLoaderService,
     private areYouSureService: AreYouSurePopUpService
+    
   ) {}
 
   ngOnInit() {
@@ -100,6 +106,9 @@ export class GroupSettingsComponent {
       console.debug('Group Members:', this.groupMembers);
       this.toggleUserFinder(true);
     });
+
+    // Ulož původní hodnoty po načtení (malé zpoždění pro jistotu)
+    setTimeout(() => this.saveInitialState(), 500);
   }
 
   private loadMembers(){
@@ -110,6 +119,7 @@ export class GroupSettingsComponent {
           const parsed = this.parseAccessModel(data);
           this.groupMembers.push(parsed);
         })
+        this.saveInitialState();
       },
       error: err => {
         console.error('error during member loading', err)
@@ -122,11 +132,19 @@ export class GroupSettingsComponent {
       next: response => {
         this.groupName = response.name;
         this.groupDescription = response.description;
+        this.saveInitialState();
       },
       error: err => {
         console.error('error during data loading', err)
       }
     })
+  }
+
+  private saveInitialState() {
+    this.initialGroupName = this.groupName;
+    this.initialGroupDescription = this.groupDescription;
+    this.initialGroupPassword = this.groupPassword;
+    this.initialGroupMembers = this.groupMembers.map(m => ({ ...m }));
   }
 
   private parseAccessModel(model: GroupUserAccessModel) : GroupMember {
@@ -188,16 +206,45 @@ export class GroupSettingsComponent {
 
   // Implementujte podle vaší logiky
   hasUnsavedChanges(): boolean {
-    // ...detekce změn v group settings...
-    return true; // nebo vaše vlastní podmínka
+    // Porovnej aktuální hodnoty s původními
+    if (
+      this.groupName !== this.initialGroupName ||
+      this.groupDescription !== this.initialGroupDescription ||
+      this.groupPassword !== this.initialGroupPassword
+    ) {
+      return true;
+    }
+    if (this.groupMembers.length !== this.initialGroupMembers.length) {
+      return true;
+    }
+    for (let i = 0; i < this.groupMembers.length; i++) {
+      const a = this.groupMembers[i];
+      const b = this.initialGroupMembers[i];
+      if (
+        a.name !== b.name ||
+        a.userId !== b.userId ||
+        a.isAdmin !== b.isAdmin ||
+        a.isChatManager !== b.isChatManager ||
+        a.canEditGroup !== b.canEditGroup ||
+        a.canDeleteMessages !== b.canDeleteMessages ||
+        a.canDeleteMessagesdd !== b.canDeleteMessagesdd
+      ) {
+        return true;
+      }
+    }
+    return false;
   }
 
   discardChanges(): void {
-    // ...obnovit původní hodnoty...
+    this.groupName = this.initialGroupName;
+    this.groupDescription = this.initialGroupDescription;
+    this.groupPassword = this.initialGroupPassword;
+    this.groupMembers = this.initialGroupMembers.map(m => ({ ...m }));
   }
 
   closeGroupSettings(): void {
-    // ...zavřít group settings popup nebo navigace zpět...
+    // Redirect to main page
+    this.redirecter.LastGroup();
   }
 
   @HostListener('document:keydown', ['$event'])
@@ -345,6 +392,8 @@ export class GroupSettingsComponent {
           this.roomId = response.description;
           this.redirecter.SetFragment(this.roomId);
           this.AppendGroupUsers();
+          // Redirect po úspěšném vytvoření
+          this.redirecter.LastGroup();
         } else {
           console.error('Error creating group:', response.description);
         }
@@ -363,6 +412,8 @@ export class GroupSettingsComponent {
       next: response => {
         if (response.success) {
           this.AppendGroupUsers();
+          // Redirect po úspěšném updatu
+          this.redirecter.LastGroup();
         } else {
           console.error('Error updating group:', response.description);
         }

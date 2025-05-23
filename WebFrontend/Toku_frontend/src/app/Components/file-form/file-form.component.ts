@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule, NgIf, NgStyle } from '@angular/common';
-import { FileUploadService } from '../../../services/file-upload.service';
+import { FileUploadService } from '../../services/file-upload.service';
 
 @Component({
   selector: 'app-file-form',

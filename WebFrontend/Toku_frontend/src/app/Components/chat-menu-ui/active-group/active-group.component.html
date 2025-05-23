@@ -6,13 +6,12 @@
       'ring-1 ring-blue-300 bg-gray-700/80': active,
       'bg-gray-800': !active
     }"
-    (click)="!service.inEditMode && onClick()">
+    (click)="!service.inEditMode && onClick()"
+    (contextmenu)="onRightClick($event)">
 
     <!-- Avatar -->
     <div class="w-12 h-12 flex items-center justify-center rounded-full bg-gradient-to-br from-gray-700 to-gray-900 shadow-inner">
-        <svg class="w-8 h-8 text-white" viewBox="0 0 24 24">
-            <path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-        </svg>
+        <app-profile-picture-circled [picture]="data?.pictureUrl"></app-profile-picture-circled>
     </div>
 
     <!-- Chat info -->
