@@ -18,16 +18,14 @@ export class MainInputService {
     private service: MessageService
   ) {}
 
-  sendMessage(content: string) {
+  sendMessage(content: string, files: number[]) {
     const model = new MessageModel(
-      content, User.Id??'', this.mainPage.roomId)
+      content, User.Id??'', this.mainPage.roomId, files)
     
       this.service.sendMessage(model).subscribe({
         next: response => {
           this.service.getMessage(response).subscribe({
             next: msg => {
-              console.log(msg);
-              console.log(typeof msg);
               this.messageAdded(msg);
             },
             error: err => {

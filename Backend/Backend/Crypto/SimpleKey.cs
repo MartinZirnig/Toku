@@ -11,6 +11,10 @@ public class SimpleKey
     private readonly byte[] _value;
     private readonly byte[] _iv;
 
+    internal byte[] Key => _value;
+    internal byte[] IV => _iv;
+
+
     public SimpleKey()
     {
         _value = CryptoService.GenerateRandomBytes(ValueLength);
@@ -35,15 +39,13 @@ public class SimpleKey
 
             ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
 
-            using (MemoryStream msEncrypt = new MemoryStream())
+            using MemoryStream msEncrypt = new MemoryStream();
+            using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+            using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
             {
-                using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
-                using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
-                {
-                    swEncrypt.Write(message);
-                }
-                return Convert.ToBase64String(msEncrypt.ToArray());
+                swEncrypt.Write(message);
             }
+            return Convert.ToBase64String(msEncrypt.ToArray());
         }
     }
     public string Decrypt(string data)
@@ -66,7 +68,7 @@ public class SimpleKey
 
     public override string ToString()
     {
-        var bytes = new byte[ValueLength + IVLength];
+        var bytes = GC.AllocateUninitializedArray<byte>(ValueLength + IVLength);
         Array.Copy(_value, bytes, ValueLength);
         Array.Copy(_iv, 0, bytes, ValueLength, IVLength);
         return Convert.ToBase64String(bytes);
@@ -84,6 +86,14 @@ public class SimpleKey
         Array.Copy(bytes, ValueLength, iv, 0, IVLength);
 
         return new SimpleKey(value, iv);
+    }
+
+    public static SimpleKey FromEncrypted(string encryptedKey, string decryptedPrivateKey)
+    {
+        byte[] encryptedKeyBytes = Convert.FromBase64String(encryptedKey);
+        string decryptedSymmetricKey = CryptoService.DecryptWithPrivateKey(decryptedPrivateKey, encryptedKeyBytes);
+
+        return FromString(decryptedSymmetricKey);
     }
 }
 

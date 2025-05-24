@@ -30,6 +30,37 @@ internal static class SupportService
             CreatedTime = user.User.CreatedTime,
         };
     }
+    public static async IAsyncEnumerable<LoggedUserData> GetUserLoginsAsync(uint identification, DatabaseContext context)
+    {
+        var users = await context.UserLogins
+            .AsNoTracking()
+            .Include(x => x.User)
+            .ThenInclude(x => x.Key)
+            .Where(x =>
+                x.UserId == identification
+                && x.LoggedOut == null)
+            .ToListAsync()
+            .ConfigureAwait(false);
+
+        foreach (var user in users)
+        {
+            if (user is null) continue;
+            yield return new LoggedUserData()
+            {
+                UserId = user.UserId,
+                Identification = user.SessionId,
+                Name = user.User.Name,
+                Email = user.User.Email,
+                Phone = user.User.Phone,
+                DecryptedPrivateKey = user.DecryptedKey,
+                PublicKey = user.User.Key.PublicKey,
+                LastHeartbeat = user.LashHearthBeat,
+                TimeZoneOffset = user.TimeZoneOffset,
+                CreatedTime = user.User.CreatedTime,
+            };
+        }
+
+    }
     public static async Task<User?> GetUserById
         (uint userId, DatabaseContext context)
     {

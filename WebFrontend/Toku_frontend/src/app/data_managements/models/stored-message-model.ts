@@ -7,7 +7,7 @@ export class StoredMessageModel {
     public time: string,
     public pinnedMessagePrewiev?: string,
     public timeStamp?: string,
-    public attachedFileId?: number,
+    public attachedFilesId?: number[],
     public pinnedMessageId?: number,
   ) {}
 

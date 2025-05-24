@@ -1,6 +1,6 @@
-﻿using BackendInterface;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Org.BouncyCastle.Asn1.Ocsp;
 
 namespace Backend.Attributes;
 public sealed class AuthorizationAttribute : ActionFilterAttribute
@@ -9,9 +9,6 @@ public sealed class AuthorizationAttribute : ActionFilterAttribute
 
     public override void OnActionExecuting(ActionExecutingContext context)
     {
-        foreach(var head in context.HttpContext.Request.Headers.Keys)
-            Console.WriteLine(head);
-
         if (!IsValid(context.HttpContext.Request.Headers))
         {
             context.Result = new
@@ -24,9 +21,12 @@ public sealed class AuthorizationAttribute : ActionFilterAttribute
             context.HttpContext.Request.Headers[UserIdentificationKey];
         base.OnActionExecuting(context);
     }
-    private static bool IsValid(IHeaderDictionary header) =>
+    public static bool IsValid(IHeaderDictionary header) =>
         header.ContainsKey(UserIdentificationKey)
         && !string.IsNullOrEmpty(header[UserIdentificationKey]);
+
+    public static Guid Authorize(HttpContext context) =>
+        Guid.Parse(context.Request.Headers[UserIdentificationKey]!);
 
 
     public static Guid? GetUID(HttpContext request)

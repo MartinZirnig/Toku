@@ -10,7 +10,7 @@ internal class UserMessage
     public virtual User User { get; set; }
 
     public uint MessageId { get; set; }
-    [ForeignKey("StoredFileId")]
+    [ForeignKey("MessageId")]
     public virtual Message Message { get; set; }
 
     public string EncryptedKey { get; set; }

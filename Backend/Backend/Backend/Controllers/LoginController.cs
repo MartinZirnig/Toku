@@ -1,4 +1,6 @@
 ﻿using Backend.Attributes;
+using Backend.Controllers.WebSockets;
+using Backend.Controllers.WebSockets.Management;
 using BackendInterface;
 using BackendInterface.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -50,8 +52,12 @@ public sealed class LoginController : ControllerBase
         using var service = _serviceProvider.GetUserService();
         var uid = (string)HttpContext.Items[AuthorizationAttribute.UserIdentificationKey]!;
         Guid uIdentification = Guid.Parse(uid);
+        if (SocketController.TryGetController<MessagerSocketController>(uIdentification, out var controller))
+        {
+            await controller!.Close();
+        }
+
         await service.LogoutUserAsync(uIdentification);
         return Ok();
     }
-
 }

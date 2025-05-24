@@ -24,7 +24,7 @@ export class MessageControllService {
   }
   public sendMessage(
     content:string, groupId: number, 
-    attachedFileId?: number, pinnedMessageId?: number)
+    attachedFileId?: number[], pinnedMessageId?: number)
     : Observable<number> {
       const model = new MessageModel(
         content, User.Id??'', groupId, attachedFileId, pinnedMessageId

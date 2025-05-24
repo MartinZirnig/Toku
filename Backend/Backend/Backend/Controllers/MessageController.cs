@@ -1,4 +1,6 @@
 ﻿using Backend.Attributes;
+using Backend.Controllers.WebSockets;
+using Backend.Controllers.WebSockets.Management;
 using BackendInterface;
 using BackendInterface.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -26,10 +28,51 @@ public sealed class MessageController : ControllerBase
     public async Task<IActionResult> SendMessageAsync([FromBody] MessageModel model)
     {
         using var service = _serviceProvider.GetDataService();
+        using var groupService = _serviceProvider.GetGroupService();
+        using var userService = _serviceProvider.GetUserService();
+
         var id = await service.ReceiveMessageAsync(model)
             .ConfigureAwait(false);
+
         if (id == 0)
             return BadRequest("Message cannot be saved");
+
+        var executor = (Guid)AuthorizationAttribute.GetUID(HttpContext)!;
+        var executorContext = await userService.GetUserDataAsync(executor);
+        var addresators = await groupService.GetActiveGroupUsersAsync(model.GroupId);
+
+        foreach (var addresator in addresators)
+        {
+            if (addresator.Identification == executor) continue;
+            if (SocketController.TryGetController<MessagerSocketController>(
+                addresator.Identification, out var controller))
+            {
+                var message = await service.GetMessageAsync(executor, id)
+                    .ConfigureAwait(false);
+
+                var files = message?.AttachedFilesId is null
+                    ? string.Empty
+                    : string.Join('$', message.AttachedFilesId);
+
+                var socketMessage = $"new-message {executorContext.Name}#{model.GroupId}#" +
+                    $"{message!.MessageId}" +
+                    $"&{message.MessageContent}" +
+                    $"&{message.GroupId}" +
+                    $"&{message.Status}" +
+                    $"&{message.time}" +
+                    $"&{message.PinnedMessagePreview}" +
+                    $"&{message.timeStamp}" +
+                    $"&{files}" +
+                    $"&{message.PinnedMessageId}";
+
+                await controller!.WriteText(socketMessage);
+            }
+        }
+
+
+
+
+
         return Ok(id.ToString());
     }
 

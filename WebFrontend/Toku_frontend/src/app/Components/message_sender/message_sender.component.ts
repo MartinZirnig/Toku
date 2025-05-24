@@ -74,7 +74,6 @@ Message_senderComponent implements OnInit {
   private isDragging = false; // Dragging state
 
   ngOnInit(): void {
-    console.log('Message initialized:', { text: this.text, image: this.image, time: this.time, status: this.status, previewText: this.previewText, hasFile: this.hasFile, timeStamp: this.timeStamp });
     this.isLongText = this.text.length > 50; // Adjust threshold as needed
     const truncatedText = this.getTruncatedPreviewText(this.previewText, 10); // Limit preview to 10 words
     this.formattedPreviewText = this.sanitizer.bypassSecurityTrustHtml(this.applyGradientToLastCharacters(truncatedText, 10)); // Apply gradient to last 10 characters
@@ -208,7 +207,6 @@ Message_senderComponent implements OnInit {
   }
 
   private processUpdatedText(newText: string): void {
-    console.log('Updated text:', newText); // Log the new text
     this.text = newText; // Update the text property
     this.isLongText = newText.length > 50; // Recalculate if the text is long
   }
@@ -219,7 +217,6 @@ Message_senderComponent implements OnInit {
   }
 
   onDelete(): void {
-    console.log('Message deleted:', this.text); // Log the deleted message
 
     this.msgCtrl.removeMessage(this.raw.messageId)
     .subscribe({
@@ -312,15 +309,13 @@ Message_senderComponent implements OnInit {
   onReact(): void {
     
     this.emojiPopupService.openForReaction((emoji: string) => {
-      this.reactionsData += emoji; // Append the selected emoji to reactionsData
-      console.log('Emoji added to reactionsData:', this.reactionsData);
+      this.reactionsData += emoji;
     });
   }
 
   copyToClipboard(): void {
     if (this.text) {
       navigator.clipboard.writeText(this.text).then(() => {
-        console.log('Message copied to clipboard:', this.text);
         this.popupService.showMessage('Zkopírováno', 1000, '#1d2f47','#ffffff'); // Show popup message
       }).catch(err => {
         console.error('Failed to copy message to clipboard:', err);

@@ -13,7 +13,7 @@ public class EncryptedFile
         : this(Convert.ToBase64String(content))
     { }
 
-    private EncryptedFile(string content)
+    public EncryptedFile(string content)
     {
         SimpleKey key = new SimpleKey();
         Content = key.Encrypt(content);

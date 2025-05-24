@@ -127,7 +127,6 @@ export class ChatMenuUiComponent {
     const request = this.loader.getGroups()
     request.subscribe({
       next: response => {
-        console.log(response)
         this.items = response || [];
         this.filteredItems = this.items; // vždy nastav i filteredItems
         User.Groups = this.items.map(group => String(group.groupId));
@@ -164,8 +163,6 @@ export class ChatMenuUiComponent {
 
   onGroupMenuClick(item: AvailableGroupsModel, event: MouseEvent) {
     event.stopPropagation();
-    // Zde otevřete menu, dialog, nebo proveďte další akce
-    console.log('Menu pro skupinu:', item);
   }
 
   public setActiveGroup(groupId: string | number) {

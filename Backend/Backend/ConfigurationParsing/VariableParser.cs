@@ -7,6 +7,6 @@ public static class VariableParser
     {
         var variableName = $"{{${variable}}}";
         var newText = text.Replace(variableName, value.ToString());
-        return text;
+        return newText;
     }
 }

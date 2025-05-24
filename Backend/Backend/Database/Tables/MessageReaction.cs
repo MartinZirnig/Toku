@@ -12,7 +12,7 @@ internal class MessageReaction
     [Column(Order = 1)]
     public uint ClientId { get; set; }
 
-    [ForeignKey("StoredFileId")]
+    [ForeignKey("StoredFiles")]
     public virtual Message Message { get; set; }
     [ForeignKey("ClientId")]
     public virtual Client Client { get; set; }

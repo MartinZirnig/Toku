@@ -11,11 +11,12 @@ import { User } from '../../data_managements/user';
 import { GoogleAuthenticationService } from '../../data_managements/services/google-authentication-service.service';
 import { Heart } from '../../data_managements/heart.service';
 import { IconComponent } from '../../Components/icon/icon.component';
+import { MessagerService } from '../../data_managements/messager.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, BackgroundLoginComponent, IconComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, IconComponent],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
@@ -28,7 +29,8 @@ export class LoginComponent implements OnInit{
     private redirecter: Redirecter,
     private usrCtrl: UserControlService,
     private googleAut: GoogleAuthenticationService,
-    private heart: Heart
+    private heart: Heart,
+    private messager: MessagerService
   ) {
     this.loginForm = this.fb.group({
       name: ['', Validators.required],
@@ -46,6 +48,7 @@ export class LoginComponent implements OnInit{
 
   onLogin() {
     const {name, password} = this.loginForm.value;
+
     if (this.loginForm.invalid) {
       this.printError('Please fill in all fields.');
       return;
@@ -56,6 +59,7 @@ export class LoginComponent implements OnInit{
 
   private fynishLogin(name: string, password: string) : void {
     const request = this.usrCtrl.login(name, password);
+    console.log(request);
     this.manageLoginResponse(request);
   }
 
@@ -65,10 +69,11 @@ export class LoginComponent implements OnInit{
         next: response => {
           if (response.userIdentification.trim()) {
             User.Id = response.userIdentification;
-            console.log('user id: ', User.Id);
+            User.InnerId = String(response.userId);
             this.loadUserData();
             this.redirecter.Group(response.lastGroupId);
             this.heart.startBeat();
+            this.messager.openSocket();
           }
           else 
             this.printError('cannot login user, user data is not valid');
@@ -83,7 +88,6 @@ export class LoginComponent implements OnInit{
     const request = this.usrCtrl.getUserData();
     request.subscribe({
       next: response => {
-        console.log('user data: ', response);
         User.Data = response;
       },
       error: err => {

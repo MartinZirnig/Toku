@@ -1,8 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { MessageModel } from './../models/message-model';
-import { StoredMessageModel } from './../models/stored-message-model';
 import { Server } from '../server';
 import { AvailableGroupsModel } from '../models/available-groups-model';
 import { RequestResultModel } from '../models/result-model';

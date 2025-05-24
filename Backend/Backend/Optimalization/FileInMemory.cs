@@ -1,107 +1,63 @@
-﻿using System.Buffers;
-using System.Runtime.InteropServices;
-
+﻿using Crypto;
 namespace Optimalization;
 
-public sealed class FileInMemory : MemoryManager<byte>, IDisposable
+public sealed class FileInMemory
 {
-    private unsafe byte* _data;
-    private int _size;
-    private int _used;
-    private bool _disposed;
+    private readonly byte[] _data;
 
-    internal bool Used;
+    public int Size => _data.Length;
+    public int ContentSize { get; private set; }
+    internal bool Used { get; set; }
 
-    public int Length => _used;
-    public int BackgroundSize => _size;
-
-    public unsafe FileInMemory(int size)
+    public FileInMemory(int size)
     {
-        _size = size;
-        _used = 0;
-        _data = (byte*)NativeMemory.Alloc((nuint)size);
-        _disposed = false;
+        ArgumentOutOfRangeException.ThrowIfLessThan(size, 1);
+
+        _data = GC.AllocateUninitializedArray<byte>(size);
+        Used = false;
     }
-    private unsafe FileInMemory(byte* data, int size)
-    {
-        _size = size;
-        _used = 0;
-        _data = data;
-        _disposed = false;
-    }
-    protected override bool TryGetArray(out ArraySegment<byte> segment)
-    {
-        segment = default;
-        return false;
-    }
-    public override Memory<byte> Memory => CreateMemory(_used);
 
+    public void LoadFromStream(Stream stream)
+    {
+       var buffer = new Span<byte>(_data);
 
-    public unsafe override Span<byte> GetSpan()
-    {
-        return new Span<byte>(_data, _used);
-    }
-    public unsafe override MemoryHandle Pin(int elementIndex = 0)
-    {
-        return new MemoryHandle(_data + elementIndex);
-    }
-    public override void Unpin() { }
-
-    public unsafe void LoadFromStream(Stream stream)
-    {
-        var buffer = new Span<byte>(_data, _size);
 
         int read = 0;
         int now;
-        while ((now = stream.Read(buffer.Slice(read))) > 0)
+        while ((now = stream.Read(buffer[read..])) > 0)
             read += now;
-
-        _used = read;
+        ContentSize = read;
     }
     public async Task LoadFromStreamAsync(Stream stream)
     {
-        var memory = CreateMemory(_size);
+        var memory = new Memory<byte>(_data);
 
         int read = 0;
         int now;
-        while ((now = await stream.ReadAsync(memory.Slice(read))) > 0)
+        while ((now = await stream.ReadAsync(memory[read..])) > 0)
             read += now;
 
-        _used = read;
+        ContentSize = read;
+    }
+    public void Clear()
+    {
+        ContentSize = 0;
     }
 
-    public unsafe (FileInMemory, FileInMemory) Split()
+    public EncryptedFile Encrypt()
     {
-        int newSize = _size >> 1;
-        var newPtr = _data + newSize;
+        ThrowWhenNotLoaded();
+        var span = new Span<byte>(_data, 0, ContentSize);
 
-        var item1 = new FileInMemory(_data, newSize);
-        var item2 = new FileInMemory(newPtr, newSize);
-
-        _data = null;
-        _size = 0;
-        _used = 0;
-        _disposed = true;
-
-        return (item1, item2);
+        return new EncryptedFile(span);
     }
 
-    public void Dispose()
+    private void ThrowWhenNotLoaded()
     {
-        if (!_disposed)
-            Dispose(true);
-    }
-    protected override unsafe void Dispose(bool disposing)
-    {
-        NativeMemory.Free(_data);
-        _data = null;
-        _size = 0;
-        _used = 0;
-        _disposed = true;
-    }
-
-    public static unsafe explicit operator ReadOnlySpan<byte>(FileInMemory file)
-    {
-        return new ReadOnlySpan<byte>(file._data, file._used);
+        if (ContentSize == 0)
+        {
+            throw new InvalidOperationException(
+                "Instance must be filled with data before use");
+        }
     }
 }

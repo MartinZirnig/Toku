@@ -3,13 +3,9 @@ using BackendInterface;
 using BackendInterface.DataObjects;
 using BackendInterface.Models;
 using Crypto;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using MysqlDatabase.Tables;
 using MysqlDatabaseControl;
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 
 namespace MysqlDatabase;
 internal class DataService : DatabaseServisLifecycle, IDataService
@@ -43,8 +39,6 @@ internal class DataService : DatabaseServisLifecycle, IDataService
             var users = await SupportService.GetGroupUsersAsync(
                 message.GroupId, Context);
 
-
-
             var tasks = users.Select(user =>
                 StoreUserMessageRelationAndHistoryAsync(
                     encrypted, user, messageId, message));
@@ -64,12 +58,13 @@ internal class DataService : DatabaseServisLifecycle, IDataService
     private static async Task StoreUserMessageRelationAndHistoryAsync
         (EncryptedMessage msg, User usr, uint msgId, MessageModel model)
     {
-        using var tempContext = new DatabaseContext();
+        await using var tempContext = new DatabaseContext();
         using var off = new ConstraintOff(tempContext);
 
         await StoreUserMessageRelationAsync(msg, usr, msgId, tempContext)
             .ConfigureAwait(false);
-        await BoundRelations(msgId, model.GroupId, usr, tempContext);
+        await BoundRelations(msgId, model.GroupId, usr, tempContext)
+            .ConfigureAwait(false);
     }
 
     private async Task<uint> StoreMessageAsync(
@@ -84,7 +79,6 @@ internal class DataService : DatabaseServisLifecycle, IDataService
         {
             GroupId = model.GroupId,
             Content = message.Content,
-            StoredFileId = model.AttachedFileId,
             SenderId = user.UserId,
             PinnedMessageId = model.PinnedMessageId,
             CreatedTime = DateTime.UtcNow,
@@ -93,6 +87,19 @@ internal class DataService : DatabaseServisLifecycle, IDataService
         Context.Messages.Add(dbMessage);
         await Context.SaveChangesAsync();
 
+        if (model.AttachedFilesId is not null)
+        {
+            foreach (var file in model.AttachedFilesId)
+            {
+                await Context.MessageStoredFiles.AddAsync(new MessageStoredFile()
+                {
+                    MessageId = dbMessage.MessageId,
+                    StoredFileId = file
+                });
+            }
+        }
+
+        await Context.SaveChangesAsync();
         return dbMessage.MessageId;
     }
     private static async Task StoreUserMessageRelationAsync(
@@ -117,8 +124,8 @@ internal class DataService : DatabaseServisLifecycle, IDataService
 
         var client = await SupportService.GetGroupClientAsync(
             usr.UserId, groupId, tempContext)
-            .ConfigureAwait(false);
-        if (client is null) throw new UnauthorizedAccessException();
+            .ConfigureAwait(false)
+            ?? throw new UnauthorizedAccessException();
 
         var status = new MessageStatus()
         {
@@ -146,11 +153,13 @@ internal class DataService : DatabaseServisLifecycle, IDataService
     }
     private async Task UpdateGroupTimingAsync(uint groupId)
     {
-        var group = await Context.Groups
-            .FindAsync(groupId);
-        if (group is null) return;
+        await Context.Groups
+            .Where(g => g.GroupId == groupId)
+            .ExecuteUpdateAsync(x =>
+                x.SetProperty(g =>
+                    g.LastOperation, DateTime.UtcNow))
+            .ConfigureAwait(false);
 
-        group.LastOperation = DateTime.UtcNow;
         await Context.SaveChangesAsync();
     }
 
@@ -222,7 +231,7 @@ internal class DataService : DatabaseServisLifecycle, IDataService
         var result = new StoredMessageModel(
             messageId,
             content,
-            message.StoredFileId,
+            message.MessageStoredFiles.Select(msf => msf.StoredFileId).ToArray(),
             message.PinnedMessageId,
             message.GroupId,
             (byte)(status ?? MessageStatusCode.Sent),
@@ -251,7 +260,6 @@ internal class DataService : DatabaseServisLifecycle, IDataService
             .Where(ms => ms.MessageId == messageId)
             .Select(ms => ms.StatusCode);
 
-        //Console.WriteLine($"{messageId} -> {statuses.Count} -> {query.ToQueryString().Replace('\n', ' ').Replace('\r', ' ')}");
 
         if (statuses.Count == 0) return null;
 

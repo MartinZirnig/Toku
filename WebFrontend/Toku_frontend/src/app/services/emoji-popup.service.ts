@@ -32,7 +32,6 @@ export class EmojiPopupService {
   }
 
   openForReaction(callback: (emoji: string) => void): void {
-    console.log('Opening emoji popup for reaction');
     this._mode = 'reaction';
     this._reactionCallback = callback;
 

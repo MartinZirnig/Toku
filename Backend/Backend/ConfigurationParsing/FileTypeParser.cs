@@ -1,6 +1,5 @@
 ﻿using YamlDotNet.Serialization.NamingConventions;
 using YamlDotNet.Serialization;
-using Google.Protobuf;
 using BackendEnums;
 
 namespace ConfigurationParsing;
@@ -12,7 +11,15 @@ public class FileTypeParser
     public FileTypeParser
         (string filePath = BasicConfig.DefaultFileTypesPath)
     {
-        _loadedMap = LoadFileTypeMap(filePath);
+        try
+        {
+            filePath = SystemPathParser.ReplaceSystemPaths(filePath);
+            _loadedMap = LoadFileTypeMap(filePath);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
     }
     private static Dictionary<string, FileType> LoadFileTypeMap(string filePath)
     {

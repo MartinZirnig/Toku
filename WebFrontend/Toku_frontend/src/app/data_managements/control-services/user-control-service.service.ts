@@ -65,7 +65,6 @@ export class UserControlService {
 
   private GetTimeZone(): number {
     var time = new Date().getTimezoneOffset();
-    console.log("TimeZone: " + time);
     return time;
   }
 }

@@ -84,4 +84,18 @@ public class PPKeyPair
 
         return Convert.ToBase64String(key);
     }
+
+    public string EncryptByPublicKey(SimpleKey key)
+    {
+        var bytes = CryptoService.EncryptWithPublicKey(PublicKeyPem, key.ToString());
+        return Convert.ToBase64String(bytes);
+    }
+    public SimpleKey DecryptByPrivateKey(string encrypted, string password)
+    {
+        var key = DecryptPrivateKey(password);
+        var bytes = Convert.FromBase64String(encrypted);
+        var decryptedKey = CryptoService.DecryptWithPrivateKey(key, bytes);
+        return SimpleKey.FromString(decryptedKey);
+    }
+
 }

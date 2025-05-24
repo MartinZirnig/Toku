@@ -1,14 +1,11 @@
 ﻿using System.Collections.Concurrent;
-using System.Diagnostics.Tracing;
-using System.Net.Http.Headers;
-using System.Security.Cryptography.X509Certificates;
 
 namespace Optimalization;
 
 public sealed class FileInMemoryManager
     : IDisposable
 {
-    private readonly List<FileInMemory> _files;
+    private readonly HashSet<FileInMemory> _files;
     private readonly long _maxSize;
     private long _usedSize;
     private readonly object _lock;
@@ -19,9 +16,9 @@ public sealed class FileInMemoryManager
 
     public FileInMemoryManager(long maxSize)
     {
-        _maxSize = NextPowerOfTwo(maxSize);
+        _maxSize = maxSize.NextPowerOfTwo();
         _usedSize = 0;
-        _files = new List<FileInMemory>();
+        _files = new HashSet<FileInMemory>();
         _cancel = new CancellationTokenSource();
         _requests = new ConcurrentQueue<RequestOperation>();
         _lock = new object();
@@ -72,7 +69,7 @@ public sealed class FileInMemoryManager
 
     public Task<FileInMemory> RentAsync(int size)
     {
-        size = (int)NextPowerOfTwo(size);
+        size = size.NextPowerOfTwo();
         ThrowWhenInvalidSize(size);
         ThrowWhenDisposed();
 
@@ -85,10 +82,7 @@ public sealed class FileInMemoryManager
     public void Return(FileInMemory file)
     {
         if (_cancel.IsCancellationRequested)
-        {
-            file.Dispose();
             return;
-        }
 
         file.Used = false;
 
@@ -97,7 +91,7 @@ public sealed class FileInMemoryManager
             if (!_files.Contains(file))
             {
                 _files.Add(file);
-                _usedSize += file.BackgroundSize;
+                _usedSize += file.Size;
             }
         }
     }
@@ -115,8 +109,7 @@ public sealed class FileInMemoryManager
     }
     private void Consume(FileInMemory target)
     {
-        _usedSize -= target.BackgroundSize;
-        target.Dispose();
+        _usedSize -= target.Size;
 
         _files.Remove(target);
     }
@@ -130,28 +123,13 @@ public sealed class FileInMemoryManager
     private FileInMemory? FindUnused(long size)
     {
         var greater = _files
-            .Where(f => !f.Used && f.BackgroundSize >= size)
-            .OrderBy(f => f.BackgroundSize)
+            .Where(f => !f.Used && f.Size >= size)
+            .OrderBy(f => f.Size)
             .FirstOrDefault();
 
         return greater;
     }
 
-    private static long NextPowerOfTwo(long n)
-    {
-        if (n < 1)
-            return 1;
-
-        n--;
-        n |= n >> 1;
-        n |= n >> 2;
-        n |= n >> 4;
-        n |= n >> 8;
-        n |= n >> 16;
-        n++;
-
-        return n;
-    }
     private void ThrowWhenInvalidSize(long size)
     {
         if (size > _maxSize)
@@ -171,12 +149,6 @@ public sealed class FileInMemoryManager
 
         lock (_lock)
         {
-            var unusedFiles = _files
-    .           Where(f => !f.Used);
-
-            foreach (var file in unusedFiles)
-                file.Dispose();
-
             _files.Clear();
         }
 

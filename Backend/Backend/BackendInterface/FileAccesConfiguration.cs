@@ -1,6 +1,8 @@
 ﻿namespace BackendInterface;
 
 public record FileAccessConfiguration(
-    IReadOnlyCollection<string> UserPaths,
-    IReadOnlyCollection<string> GroupPaths
+    string PublicUser,
+    string PrivateUser,
+    string PublicGroup,
+    string PrivateGroup
     );

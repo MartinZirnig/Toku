@@ -5,6 +5,7 @@ import { IconComponent } from '../icon/icon.component';
 import { User } from '../../data_managements/user';
 import { Redirecter } from '../../data_managements/redirecter.service';
 import { Heart } from '../../data_managements/heart.service';
+import { MessagerService } from '../../data_managements/messager.service';
 
 @Component({
   selector: 'app-menu-ui',
@@ -23,7 +24,8 @@ export class MenuUiComponent {
   public constructor(
     public menuService: OpenAndcloseMenuService, 
     private redirecter: Redirecter,
-    private heart: Heart
+    private heart: Heart,
+    private messager: MessagerService
   ) {}
 
   showMenu() {
@@ -63,7 +65,7 @@ export class MenuUiComponent {
     User.ClearId();
     this.heart.stopBeat();
     this.redirecter.Login();
-
+    this.messager.closeSocket();
   }
   @HostListener('document:click')
   onDocumentClick() {

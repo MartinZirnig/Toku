@@ -1,6 +1,7 @@
-﻿using MysqlDatabase.Tables;
+﻿using Crypto;
 using Microsoft.EntityFrameworkCore;
-using Crypto;
+using Microsoft.Extensions.Logging;
+using MysqlDatabase.Tables;
 
 namespace MysqlDatabase;
 internal class DatabaseContext : DbContext
@@ -29,12 +30,16 @@ internal class DatabaseContext : DbContext
     public DbSet<CryptoKey> CryptoKeys { get; set; }
     public DbSet<UserMessage> UserMessages { get; set; }
     public DbSet<UserFileEncryption> userFileEncryptions { get; set; }
+    public DbSet<MessageStoredFile> MessageStoredFiles { get; set; }
 
     #endregion
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseMySQL(ConnectionString);
+        optionsBuilder.UseMySQL(ConnectionString)
+            .EnableSensitiveDataLogging()
+            .LogTo(Console.WriteLine, LogLevel.Information);
+
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -72,5 +77,35 @@ internal class DatabaseContext : DbContext
                 hashedValue => hashedValue == null ? null : hashedValue.ToString(),
                 str => str == null ? null : new HashedValue(str)
             );
+
+        modelBuilder.Entity<Message>(entity =>
+        {
+            entity.HasKey(m => m.MessageId);
+
+            entity
+                .HasMany(m => m.MessageStoredFiles)
+                .WithOne(msf => msf.Message)
+                .HasForeignKey(msf => msf.MessageId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<StoredFile>(entity =>
+        {
+            entity.HasKey(sf => sf.StoredFileId);
+
+            entity
+                .HasMany(sf => sf.MessageStoredFiles)
+                .WithOne(msf => msf.StoredFile)
+                .HasForeignKey(msf => msf.StoredFileId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<MessageStoredFile>(entity =>
+        {
+            entity.HasKey(msf => new { msf.MessageId, msf.StoredFileId });
+
+            entity.ToTable("MessageStoredFiles");
+        });
+
     }
 }

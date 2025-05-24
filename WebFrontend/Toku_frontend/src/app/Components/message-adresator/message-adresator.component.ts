@@ -44,7 +44,6 @@ export class MessageAdresatorComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    console.log('Message initialized:', { text: this.text, image: this.image, time: this.time, previewText: this.previewText, hasFile: this.hasFile });
     this.isLongText = this.text.length > 50; // Adjust threshold as needed
   }
 
@@ -99,11 +98,10 @@ export class MessageAdresatorComponent implements OnInit {
   }
 
   onEdit(): void {
-    console.log('Edit action triggered'); // Add your edit logic here
+
   }
 
   onDelete(): void {
-    console.log('Message deleted:', this.text); // Log the deleted message
     if (this.onDeleteMessage) {
       this.onDeleteMessage(); // Notify parent component to remove the message
     }
@@ -112,7 +110,6 @@ export class MessageAdresatorComponent implements OnInit {
   copyToClipboard(): void {
     if (this.text) {
       navigator.clipboard.writeText(this.text).then(() => {
-        console.log('Message copied to clipboard:', this.text);
         this.popupService.showMessage('Zkopírováno', 1000, '#1d2f47','#ffffff'); // Show popup message
       }).catch(err => {
         console.error('Failed to copy message to clipboard:', err);
@@ -122,8 +119,7 @@ export class MessageAdresatorComponent implements OnInit {
 
   onReact(): void {
     this.emojiPopupService.openForReaction((emoji: string) => {
-      this.reactionsData += emoji; // Append the selected emoji to reactionsData
-      console.log('Emoji added to reactionsData:', emoji);
+      this.reactionsData += emoji;
     });
   }
 
@@ -146,8 +142,7 @@ export class MessageAdresatorComponent implements OnInit {
       !this.menuTrigger.nativeElement.contains(event.target)
     ) {
       this.menuVisible = false; // Close the menu if clicked outside
-      this.menuService.closeMenu(); // Notify service to close all menus
-      console.log('Menu closed'); // Debug log
+      this.menuService.closeMenu();
     }
   }
 }

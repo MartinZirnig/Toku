@@ -1,7 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-using BackendEnums;
-
-namespace MysqlDatabase.Tables;
+﻿using BackendEnums;
+using MysqlDatabase.Tables;
+using System.ComponentModel.DataAnnotations;
 
 internal class StoredFile
 {
@@ -20,4 +19,5 @@ internal class StoredFile
     public bool IsEncrypted { get; set; }
     public string? EncryptionKey { get; set; }
 
+    public virtual List<MessageStoredFile> MessageStoredFiles { get; set; } = new List<MessageStoredFile>();
 }

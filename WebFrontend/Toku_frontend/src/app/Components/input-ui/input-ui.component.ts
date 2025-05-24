@@ -16,7 +16,6 @@ import {
 import { EmojisPopUpComponent } from '../emojis-pop-up/emojis-pop-up.component';
 import { NgClass, NgIf, NgStyle } from '@angular/common';
 
-import { GroupService } from '../../data_managements/services/group-service.service';
 import { MainInputService } from '../../services/main-input.service';
 import { GroupReloadService } from '../../services/group-reload.service';
 import { EmojiPopupService } from '../../services/emoji-popup.service';
@@ -237,7 +236,6 @@ export class InputUiComponent implements OnInit {
   }
 
   toggleEmojiPopup(): void {
-    console.log('Toggling emoji popup');
     this.emojiPopupService.emojiPopupVisible = !this.emojiPopupService.emojiPopupVisible;
   }
 
@@ -248,15 +246,34 @@ export class InputUiComponent implements OnInit {
   send(): void {
     const text = this.textarea.nativeElement.value.trim();
     if (!text) return;
-    this.service.sendMessage(text ?? '');
+
+    this.fileUploadService.sendSecretGroup().subscribe({
+      next: response => {
+          var values = response  
+            .filter(rrm => rrm.success)
+            .map(rrm => Number(rrm.description))
+            .filter(id => !Number.isNaN(id));
+
+          this.service.sendMessage(text ?? '', values);
+      },
+      error: err => {
+        console.error("error while sending files:", err);
+      }
+    })
+
+
+
     this.textarea.nativeElement.value = '';
 
     setTimeout(() => {
       this.reloader.groupReload();
     }, 1000);
+    
   }
 
   toggleFileForm(): void {
     this.fileUploadService.toggleVisibility();
   }
+
+  
 }

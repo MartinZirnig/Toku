@@ -89,7 +89,7 @@ internal class UserService : DatabaseServisLifecycle, IUserService
             var user = await FindUserAsync(model);
             if (user is null)
                 return new UserLoginResponseModel(
-                    string.Empty, 0);
+                    string.Empty, 0, 0);
 
             var logged = await FinishUserLoggingAsync(model, user);
 
@@ -100,7 +100,7 @@ internal class UserService : DatabaseServisLifecycle, IUserService
         {
             await transaction.RollbackAsync();
             return new UserLoginResponseModel(
-                string.Empty, 0);
+                string.Empty, 0, 0);
         }
         ;
 
@@ -132,7 +132,7 @@ internal class UserService : DatabaseServisLifecycle, IUserService
         await Context.UserLogins.AddAsync(login);
         await Context.SaveChangesAsync();
 
-        return new UserLoginResponseModel(login.SessionId.ToString(), user.LastGroupId);
+        return new UserLoginResponseModel(login.SessionId.ToString(), user.LastGroupId, user.UserId);
     }
 
     public async Task<UserLoginResponseModel> LoginGoogleUserAsync(GmailAuthorizationModel model)
@@ -159,7 +159,7 @@ internal class UserService : DatabaseServisLifecycle, IUserService
         {
             await transaction.RollbackAsync();
             return new UserLoginResponseModel(
-                string.Empty, 0);
+                string.Empty, 0, 0);
         }
     }
 
@@ -362,4 +362,6 @@ internal class UserService : DatabaseServisLifecycle, IUserService
             return [];
         }
     }
+
+
 }

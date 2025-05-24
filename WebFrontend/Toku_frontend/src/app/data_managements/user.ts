@@ -24,9 +24,6 @@ export const User = {
         sessionStorage.removeItem('originalId')
     },
 
-
-
-    
     get Name() : string {
         return sessionStorage.getItem('name') ?? 'inkognito';
     },
@@ -68,4 +65,13 @@ export const User = {
         sessionStorage.removeItem('groups');
     },
 
+    get InnerId() : string {
+        return sessionStorage.getItem("innerId") ?? "";
+    },
+    set InnerId(value: string) {
+        sessionStorage.setItem("innerId", value);
+    },
+    clearInnerId() : void {
+        sessionStorage.removeItem("innerId");
+    }
 }

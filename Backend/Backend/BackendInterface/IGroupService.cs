@@ -1,4 +1,5 @@
 ﻿using BackendEnums;
+using BackendInterface.DataObjects;
 using BackendInterface.Models;
 
 namespace BackendInterface;
@@ -15,4 +16,5 @@ public interface IGroupService : IDisposable
     Task<RequestResultModel> UpdatePermissionAsync(GroupUserAccessModel model);
     Task<RequestResultModel> UpdateGroupAsync(GroupUpdateModel model, Guid executor);
     Task<IEnumerable<GroupUserAccessModel>> GetGroupMembersAsync(Guid executor, uint groupId);
+    Task<IEnumerable<LoggedUserData>> GetActiveGroupUsersAsync(uint groupId);
 }

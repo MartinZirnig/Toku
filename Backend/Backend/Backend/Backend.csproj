@@ -7,12 +7,35 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Content Include="etc\config\file_types.yaml" />
+		<Content Include="etc\config\file_types.yaml">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
 	</ItemGroup>
 
 	<ItemGroup>
 		<None Update="etc">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="etc\config\base_config.yaml">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="etc\config\file_restrictions.yaml">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Storage\encrypted_files\group\profile.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Storage\encrypted_files\user\profile.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Storage\public_files\default\profile.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Storage\public_files\group\profile.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Storage\public_files\user\profile.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
 
@@ -23,7 +46,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\BackendEnums\BackendEnums.csproj" />
 		<ProjectReference Include="..\BackendInterface\BackendInterface.csproj" />
+		<ProjectReference Include="..\ConfigurationParsing\ConfigurationParsing.csproj" />
 		<ProjectReference Include="..\DatabaseControl\MysqlDatabaseControl.csproj" />
 		<ProjectReference Include="..\Database\MysqlDatabase.csproj" />
 		<ProjectReference Include="..\Optimalization\Optimalization.csproj" />

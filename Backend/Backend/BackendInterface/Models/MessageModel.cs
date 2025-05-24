@@ -2,7 +2,7 @@
 public record MessageModel(
 
     string MessageContent,
-    uint? AttachedFileId,
+    uint[]? AttachedFilesId,
     uint? PinnedMessageId,
     Guid SenderContext,
     uint GroupId

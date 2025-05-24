@@ -6,7 +6,10 @@ using ConfigurationParsing;
 using Crypto;
 using Microsoft.EntityFrameworkCore;
 using MysqlDatabase.Tables;
+using System.Collections;
+using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace MysqlDatabase;
 internal class GroupService : DatabaseServisLifecycle, IGroupService
@@ -486,7 +489,7 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
         try
         {
             //var login = await SupportService
-            //    .GetUserDataAsync(executor, Context)
+            //    .GetUserLoginsAsync(executor, Context)
             //    .ConfigureAwait(false)
             //    ?? throw new UnauthorizedAccessException();
 
@@ -522,7 +525,7 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
         try
         {
             //var login = await SupportService
-            //    .GetUserDataAsync(executor, Context)
+            //    .GetUserLoginsAsync(executor, Context)
             //    .ConfigureAwait(false);
 
             var clients = await Context.GroupClients
@@ -565,10 +568,6 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
     {
         try
         {
-            //var login = await SupportService
-            //    .GetUserDataAsync(executor, Context)
-            //    .ConfigureAwait(false);
-
             var group = await Context.Groups
                 .Include(g => g.PictureStoredFile)
                 .FirstOrDefaultAsync(g => g.GroupId == id)
@@ -584,6 +583,32 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
             return null;
         }
 
+    }
+
+    public async Task<IEnumerable<LoggedUserData>> GetActiveGroupUsersAsync(uint groupId)
+    {
+        var bag = new ConcurrentBag<LoggedUserData>();
+        try
+        {
+            var users = await SupportService
+                .GetGroupUsersAsync(groupId, Context)
+                .ConfigureAwait(false);
+
+            foreach (var user in users)
+            {
+                var logins = SupportService
+                    .GetUserLoginsAsync(user.UserId, Context)
+                    .ConfigureAwait(false);
+
+                await foreach(var login in logins)
+                    bag.Add(login);
+            }
+        }
+        catch
+        {
+            return [];
+        }
+        return bag;
     }
 }
 

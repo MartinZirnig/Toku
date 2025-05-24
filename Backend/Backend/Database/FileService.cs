@@ -1,261 +1,258 @@
-﻿using BackendInterface;
+﻿using BackendEnums;
+using BackendInterface;
 using BackendInterface.DataObjects;
 using BackendInterface.Models;
+using ConfigurationParsing;
 using Crypto;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using MysqlDatabase.Tables;
-using BackendEnums;
-using ConfigurationParsing;
+using Org.BouncyCastle.Asn1;
+using System.Threading.Tasks;
+using System.Transactions;
 
 namespace MysqlDatabase;
 internal class FileService : DatabaseServisLifecycle, IFileService
 {
     private static readonly FileTypeParser _fileParser = new FileTypeParser();
     private FileAccessConfiguration _config;
-
-
-
-
-
-
-
-
-
-
+    public FileService(MysqlDatabaseManager creator)
+        : base(creator)
+    { }
 
     public void ConfigureAccess(FileAccessConfiguration config)
     {
         _config = config;
     }
 
-
-
-
-
-
-
-
-
-
-    public FileService(MysqlDatabaseManager creator)
-    : base(creator) { }
-
-    public async Task<uint> SaveEncryptMessageFileAsync(ManagedFileModel file, uint groupId)
+    public async Task<RequestResultModel> SaveFileAsync(StreamedFileModel model)
     {
         await using var transaction = await Context.Database
             .BeginTransactionAsync()
             .ConfigureAwait(false);
         try
         {
-            var encryptedFile = new EncryptedFile(file.Origin.Data);
-            var data = Convert.FromBase64String(encryptedFile.Content);
+            var path = MakeUniqueDestination(model.DestinationPath);
+            var type = _fileParser.GetFileType(path);
 
-            var newOrigin = file.Origin with { Data = data };
-            var newFile = file with { Origin = newOrigin };
-            var fileId = await SaveProfileImage(newFile);
+            var root = Path.GetDirectoryName(path)!;
+            Directory.CreateDirectory(root);
 
-            var users = await SupportService.GetGroupUsersAsync(groupId, Context);
-            foreach (var user in users)
-                await EncryptAndSaveFileForSingleUserAsync(
-                    encryptedFile, user, fileId);
+            await using var stream = File.OpenWrite(path);
+            var task = model.SourceStream.CopyToAsync(stream);
 
+            var fileId = await StoreToDatabase(path, type, null)
+                .ConfigureAwait(false);
+
+            await task.ConfigureAwait(false);
+            await Context.SaveChangesAsync();
             await transaction.CommitAsync();
-            return fileId;
+            return new RequestResultModel(
+                true, fileId.ToString());
         }
-        catch
+        catch (Exception ex)
         {
             await transaction.RollbackAsync();
-            return 0;
+            return new RequestResultModel(
+                false, ex.Message);
         }
     }
-    private async Task EncryptAndSaveFileForSingleUserAsync
-        (EncryptedFile eFile, User user, uint fileId)
+    public async Task<RequestResultModel> SaveAndEncryptFileAsync(StreamedFileModel model, Guid executor)
     {
-        var encrypted = eFile.EncryptKey(user.Key.PublicKey);
+        await using var transaction = await Context.Database
+            .BeginTransactionAsync()
+            .ConfigureAwait(false);
+        try
+        {
+            var path = MakeUniqueDestination(model.DestinationPath);
+            var type = _fileParser.GetFileType(path);
+
+            var root = Path.GetDirectoryName(path)!;
+            Directory.CreateDirectory(root);
+
+            var key = new SimpleKey();
+            await using var stream = File.OpenWrite(path);
+
+            var cryptoStream = new EncryptedStream(model.SourceStream, key);
+            var task = cryptoStream.CopyToAsync(stream);
+
+
+            var fileId = await StoreToDatabase(path, type, null)
+                .ConfigureAwait(false);
+            await CreateUserEncryption(executor, key, fileId)
+                .ConfigureAwait(false);
+
+            await task.ConfigureAwait(false);
+
+            await Context.SaveChangesAsync();
+            await transaction.CommitAsync();
+            return new RequestResultModel(
+                true, fileId.ToString());
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            return new RequestResultModel(
+                false, ex.Message);
+        }
+    }
+    private static string MakeUniqueDestination(string destination)
+    {
+        if (!File.Exists(destination))
+            return destination;
+
+        string directory = Path.GetDirectoryName(destination) ?? "";
+        string filename = Path.GetFileNameWithoutExtension(destination);
+        string extension = Path.GetExtension(destination);
+
+        string path;
+        int counter = 0;
+        do path = directory + filename + "_" + counter++.ToString() + extension;
+        while (File.Exists(path));
+
+        return path;
+    }
+    private async Task<uint> StoreToDatabase(string filePath, FileType type, string? encryptionKey)
+    {
+        var record = new StoredFile()
+        {
+            TypeCode = type,
+            FilePath = filePath,
+            IsEncrypted = encryptionKey is not null,
+            EncryptionKey = encryptionKey,
+            Description = filePath
+        };
+
+        await Context.StoredFiles.AddAsync(record);
+        await Context.SaveChangesAsync();
+        return record.StoredFileId;
+    }
+    private async Task CreateUserEncryption(Guid executor, SimpleKey key, uint storeFileId)
+    {
+        var login = await SupportService.GetUserDataAsync(executor, Context)
+            .ConfigureAwait(false)
+            ?? throw new UnauthorizedAccessException();
+
+        var user = await Context.Users
+            .Include(u => u.Key)
+            .FirstOrDefaultAsync(u => u.UserId == login.UserId)
+            .ConfigureAwait(false)
+            ?? throw new UnauthorizedAccessException();
+
+        var userKey = (PPKeyPair)user.Key;
+        var EncryptedKey = userKey.EncryptByPublicKey(key);
+
         var record = new UserFileEncryption()
         {
             UserId = user.UserId,
-            StoredFileId = fileId,
-            EncryptedFileKey = encrypted.Key,
+            StoredFileId = storeFileId,
+            EncryptedFileKey = EncryptedKey,
         };
-        await Context.AddAsync(record);
+
+        await Context.userFileEncryptions.AddAsync(record);
         await Context.SaveChangesAsync();
     }
 
-    public async Task<byte[]> GetDecryptMessageFileAsync(Guid userIdentification, uint fileId)
+    public async Task<RequestResultModel> AssignFileOwner(FileOwnerModel model, Guid executor)
     {
+        await using var transaction = await Context.Database.BeginTransactionAsync()
+            .ConfigureAwait(false);
+
         try
         {
-            var login = await SupportService.GetUserDataAsync(
-                userIdentification, Context);
-            if (login is null) return [];
+            var record = new StoredFileOwner()
+            {
+                FileId = model.FileId,
+                UserOwnerId = model.UserOwner,
+                ClientOwnerId = model.ClientOwner,
+                GroupOwnerId = model.GroupOwner
+            };
 
-            var filePath = await GetFilePathAsync(fileId);
-            if (filePath is null) return [];
+            await Context.StoredFileOwners.AddAsync(record)
+                .ConfigureAwait(false);
+            await Context.SaveChangesAsync()
+                .ConfigureAwait(false);
+            await transaction.CommitAsync()
+                .ConfigureAwait(false);
 
-            var file = new FileInfo(filePath);
-            if (!file.Exists) return [];
-
-            var key = await GetKeyAsync(login, fileId);
-            if (key is null) return [];
-
-            (var decryptedData, var _)
-                = await DecryptFileAsync(filePath, key, login);
-
-            return decryptedData;
+            return new RequestResultModel(
+                true, string.Empty);
         }
-        catch
-        {
-            return [];
-        }
-    }
-    private async Task<string?> GetFilePathAsync(uint fileId)
-    {
-        return (await Context.StoredFiles
-            .AsNoTracking()
-            .FirstOrDefaultAsync(sf => sf.StoredFileId == fileId))?
-            .FilePath;
-    }
-    private async Task<string?> GetKeyAsync(LoggedUserData login, uint fileId)
-    {
-        var keyEncryption = await Context.userFileEncryptions
-            .AsNoTracking()
-            .FirstOrDefaultAsync(ufe =>
-                ufe.UserId == login.UserId
-                && ufe.StoredFileId == fileId);
-        return keyEncryption?.EncryptedFileKey;
-    }
-    private async static Task<(byte[], byte)> DecryptFileAsync(string filePath, string key, LoggedUserData login)
-    {
-        var fileData = await File.ReadAllBytesAsync(filePath);
-        var fileAsString = Convert.ToBase64String(fileData);
-
-
-        var encryptedFile = new EncryptedFile(fileAsString, key);
-        var decryptedFile = encryptedFile.DecryptKey(
-            login.DecryptedPrivateKey);
-        var decryptedData = Convert.FromBase64String(
-            decryptedFile.Content);
-        var fileType = _fileParser.GetFileType(filePath);
-        return (decryptedData, (byte)fileType);
-    }
-
-
-
-
-    public async Task<byte[]> GetProfileImage(uint fileId)
-    {
-        var file = await GetFilePathAsync(fileId);
-        if (file is null) return [];
-
-        var fileData = await File.ReadAllBytesAsync(file);
-        return fileData ?? [];
-    }
-    public async Task<uint> SaveProfileImage(ManagedFileModel file)
-    {
-        await using var transaction = await Context.Database
-             .BeginTransactionAsync()
-             .ConfigureAwait(false);
-        try
-        {
-            var path = await StoreFileToDiskAsync(file);
-            var id = await StoreFileToDatabaseAsync(path, file);
-
-            await transaction.CommitAsync();
-            return id;
-        }
-        catch
+        catch (Exception ex)
         {
             await transaction.RollbackAsync();
-            return 0;
+            return new RequestResultModel(
+                false, ex.Message);
         }
     }
 
-    private async static Task<string> StoreFileToDiskAsync(ManagedFileModel file)
+    public async Task<FileResult> GetFileAsync(Guid executor, uint fileId, IFileIdentificator identificator)
     {
-
-        var dir = new DirectoryInfo(file.AssignedFiePath);
-        if (!dir.Exists) dir.Create();
-
-        var filePath = Path.Combine(file.AssignedFiePath, file.Origin.FileName);
-        var fileStream = File.Create(filePath);
-
-        await fileStream.WriteAsync(file.Origin.Data);
-
-        fileStream.Close();
-        return filePath;
-    }
-    private async Task<uint> StoreFileToDatabaseAsync(string path, ManagedFileModel file)
-    {
-        var transaction = await Context.Database.BeginTransactionAsync();
         try
         {
-            using var off = new ConstraintOff(Context);
+            var file = await Context.StoredFiles
+                .AsNoTracking()
+                .FirstOrDefaultAsync(sf => sf.StoredFileId == fileId)
+                .ConfigureAwait(false)
+                ?? throw new FileNotFoundException();
 
-            var fileRecordId = await StoreNewFileAsync(file, path);
-            var user = await FindUserOwnerAsync(file);
-            if (user is null) return 0;
-            await StoreFileOwnerAsync(fileRecordId, (uint)user, file);
+            var array = await File.ReadAllBytesAsync(file.FilePath)
+                .ConfigureAwait(false);
+            var type = identificator.GetIdentification(file.FilePath);
+            return new FileResult(array, type);
 
-            await transaction.CommitAsync();
-            return fileRecordId;
         }
-        catch
+        catch (Exception ex)
         {
-            await transaction.RollbackAsync();
-            return 0;
+            return new FileResult([], ex.Message);
         }
     }
-    private async Task<uint> StoreNewFileAsync(ManagedFileModel model, string path)
-    {
-        var databaseFile = new StoredFile()
-        {
-            TypeCode = (FileType)model.Origin.fileType,
-            Description = model.Origin.FileName,
-            FilePath = path
-        };
-        await Context.StoredFiles.AddAsync(databaseFile);
-        await Context.SaveChangesAsync();
 
-        return databaseFile.StoredFileId;
-    }
-    private async Task<uint?> FindUserOwnerAsync(ManagedFileModel model)
+
+    public async Task<FileResult> GetEncryptedFileAsync(Guid executor, uint fileId, IFileIdentificator identificator)
     {
-        if (model.Origin.UserOwner is not null)
+        try
         {
-            var userUID = (Guid)model.Origin.UserOwner; // neparsovat, přetypování je správně!!!!!
-            var user = await SupportService.GetUserDataAsync(userUID, Context);
-            return user?.UserId;
+            var login = await SupportService.GetUserDataAsync(executor, Context)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+            var encryption = await Context.userFileEncryptions
+                .AsNoTracking()
+                .FirstOrDefaultAsync(ufe =>
+                    ufe.UserId == login.UserId
+                    && ufe.StoredFileId == fileId)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+            var privateKey = login.DecryptedPrivateKey;
+            var encryptedKey = encryption.EncryptedFileKey;
+
+            var key = SimpleKey.FromEncrypted(encryptedKey, privateKey);
+
+            var file = await Context.StoredFiles
+                .AsNoTracking()
+                .FirstOrDefaultAsync(sf => sf.StoredFileId == fileId)
+                .ConfigureAwait(false)
+                ?? throw new FileNotFoundException();
+            var path = file.FilePath;
+
+            await using var stream = File.OpenRead(path);
+            var decriptionStream = new DecryptedStream(stream, key);
+            var memoryStream = new MemoryStream();
+            await decriptionStream.CopyToAsync(memoryStream)
+                .ConfigureAwait(false);
+
+            var array = memoryStream.ToArray();
+            var type = identificator.GetIdentification(file.FilePath);
+            return new FileResult(array, type);
         }
-        return null;
-    }
-    private async Task StoreFileOwnerAsync(uint fileId, uint userId, ManagedFileModel file)
-    {
-
-        var fileOwner = new StoredFileOwner()
+        catch (Exception ex)
         {
-            FileId = fileId,
-            UserOwnerId = userId,
-            ClientOwnerId = file.Origin.ClientOwner,
-            GroupOwnerId = file.Origin.GroupOwner
-        };
-        await Context.StoredFileOwners.AddAsync(fileOwner);
-        await Context.SaveChangesAsync();
+
+            return new FileResult([], ex.Message);
+
+
+        }
     }
-
-
-    private bool MatchConfig(string path, ExecutorType owner)
-    {
-        if (_config is null) return false;
-
-        var directory = Path.GetDirectoryName(path);
-        var allowed = owner == ExecutorType.User
-            ? _config.UserPaths
-            : _config.GroupPaths;
-        if (allowed.Contains(directory))
-            return true;
-
-        return false;
-    }
-
 }

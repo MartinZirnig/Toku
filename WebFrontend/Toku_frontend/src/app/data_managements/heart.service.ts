@@ -35,7 +35,7 @@ export class Heart {
 
   private beat(): void {
     this.http.post(this.url, null).subscribe({
-      next: () => console.log('Heart beated.'),
+      next: () => console.info('Heart beated.'),
       error: (err) => console.error('Error during heart beat:', err)
     });
   }

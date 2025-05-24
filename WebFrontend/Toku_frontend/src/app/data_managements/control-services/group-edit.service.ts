@@ -35,7 +35,6 @@ export class GroupEditService {
 
 
   addGroupMember(groupId: number, userId: number): Observable<RequestResultModel> {
-    console.log("Adding user to group: ", userId, groupId);
     const model = new GroupAddUserModel(
       userId, groupId, 0
     )

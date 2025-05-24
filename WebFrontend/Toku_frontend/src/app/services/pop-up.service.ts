@@ -16,7 +16,6 @@ export class PopUpService {
   textColor$ = this.textColorSubject.asObservable();
 
   showMessage(message: string, duration: number = 2000, backgroundColor: string = '#3b82f6', textColor: string = '#ffffff'): void {
-    console.log('PopUpService: Broadcasting message:', { message, duration, backgroundColor, textColor });
 
     // Reset all subjects to ensure the latest values are broadcasted
     this.messageSubject.next(null); // Clear the previous message
@@ -31,7 +30,6 @@ export class PopUpService {
   }
 
   clearMessage(): void {
-    console.log('PopUpService: Clearing message');
     this.messageSubject.next(null);
   }
 

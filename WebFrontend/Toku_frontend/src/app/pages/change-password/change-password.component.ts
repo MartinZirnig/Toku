@@ -44,7 +44,6 @@ export class ChangePasswordComponent {
   }
 
   fynishPasswordChange(oldPassword: string, newPassword: string) : void {
-    console.log('Password change:', { oldPassword, newPassword });
     this.errorMessage = '';
   }
 }

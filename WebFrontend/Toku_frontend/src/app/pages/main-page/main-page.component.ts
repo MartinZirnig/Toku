@@ -1,5 +1,4 @@
-import { AfterContentChecked, AfterContentInit, AfterViewChecked, AfterViewInit, Component, numberAttribute, OnInit, viewChild } from '@angular/core';
-import { InputUiComponent } from '../../Components/input-ui/input-ui.component';
+import { Component, numberAttribute, OnInit } from '@angular/core';
 import { Message_senderComponent } from '../../Components/message_sender/message_sender.component';
 import { MessageAdresatorComponent } from '../../Components/message-adresator/message-adresator.component';
 import { ActivatedRoute, RouterOutlet } from '@angular/router';
@@ -12,18 +11,17 @@ import { MainInputService } from '../../services/main-input.service';
 import { NgZone } from '@angular/core';
 import { take } from 'rxjs';
 import { GroupsLoaderService } from '../../data_managements/control-services/groups-loader.service';
-import { PopUpService } from '../../services/pop-up.service';
 import { Redirecter } from '../../data_managements/redirecter.service';
 import { Cache } from '../../data_managements/cache';
 import { User } from '../../data_managements/user';
 import { FileDownloadComponent } from '../../Components/file-download/file-download.component';
 import { FileDownloadPopupService } from '../../services/file-download-popup.service';
-import { ChatLoginComponent } from '../../Components/chat-login/chat-login.component';
+import { PopUpService } from '../../services/pop-up.service';
+import { MessagerService } from '../../data_managements/messager.service';
 
 @Component({
   selector: 'app-main-page',
   imports: [
-    InputUiComponent,
     Message_senderComponent,
     MessageAdresatorComponent,
     RouterOutlet,
@@ -32,8 +30,7 @@ import { ChatLoginComponent } from '../../Components/chat-login/chat-login.compo
     NgIf,
     DummyMessageAdresatorComponent,
     DummyMessageSenderComponent,
-    FileDownloadComponent,
-    ChatLoginComponent
+    FileDownloadComponent
 ],
   templateUrl: './main-page.component.html',
   styleUrls: ['./main-page.component.scss']
@@ -53,7 +50,9 @@ constructor(
   private sendService: MainInputService,
   private ngZone: NgZone,
   private redirecter: Redirecter,
-  public fileDownloadPopupService: FileDownloadPopupService
+  public fileDownloadPopupService: FileDownloadPopupService,
+  private popup: PopUpService,
+  private messager: MessagerService
 ) {}
 
 ngOnInit(): void {
@@ -70,6 +69,7 @@ ngOnInit(): void {
             || numeralFragment === 0)
             this.invalidRoomId();
           this.roomId = numeralFragment;
+          console.log("id:", this.roomId)
           this.initializeMessages(numeralFragment);
           this.readMessages(numeralFragment);
     }
@@ -83,12 +83,12 @@ ngOnInit(): void {
     setTimeout(() => {
       this.dummyVisible = false;
     }, 5);
-
-
-
+  
     this.fileDownloadPopupService.visible$.subscribe(visible => {
       this.showFileDownloadPopup = visible;
     });
+
+    this.messager.appendCallback("new-message", data => this.onMessage(data));
   }
   
   invalidRoomId(): void {
@@ -112,7 +112,6 @@ ngOnInit(): void {
     this.msgCtrl.loadMessages(group)
       .subscribe({
         next: response => {
-          console.log(response);
           this.rawMessages = response;
           this.messages = [];
   
@@ -157,7 +156,6 @@ ngOnInit(): void {
 }
 
 private scrollDown(){
-  // Scroll main-page-inner container if it exists, otherwise fallback to window
   setTimeout(() => {
     const container = document.querySelector('.main-page-inner');
     if (container) {
@@ -172,6 +170,35 @@ private scrollDown(){
     this.messages.splice(index, 1);
   }
 
+  private onMessage(data: string) {
+    try{
+    const splited = data.split('#', 3);
+ 
+    const user = splited[0];
+    this.popup.showMessage(user + " napsal zprávu");
+
+    const groupId = splited[1];
+    if (Number(groupId) !== this.roomId){
+      return;
+    }
+
+    const messageData = splited[2].split('&', 9);
+    const files = messageData[7].split('$').map( x => Number(x))
+
+    const model = new StoredMessageModel(
+      Number(messageData[0]), messageData[1], Number(messageData[2]),
+      Number(messageData[3]), messageData[4], messageData[5],
+      messageData[6], files , Number(messageData[8])
+    );
+    model.status = 255;
+
+    this.AddMessage(model);
+    }
+catch (error)
+{ 
+  console.error(error);
+}
+  }
 
   
 

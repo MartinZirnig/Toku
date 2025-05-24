@@ -3,7 +3,7 @@ export class MessageModel {
       public messageContent: string,
       public senderContext: string, 
       public groupId: number,
-      public attachedFileId?: number | null,
+      public attachedFilesId?: number[] | null,
       public pinnedMessageId?: number | null
     ) {}
   }
