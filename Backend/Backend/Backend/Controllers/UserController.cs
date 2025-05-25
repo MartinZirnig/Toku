@@ -1,4 +1,5 @@
 ﻿using Backend.Attributes;
+using BackendEnums;
 using BackendInterface;
 using BackendInterface.Models;
 using Microsoft.AspNetCore.Http;
@@ -57,6 +58,16 @@ namespace Backend.Controllers
             if (result is null)
                 return Unauthorized();
             return Ok(result);
+        }
+
+        [HttpGet("get-acces-options")]
+        public IActionResult GetAccessOptions()
+        {
+            var options = Enum.GetValues<GroupClientPermission>()
+               .Select(e => ((byte)e, e.ToString()))
+               .Select(gcp => (UserPermissionModel)gcp);
+
+            return Ok(options);
         }
     }
 }

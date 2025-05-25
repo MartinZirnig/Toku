@@ -25,7 +25,7 @@ public sealed class FileInMemoryManager
 
         Task.Run(Run);
     }
-    private async void Run()
+    private async Task Run()
     {
         while (!_cancel.IsCancellationRequested)
         {

@@ -12,6 +12,7 @@ import { GroupAddUserModel } from '../models/group-add-user-model';
 import { GroupUserAccessModel } from '../models/group-user-access-model';
 import { GroupUpdateModel } from '../models/group-update-model';
 import { GroupDataModel } from '../models/group-data-model';
+import { GroupRemoveUserModel } from '../models/group-remove-user-model';
 
 @Injectable({
   providedIn: 'root'
@@ -56,5 +57,25 @@ export class GroupService {
     const params = new HttpParams()
     .set('groupId', roomId)
     return this.http.get<GroupDataModel>(`${this.baseUrl}/get-data`, {params})
+  }
+  removeUser(model: GroupRemoveUserModel) : Observable<RequestResultModel> {
+    const url = `${this.baseUrl}/remove-user`;
+
+    const params = new HttpParams({
+      fromObject: {
+        executorContext: model.executorContext,
+        targetUser: model.targetUser,
+        targetGroup: model.targetGroup
+    }});
+
+    return this.http.delete<RequestResultModel>(url, { params: params });
+  }
+  getLog(groupId: number) : Observable<RequestResultModel> {
+    const path = `${this.baseUrl}/get-log`
+    const params = new HttpParams({
+      fromObject: {
+       groupId: groupId
+    }});
+    return this.http.get<RequestResultModel>(path, {params: params});
   }
 }

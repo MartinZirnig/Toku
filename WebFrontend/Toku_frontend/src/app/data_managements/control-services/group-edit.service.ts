@@ -7,6 +7,7 @@ import { User } from '../user';
 import { GroupAddUserModel } from '../models/group-add-user-model';
 import { GroupUserAccessModel } from '../models/group-user-access-model';
 import { GroupUpdateModel } from '../models/group-update-model';
+import { GroupRemoveUserModel } from '../models/group-remove-user-model';
 
 @Injectable({
   providedIn: 'root'
@@ -41,6 +42,14 @@ export class GroupEditService {
     
     return this.grpCtrl.addUserGroup(model);
   }  
+
+  removeGroupMember(groupId: number, userId: number) : Observable<RequestResultModel> {
+    const model = new GroupRemoveUserModel(
+      User.Id ?? "", userId, groupId
+    );
+
+    return this.grpCtrl.removeUser(model);
+  }
 
   setUserAccess(groupId: number, userId: number, permissions: number[]): Observable<RequestResultModel> {
     const model = new GroupUserAccessModel(

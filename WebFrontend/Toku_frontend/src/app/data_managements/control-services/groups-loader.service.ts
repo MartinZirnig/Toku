@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { GroupService } from '../services/group-service.service';
-import { Observable } from 'rxjs';
+import { Observable, ObservableNotification } from 'rxjs';
 import { AvailableGroupsModel } from '../models/available-groups-model';
 import { UserGroupModel } from '../models/last-group-model';
 import { User } from '../user';
@@ -36,5 +36,8 @@ export class GroupsLoaderService {
   }
   public loadData(roomId: number) : Observable<GroupDataModel>{
     return this.service.getData(roomId);
+  }
+  public getLog(groupId: number) : Observable<RequestResultModel> {
+    return this.service.getLog(groupId);
   }
 }

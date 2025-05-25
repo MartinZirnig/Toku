@@ -160,7 +160,7 @@
             </div>
             <div *ngIf="selectedMember; else noMember" class="space-y-4">
               <div *ngFor="let permission of permissions" class="flex items-center justify-between">
-                <span class="text-white">{{ permission }}</span>
+                <span class="text-white">{{ permission.alias }}</span>
                 <label class="switch">
                   <input
                     type="checkbox"
@@ -184,7 +184,7 @@
         <div>
           <label class="block text-gray-300 text-sm mb-1">Log</label>
           <div class="bg-gray-700 rounded-lg px-4 py-3 text-white max-h-64 overflow-y-auto">
-            <pre class="whitespace-pre-wrap break-all">Zde bude log</pre>
+            <pre class="whitespace-pre-wrap break-all">{{ logContent }}</pre>
           </div>
         </div>
       </div>

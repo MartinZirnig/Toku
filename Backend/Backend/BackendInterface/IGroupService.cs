@@ -1,6 +1,7 @@
 ﻿using BackendEnums;
 using BackendInterface.DataObjects;
 using BackendInterface.Models;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace BackendInterface;
 public interface IGroupService : IDisposable
@@ -13,8 +14,9 @@ public interface IGroupService : IDisposable
     Task<RequestResultModel> UpdateLastGroupAsync(UserGroupModel model);
     Task<RequestResultModel> ReadGroupAsync(UserGroupModel model);
     Task<RequestResultModel> RemoveUserFromGroupAsync(GroupRemoveUserModel model);
-    Task<RequestResultModel> UpdatePermissionAsync(GroupUserAccessModel model);
+    Task<RequestResultModel> UpdatePermissionAsync(GroupUserAccessModel model, Guid executor);
     Task<RequestResultModel> UpdateGroupAsync(GroupUpdateModel model, Guid executor);
     Task<IEnumerable<GroupUserAccessModel>> GetGroupMembersAsync(Guid executor, uint groupId);
     Task<IEnumerable<LoggedUserData>> GetActiveGroupUsersAsync(uint groupId);
+    Task<RequestResultModel> GetGroupLogAsync(uint groupId);
 }

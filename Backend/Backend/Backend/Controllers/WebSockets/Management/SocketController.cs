@@ -7,10 +7,15 @@ namespace Backend.Controllers.WebSockets.Management;
 
 public abstract class SocketController
 {
+    private const int _expectedPingSize = 15;
+    private const int _keepAliveSeconds = 62;
+
     #region StaticManagement
 
     private readonly static IReadOnlyDictionary<string, Type> _controllerMap;
     private readonly static Dictionary<(Guid, Type), SocketController> _controllers;
+    private readonly static List<object> _toInject;
+
 
     static SocketController()
     {
@@ -39,8 +44,13 @@ public abstract class SocketController
 
         _controllerMap = dic;
         _controllers = new();
+        _toInject = new();
     }
 
+    public static void Inject<T>(T obj)
+    {
+        _toInject.Add(obj);
+    }
 
 
 
@@ -67,19 +77,21 @@ public abstract class SocketController
 
             var key = (login, controller);
 
-            if (Activator.CreateInstance(controller) is not SocketController instance)
+            object[] args = [.. _toInject];
+            var instance = Activator.CreateInstance(controller, args);
+
+            if (instance is not SocketController socketController)
             {
                 context.Response.StatusCode = 500;
                 return;
             }
 
-            RegisterController(key, instance);
-
-            instance.New(context, socket, key);
+            RegisterController(key, socketController);
+            socketController.New(context, socket, key);
 
             try
             {
-                await instance.Start();
+                await socketController.Start();
             }
             catch
             {
@@ -130,9 +142,10 @@ public abstract class SocketController
 
 
 
-
+    private DateTime _lastPing = DateTime.UtcNow;
     protected HttpContext HttpContext { get; private set; }
     protected WebSocket Socket { get; private set; }
+    protected readonly CancellationTokenSource _cancel = new CancellationTokenSource();
 
     protected (Guid UserIdentification, Type ControllerType) UserContext;
 
@@ -148,37 +161,57 @@ public abstract class SocketController
     }
     private async Task Start()
     {
-        await OnInit();
-        await Read();
+        await OnInitAsync();
+        Task[] operations = [ReadAsync(), KeepAliveAsync()];
+        await Task.WhenAll(operations);
     }
 
-    private async Task Read()
+    private async Task KeepAliveAsync()
+    {
+        while (!_cancel.IsCancellationRequested)
+        {
+            await Task.Delay(30 * 1000);
+
+            var testOffset = DateTime.UtcNow - _lastPing;
+            var seconds = testOffset.TotalSeconds;
+
+            if (seconds > _keepAliveSeconds)
+            {
+                Console.WriteLine("disconnected: " + seconds.ToString());
+                Console.WriteLine("last ping:" + _lastPing.ToString("mm.ss:ff"));
+
+                await CloseAsync();
+            }
+        }
+    }
+
+    private async Task ReadAsync()
     {
         var buffer = new byte[1024];
         var segment = new ArraySegment<byte>(buffer);
 
         try
         {
-            while (true)
+            while (!_cancel.IsCancellationRequested)
             {
                 var result = await Socket.ReceiveAsync(segment, CancellationToken.None);
                 if (result == null) continue;
 
-                await OnDataReceived(result);
+                await OnDataReceivedAsync(result);
 
                 Span<byte> data = buffer.AsSpan(0, result.Count);
 
                 await (result.MessageType switch
                 {
-                    WebSocketMessageType.Text => OnTextReceived(Encoding.UTF8.GetString(data)),
-                    WebSocketMessageType.Binary => OnBinaryReceived(data.ToArray()),
-                    WebSocketMessageType.Close => OnCloseReceived(data.ToArray()),
+                    WebSocketMessageType.Text => OnTextReceivedAsync(Encoding.UTF8.GetString(data)),
+                    WebSocketMessageType.Binary => ManageBinaryInputAsync(data.ToArray()),
+                    WebSocketMessageType.Close => OnCloseReceivedAsync(data.ToArray()),
                     _ => Task.CompletedTask
                 });
 
                 if (result.CloseStatus.HasValue)
                 {
-                    await OnClose();
+                    await OnCloseAsync();
                     break;
                 }
             }
@@ -186,19 +219,40 @@ public abstract class SocketController
         catch (Exception ex)
         {
             Console.WriteLine($"Receive loop failed: {ex}");
-            await Close();
+            await CloseAsync();
         }
     }
+    private Task ManageBinaryInputAsync(byte[] data)
+    {
+        if (IsPing(data))
+        {
+            _lastPing = DateTime.UtcNow;
+            Console.WriteLine("updating last ping");
+            return Task.CompletedTask;
+        }
 
-    public async Task Close(
+        return OnBinaryReceivedAsync(data);
+    }
+    private static bool IsPing(byte[] data)
+    {
+        if (data.Length is not _expectedPingSize) return false;
+
+        for (int i = 0; i < _expectedPingSize; i++)
+            if (data[i] != i)
+                return false;
+        return true;
+    }
+
+    public async Task CloseAsync(
         WebSocketCloseStatus status = WebSocketCloseStatus.NormalClosure,
         string? description = null)
     {
-        DeregisterController(this);
+        await _cancel.CancelAsync();
         await Socket.CloseAsync(status, description, CancellationToken.None);
+        DeregisterController(this);
     }
 
-    private async Task Write(byte[] content, WebSocketMessageType type, bool endOfMessage)
+    private async Task WriteAsync(byte[] content, WebSocketMessageType type, bool endOfMessage)
     {
         await Socket.SendAsync(
             new ArraySegment<byte>(content, 0, content.Length),
@@ -206,30 +260,31 @@ public abstract class SocketController
             endOfMessage,
             CancellationToken.None);
     }
-    public async Task WriteText(string msg)
+    public async Task WriteTextAsync(string msg)
     {
+        Console.WriteLine("writting " + msg);
         var data = Encoding.UTF8.GetBytes(msg);
         var type = WebSocketMessageType.Text;
 
-        await Write(data, type, true);
+        await WriteAsync(data, type, true);
     }
-    public async Task WriteBinary(byte[] msg)
+    public async Task WriteBinaryAsync(byte[] msg)
     {
         var type = WebSocketMessageType.Binary;
 
-        await Write(msg, type, true);
+        await WriteAsync(msg, type, true);
     }
-    public async Task WriteClose(byte[] msg)
+    public async Task WriteCloseAsync(byte[] msg)
     {
         var type = WebSocketMessageType.Close;
 
-        await Write(msg, type, true);
+        await WriteAsync(msg, type, true);
     }
 
-    protected virtual Task OnInit() { return Task.CompletedTask; }
-    protected virtual Task OnTextReceived(string message) { return Task.CompletedTask; }
-    protected virtual Task OnBinaryReceived(byte[] message) { return Task.CompletedTask; }
-    protected virtual Task OnCloseReceived(byte[] message) { return Task.CompletedTask; }
-    protected virtual Task OnDataReceived(WebSocketReceiveResult data) { return Task.CompletedTask; }
-    protected virtual Task OnClose() { return Task.CompletedTask; }
+    protected virtual Task OnInitAsync() { return Task.CompletedTask; }
+    protected virtual Task OnTextReceivedAsync(string message) { return Task.CompletedTask; }
+    protected virtual Task OnBinaryReceivedAsync(byte[] message) { return Task.CompletedTask; }
+    protected virtual Task OnCloseReceivedAsync(byte[] message) { return Task.CompletedTask; }
+    protected virtual Task OnDataReceivedAsync(WebSocketReceiveResult data) { return Task.CompletedTask; }
+    protected virtual Task OnCloseAsync() { return Task.CompletedTask; }
 }

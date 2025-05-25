@@ -73,5 +73,15 @@ export const User = {
     },
     clearInnerId() : void {
         sessionStorage.removeItem("innerId");
+    },
+
+    get ActiveGroupId() : string {
+        return sessionStorage.getItem("activeGroupId") ?? "";
+    },
+    set ActiveGroupId(value: string) {
+        sessionStorage.setItem("activeGroupId", value);
+    },
+    clearActiveGroupId() : void {
+        sessionStorage.removeItem("activeGroupId");
     }
 }

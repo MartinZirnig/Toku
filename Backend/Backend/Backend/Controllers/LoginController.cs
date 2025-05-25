@@ -54,7 +54,7 @@ public sealed class LoginController : ControllerBase
         Guid uIdentification = Guid.Parse(uid);
         if (SocketController.TryGetController<MessagerSocketController>(uIdentification, out var controller))
         {
-            await controller!.Close();
+            await controller!.CloseAsync();
         }
 
         await service.LogoutUserAsync(uIdentification);

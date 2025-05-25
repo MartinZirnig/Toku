@@ -12,6 +12,8 @@ MysqlDatabaseManager.InitializeDatabase();
 
 builder.Services.AddControllers();
 builder.Services.AddSingleton<IDatabaseServiceProvider, MysqlDatabaseManager>();
+SocketController.Inject(new MysqlDatabaseManager());
+
 
 builder.Services.AddRouting(options =>
 {
@@ -83,24 +85,24 @@ app.UseCors();
 
 app.UseAuthentication();
 app.UseAuthorization();
-#if DEBUG
-app.Use(async (context, next) =>
-{
-    var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+//#if DEBUG
+//app.Use(async (context, next) =>
+//{
+//    var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
 
-    logger.LogInformation("Incoming request: {method} {url}", context.Request.Method, context.Request.Path);
+//    logger.LogInformation("Incoming request: {method} {url}", context.Request.Method, context.Request.Path);
 
-    await next();
+//    await next();
 
-    logger.LogInformation("Response status code: {statusCode}", context.Response.StatusCode);
+//    logger.LogInformation("Response status code: {statusCode}", context.Response.StatusCode);
 
-    if (context.Response.StatusCode >= 400)
-    {
-        logger.LogWarning("Request was rejected or failed with status {statusCode}", context.Response.StatusCode);
-        
-    }
-});
-#endif
+//    if (context.Response.StatusCode >= 400)
+//    {
+//        logger.LogWarning("Request was rejected or failed with status {statusCode}", context.Response.StatusCode);
+
+//    }
+//});
+//#endif
 
 app.Use(SocketController.ServiceSocketRequest);
 

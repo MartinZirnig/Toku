@@ -8,10 +8,11 @@ import { ActivatedRoute } from '@angular/router';
 import { GroupEditService } from '../../data_managements/control-services/group-edit.service';
 import { GroupsLoaderService } from '../../data_managements/control-services/groups-loader.service';
 import { GroupUserAccessModel } from '../../data_managements/models/group-user-access-model';
-import { EventInfoWrapper } from '@angular/core/primitives/event-dispatch';
 import { FormsModule } from '@angular/forms';
 import { AreYouSurePopUpService } from '../../Components/are-you-sure-pop-up/are-you-sure-pop-up.service';
 import { AreYouSurePopUpComponent } from '../../Components/are-you-sure-pop-up/are-you-sure-pop-up.component';
+import { UserPermissionModel } from '../../data_managements/models/user-permission-model';
+import { UserControlService } from '../../data_managements/control-services/user-control-service.service';
 
 
 
@@ -19,11 +20,7 @@ export class GroupMember {
   constructor(
     public name: string,
     public userId: number,
-    public isAdmin: boolean = false,
-    public isChatManager: boolean = false,
-    public canEditGroup: boolean = false,
-    public canDeleteMessages: boolean = false,
-    public canDeleteMessagesdd: boolean = false
+    public permissions: number[]
   ) {}
 }
 
@@ -46,6 +43,7 @@ export class GroupSettingsComponent {
   groupDescription: string = '';
   groupPassword: string = '';
   groupMembers: GroupMember[] = [];
+  originalMembers: GroupMember[] = [];
 
   selectedMember: GroupMember | null = null;
   isEditingName: boolean = false;
@@ -54,8 +52,9 @@ export class GroupSettingsComponent {
   maxNameLength: number = 15;
 
   declare roomId: string;
+  logContent: string = "Zde bude log";
 
-  permissions = ['Admin', 'Chat Manager', 'Can Edit Group', 'Can Delete Messages', 'Can Delete Messagesdd'];
+  permissions: UserPermissionModel[] = [];
 
   selectedTab: 'general' | 'members' | 'permissions' | 'log' = 'general';
 
@@ -73,7 +72,8 @@ export class GroupSettingsComponent {
     private route: ActivatedRoute,
     private grpEdi: GroupEditService,
     private grpLdr: GroupsLoaderService,
-    private areYouSureService: AreYouSurePopUpService
+    private areYouSureService: AreYouSurePopUpService,
+    private usrCtrl: UserControlService
     
   ) {}
 
@@ -91,15 +91,15 @@ export class GroupSettingsComponent {
     
     this.loadMembers();
     this.loadData();
+    this.loadPermissions();
+    this.loadLog();
 
     this.groupSettingsService.selectedUsers$.subscribe((users) => {
       users.forEach(user => {
         if (!this.groupMembers.some((member) => 
           member.name === user.name
         )) {
-          const newMember = new GroupMember(user.name, user.userId);
-          console.debug('User:', user);
-          console.debug('New Member:', newMember);
+          const newMember = new GroupMember(user.name, user.userId, []);
           this.groupMembers.push(newMember);
         }
       });
@@ -115,9 +115,13 @@ export class GroupSettingsComponent {
     var response = this.grpLdr.loadMembers(Number(this.roomId));
     response.subscribe({
       next: response => {
+        this.groupMembers = [];
+        this.originalMembers = [];
+        console.log("users: ", response);
         response.forEach(data => {
           const parsed = this.parseAccessModel(data);
           this.groupMembers.push(parsed);
+          this.originalMembers.push(parsed);
         })
         this.saveInitialState();
       },
@@ -148,14 +152,9 @@ export class GroupSettingsComponent {
   }
 
   private parseAccessModel(model: GroupUserAccessModel) : GroupMember {
-    let result = new GroupMember(model.name ?? '', model.userId)
+    let result = new GroupMember(model.name ?? '', model.userId, model.permissions)
     model.permissions.forEach(permission => {
-      if (permission == 3)
-        result.isAdmin = true;
-      if (permission == 2)
-        result.canDeleteMessages = true;
-      if (permission == 1)
-        result.canEditGroup = true;
+      
     });
 
     return result;
@@ -202,6 +201,8 @@ export class GroupSettingsComponent {
       return;
     }
     this.closeGroupSettings();
+
+    this.loadMembers();
   }
 
   // Implementujte podle vaší logiky
@@ -222,12 +223,7 @@ export class GroupSettingsComponent {
       const b = this.initialGroupMembers[i];
       if (
         a.name !== b.name ||
-        a.userId !== b.userId ||
-        a.isAdmin !== b.isAdmin ||
-        a.isChatManager !== b.isChatManager ||
-        a.canEditGroup !== b.canEditGroup ||
-        a.canDeleteMessages !== b.canDeleteMessages ||
-        a.canDeleteMessagesdd !== b.canDeleteMessagesdd
+        a.userId !== b.userId
       ) {
         return true;
       }
@@ -292,7 +288,7 @@ export class GroupSettingsComponent {
   addMember(): void {
     const newMemberName = prompt('Enter the name of the new member:');
     if (newMemberName) {
-      this.groupMembers.push(new GroupMember(newMemberName, 0));
+      this.groupMembers.push(new GroupMember(newMemberName, 0, []));
     }
   }
 
@@ -304,21 +300,36 @@ export class GroupSettingsComponent {
   selectMember(member: GroupMember): void {
     this.selectedMember = member;
   }
-
+  getPermissionValue(member: GroupMember, permission: UserPermissionModel): boolean {
+    console.log(member.permissions);
+    console.log(permission.code);
+    return member.permissions.includes(permission.code)      
+  }
+  /*
   // Helper to get the value of a permission for a member
   getPermissionValue(member: GroupMember, permission: string): boolean {
     const key = this.mapPermissionToKey(permission);
     return !!(member as any)[key];
   }
+    */
+  updatePermissionSwitch(permission: UserPermissionModel, event: Event): void {
+    this.selectedMember?.permissions.push(permission.code);
+  }
 
+    /*
   // Helper to update the permission when switch is toggled
   updatePermissionSwitch(permission: string, event: Event): void {
+    
+    
+    
+
     if (!this.selectedMember) return;
     const key = this.mapPermissionToKey(permission);
     const input = event.target as HTMLInputElement;
     (this.selectedMember as any)[key] = input.checked;
-  }
 
+    }
+    */
   private mapPermissionToKey(permission: string): keyof GroupMember {
     return permission
       .replace(/\s+/g, '')
@@ -335,13 +346,6 @@ export class GroupSettingsComponent {
 
   saveGroupSettings(): void {
     this.StoreGroup();
-
-    console.log('Group settings saved:', {
-      groupName: this.groupName,
-      groupDescription: this.groupDescription,
-      groupPassword: this.groupPassword,
-      groupMembers: this.groupMembers
-    });
   }
 
   logGroupSettings(): void {
@@ -412,6 +416,7 @@ export class GroupSettingsComponent {
       next: response => {
         if (response.success) {
           this.AppendGroupUsers();
+          this.removeGroupUsers();
           // Redirect po úspěšném updatu
           this.redirecter.LastGroup();
         } else {
@@ -425,10 +430,20 @@ export class GroupSettingsComponent {
   }
 
   private AppendGroupUsers(): void {
+
     this.groupMembers.forEach(user => {
+      console.log(user);
       this.AppendGroupUser(user);
     });
-    this.setPermissions();
+
+    new Promise(resolve => setTimeout(resolve, 1000)).then(() => this.setPermissions());
+
+  }
+  private removeGroupUsers() : void {
+    this.originalMembers.forEach(user => {
+      if (!this.groupMembers.includes(user))
+          this.removeGroupUser(user);
+    });
   }
 
   private AppendGroupUser(user: GroupMember): void {
@@ -438,6 +453,7 @@ export class GroupSettingsComponent {
         if (!response.success) {
           console.error('Error adding user to group:', response.description);
         }
+        console.log(`user ${user.name} added`);
       },
       error: (error) => {
         console.error('Error adding user to group:', error);
@@ -445,13 +461,73 @@ export class GroupSettingsComponent {
     });
   }
 
+  private removeGroupUser(user: GroupMember){
+    const response = this.grpEdi.removeGroupMember(Number(this.roomId), Number(user.userId));
+    console.log("removing user ", user)
+    response.subscribe({
+      next: response => {
+        if (!response.success) {
+          console.error('Error removing user  group:', response.description);
+        }
+        this.originalMembers = this.originalMembers.filter(om => om !== user)
+      },
+      error: (error) => {
+        console.error('Error removing user from group:', error);
+      }
+    });
+  }
+
   private setPermissions(): void {
-    // You may want to implement this to save permissions to backend if needed
+    this.groupMembers.forEach(gm => {
+      this.setPermission(gm);
+    })
+  }
+
+  private setPermission(member: GroupMember): void {
+    this.grpEdi.setUserAccess(Number(this.roomId), member.userId, [...new Set(member.permissions)]).subscribe({
+      next: response => {
+          if (!response.success){
+            console.error(`cannot safe permissions fro user ${member.name}: ${response.description}`);
+          }
+      },
+      error: err => {
+        console.error(`cannot safe permissions fro user ${member.name}: `, err);
+      }
+    })  
   }
 
   // Předpřipravená metoda pro budoucí logování
   getGroupLog(): string {
     // Zde bude načtení logu ze služby nebo backendu
     return 'Zde bude log';
+  }
+
+
+  loadPermissions(): void {
+    this.usrCtrl.getAvailablePermissions().subscribe({
+      next: response => {
+        this.permissions = response;
+      },
+      error: err =>{
+          console.error(`Error in permission loading: `, err)
+      }
+
+    });
+  }
+
+  loadLog() : void {
+    this.grpLdr.getLog(Number(this.roomId)).subscribe({
+      next: response => {
+        if (!response.success) {
+          console.error("Cannot load log: ", response.description);
+        }
+        else {
+          this.logContent = response.description;
+        }
+      },
+      error: err => {
+        console.error("Cannot load log: ", err);
+      }
+    })
   }
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { RegisterService } from '../services/register-service.service';
 import { LoginService } from '../services/login-service.service';
-import { Observable, take } from 'rxjs';
+import { Observable, retry, take } from 'rxjs';
 import { UserRegistrationModel } from '../models/user-registration-model';
 import { UserLoginModel } from './../models/user-login-model';
 import { UserLoginResponseModel } from '../models/user-login-response-model';
@@ -12,6 +12,7 @@ import { UserDataModel } from '../models/user-data-model';
 import { User } from '../user';
 import { KnownUserDataModel } from '../models/known-user-data-model';
 import { GroupUserAccessModel } from '../models/group-user-access-model';
+import { UserPermissionModel } from '../models/user-permission-model';
 
 @Injectable({
   providedIn: 'root'
@@ -60,6 +61,9 @@ export class UserControlService {
   }
   public getKnownUsers(): Observable<KnownUserDataModel[]> {
     return this.userService.getKnownUsers();
+  }
+  public getAvailablePermissions() : Observable<UserPermissionModel[]> {
+    return this.userService.getAvailablePermissions();
   }
 
 

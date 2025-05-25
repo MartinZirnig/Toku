@@ -65,7 +65,7 @@ public sealed class MessageController : ControllerBase
                     $"&{files}" +
                     $"&{message.PinnedMessageId}";
 
-                await controller!.WriteText(socketMessage);
+                await controller!.WriteTextAsync(socketMessage);
             }
         }
 

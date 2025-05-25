@@ -52,12 +52,12 @@ public sealed class GroupController : ControllerBase
         if (executor is null)
             return Unauthorized();
 
-        var permission = await service
-            .GetUsersPermissionsAsync((Guid)executor, model.groupId)
-            .ConfigureAwait(false);
+        //var permission = await service
+        //    .GetUsersPermissionsAsync((Guid)executor, model.groupId)
+        //    .ConfigureAwait(false);
 
-        if (!permission.Contains(GroupClientPermission.Admin))
-            return Unauthorized();
+        //if (!permission.Contains(GroupClientPermission.Admin))
+        //    return Unauthorized();
 
         var result = await service.AddUserToGroupAsync(model)
             .ConfigureAwait(false);
@@ -110,7 +110,8 @@ public sealed class GroupController : ControllerBase
     {
         using var service = _serviceProvider.GetGroupService();
 
-        var result = await service.UpdatePermissionAsync(model)
+        var executor = (Guid)AuthorizationAttribute.GetUID(HttpContext)!;
+        var result = await service.UpdatePermissionAsync(model, executor)
             .ConfigureAwait(false);
 
         return Ok(result);
@@ -136,5 +137,16 @@ public sealed class GroupController : ControllerBase
         if (result is null)
             return BadRequest();
         return Ok(result);
+    }
+
+    [HttpGet("get-log")]
+    public async Task<IActionResult> GetGroupLogAsync([FromQuery] uint groupId)
+    {
+        using var service = _serviceProvider.GetGroupService();
+
+        var log = await service.GetGroupLogAsync(groupId)
+            .ConfigureAwait(false);
+
+        return Ok(log);
     }
 }

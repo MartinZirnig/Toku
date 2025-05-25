@@ -1,7 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild, HostListener, Renderer2, Input } from '@angular/core';
 import {
-  buttonBackground,
-  buttonHoverBackground,
+
   textColor,
   placeholderColor,
   textareaBackground,
@@ -20,16 +19,20 @@ import { MainInputService } from '../../services/main-input.service';
 import { GroupReloadService } from '../../services/group-reload.service';
 import { EmojiPopupService } from '../../services/emoji-popup.service';
 import { FileUploadService } from '../../services/file-upload.service';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+
+import { Subscription } from 'rxjs';
+import { MessagerService } from '../../data_managements/messager.service';
+import { User } from '../../data_managements/user';
 
 @Component({
   selector: 'app-input-ui',
   templateUrl: './input-ui.component.html',
   styleUrls: ['./input-ui.component.scss'], 
-  imports: [EmojisPopUpComponent, NgIf, NgStyle, NgClass, FormsModule]
+  imports: [EmojisPopUpComponent, NgIf, NgStyle, NgClass, FormsModule, ReactiveFormsModule]
 })
 export class InputUiComponent implements OnInit {
-  @Input() userTyping: string = '';
+  @Input() userTyping: string | null = '';
   @ViewChild('chatTextarea', { static: true }) textarea!: ElementRef<HTMLTextAreaElement>;
   @ViewChild('customScrollbarThumb', { static: true }) scrollThumb!: ElementRef<HTMLDivElement>;
   @ViewChild('customScrollbarTrack', { static: true }) scrollTrack!: ElementRef<HTMLDivElement>;
@@ -43,14 +46,19 @@ export class InputUiComponent implements OnInit {
   hasFiles = false;
   totalFileSize = '';
   fileCount = 0;
+  inputControl: FormControl = new FormControl('');
+  typing = false;
   
+  declare typingTimeout: any;
+  declare typingSub: Subscription;
 
   constructor(
     private renderer: Renderer2, 
     private service: MainInputService,
     private reloader: GroupReloadService,
     public emojiPopupService: EmojiPopupService, // Inject EmojiPopupService
-    private fileUploadService: FileUploadService
+    private fileUploadService: FileUploadService,
+    private messager: MessagerService
   ) {
     // Close emoji popup when clicking outside
     this.renderer.listen('document', 'click', (event: Event) => {
@@ -74,7 +82,13 @@ export class InputUiComponent implements OnInit {
       } else {
         this.totalFileSize = `${(totalSizeInBytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
       }
-    });
+    }); 
+
+    this.typingSub = this.inputControl.valueChanges.subscribe(() => this.handleTyping());
+
+    messager.appendCallback("start-typing", str => {this.userTyping = str})
+    messager.appendCallback("stop-typing", str => {this.userTyping = null})
+  
   }
 
   ngOnInit(): void {
@@ -247,19 +261,26 @@ export class InputUiComponent implements OnInit {
     const text = this.textarea.nativeElement.value.trim();
     if (!text) return;
 
-    this.fileUploadService.sendSecretGroup().subscribe({
-      next: response => {
-          var values = response  
-            .filter(rrm => rrm.success)
-            .map(rrm => Number(rrm.description))
-            .filter(id => !Number.isNaN(id));
+    if (this.fileUploadService.any()){
+      this.fileUploadService.sendSecretGroup().subscribe({
+        next: response => {
+            var values = response  
+              .filter(rrm => rrm.success)
+              .map(rrm => Number(rrm.description))
+              .filter(id => !Number.isNaN(id));
 
-          this.service.sendMessage(text ?? '', values);
-      },
-      error: err => {
-        console.error("error while sending files:", err);
-      }
-    })
+            this.service.sendMessage(text ?? '', values);
+            this.fileUploadService.clear();
+        },
+        error: err => {
+          console.error("error while sending files:", err);
+        }
+      })
+    }
+    else {
+            this.service.sendMessage(text ?? '', []);
+    }
+
 
 
 
@@ -275,5 +296,18 @@ export class InputUiComponent implements OnInit {
     this.fileUploadService.toggleVisibility();
   }
 
-  
+  handleTyping() {
+      if (!this.typing) {
+        this.messager.writeSocket(`typing-start ${User.ActiveGroupId}&${User.Name}`);
+
+        this.typing = true;
+    }
+
+    clearTimeout(this.typingTimeout);
+    this.typingTimeout = setTimeout(() => {
+        this.messager.writeSocket(`typing-stop ${User.ActiveGroupId}&${User.Name}`);
+
+      this.typing = false;
+    }, 1500);
+  }  
 }

@@ -69,7 +69,7 @@ ngOnInit(): void {
             || numeralFragment === 0)
             this.invalidRoomId();
           this.roomId = numeralFragment;
-          console.log("id:", this.roomId)
+          User.ActiveGroupId = fragment ?? '';
           this.initializeMessages(numeralFragment);
           this.readMessages(numeralFragment);
     }
@@ -142,12 +142,12 @@ ngOnInit(): void {
   private AddMessage(msg: StoredMessageModel){
     const stat = StoredMessageModel.getStatus(msg.status);
     const sender = StoredMessageModel.isSender(msg.status);
-    this.messages.push(
-      new MessageFormat(
+    const message = new MessageFormat(
         msg.messageContent, msg.time, 
         stat, msg.pinnedMessagePrewiev ?? null, 
-        msg.pinnedMessageId !== null, msg.timeStamp ?? null, sender, msg
-      ));
+        (msg.attachedFilesId?.length ?? 0) !== 0, msg.timeStamp ?? null, sender, msg)
+
+    this.messages.push(message);
   
   this.ngZone.onStable.pipe(take(1)).subscribe(() => {
     this.dummyVisible = false;

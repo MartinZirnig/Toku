@@ -87,4 +87,11 @@ export class FileUploadService {
     
     return forkJoin(observables);
   }
+
+    clear(): void {
+    this.filesSubject.next([]);
+  }
+    any(): boolean {
+    return this.filesSubject.value.length != 0;
+  }
 }

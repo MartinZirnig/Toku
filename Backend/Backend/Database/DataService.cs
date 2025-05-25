@@ -183,7 +183,7 @@ internal class DataService : DatabaseServisLifecycle, IDataService
         if (messageIds.Count == 0) return [];
 
         var tasks = messageIds.Select(id =>
-            GetMessageAsyncStatic(userData, id, new DatabaseContext()));
+            GetMessageAsyncStatic(userData, id, new DatabaseContext(), true));
 
         var results = await Task.WhenAll(tasks);
 
@@ -228,10 +228,16 @@ internal class DataService : DatabaseServisLifecycle, IDataService
                 (uint)message.PinnedMessageId, context))?.MessageContent
             : null;
 
+        var storedFiles = await context.MessageStoredFiles
+            .Where(msf => msf.MessageId == messageId)
+            .Select(msf => msf.StoredFileId)
+            .ToArrayAsync()
+            .ConfigureAwait(false);
+
         var result = new StoredMessageModel(
             messageId,
             content,
-            message.MessageStoredFiles.Select(msf => msf.StoredFileId).ToArray(),
+            storedFiles,
             message.PinnedMessageId,
             message.GroupId,
             (byte)(status ?? MessageStatusCode.Sent),

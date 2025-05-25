@@ -8,10 +8,11 @@ import { User } from './user';
 export class MessagerService {
   private socket?: WebSocket;
   private path: string = Server.SocketUrl;
-  private callbackMap: Map<string, (data: string) => void> = new Map()
+  private callbackMap: Map<string, (data: string) => void> = new Map();
+  private messageIntervalId?: any;
 
   constructor() {
-      (window as any).messagerService = this;
+    (window as any).messagerService = this;
   }
 
   openSocket() {
@@ -22,15 +23,17 @@ export class MessagerService {
     }
 
     if (User.Id === null) {
-        console.error("user not initialized.");
-        return;
+      console.error("user not initialized.");
+      return;
     }
 
     const path = `${this.path}/messager?uid=${encodeURIComponent(User.Id)}`;
     this.socket = new WebSocket(path);
+    this.socket.binaryType = "arraybuffer";
 
     this.socket.onopen = (event) => {
       console.log("Socket opened:", event);
+      this.startPeriodicBinaryMessages();
     };
 
     this.socket.onmessage = (event) => {
@@ -55,13 +58,34 @@ export class MessagerService {
 
     this.socket.onclose = (event) => {
       console.warn("Socket close:", event);
+      this.stopPeriodicBinaryMessages();
     };
-}
+  }
+
+  private startPeriodicBinaryMessages() {
+    this.stopPeriodicBinaryMessages(); 
+    this.messageIntervalId = setInterval(() => {
+      const message = new Uint8Array(15);
+      for (let i = 0; i < 15; i++) {
+        message[i] = i;
+      }
+      console.log("pinging socket");
+      this.writeSocket(message.buffer);
+    }, 30000);
+  }
+
+  private stopPeriodicBinaryMessages() {
+    if (this.messageIntervalId) {
+      clearInterval(this.messageIntervalId);
+      this.messageIntervalId = undefined;
+    }
+  }
+
   appendCallback(code: string, operation: (data: string) => void) {
     this.callbackMap.set(code, operation);
   }
 
-  writeSocket(content: string) {
+  writeSocket(content: string | ArrayBuffer) {
     if (this.socket && this.socket.readyState === WebSocket.OPEN) {
       this.socket.send(content);
     } else {
@@ -71,6 +95,7 @@ export class MessagerService {
 
   closeSocket() {
     console.log("socket closing");
+    this.stopPeriodicBinaryMessages();
     if (this.socket) {
       this.socket.close(1000, "Normal closure");
     }
