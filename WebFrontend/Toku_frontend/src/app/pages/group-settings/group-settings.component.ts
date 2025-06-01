@@ -13,6 +13,7 @@ import { AreYouSurePopUpService } from '../../Components/are-you-sure-pop-up/are
 import { AreYouSurePopUpComponent } from '../../Components/are-you-sure-pop-up/are-you-sure-pop-up.component';
 import { UserPermissionModel } from '../../data_managements/models/user-permission-model';
 import { UserControlService } from '../../data_managements/control-services/user-control-service.service';
+import { ProfilePictureCircledComponent } from '../../Components/profile-picture-circled/profile-picture-circled.component';
 
 
 
@@ -33,7 +34,7 @@ export class StringifyPipe implements PipeTransform {
 
 @Component({
   selector: 'app-group-settings',
-  imports: [NgIf, NgClass, NgFor, UserFinderComponent, StringifyPipe, FormsModule, AreYouSurePopUpComponent],
+  imports: [NgIf, NgClass, NgFor, UserFinderComponent, StringifyPipe, FormsModule, AreYouSurePopUpComponent, ProfilePictureCircledComponent],
   standalone: true,
   templateUrl: './group-settings.component.html',
   styleUrls: ['./group-settings.component.scss']
@@ -44,6 +45,9 @@ export class GroupSettingsComponent {
   groupPassword: string = '';
   groupMembers: GroupMember[] = [];
   originalMembers: GroupMember[] = [];
+
+  groupPicture: string | null = null; // profilová fotka skupiny
+  private initialGroupPicture: string | null = null;
 
   selectedMember: GroupMember | null = null;
   isEditingName: boolean = false;
@@ -136,6 +140,9 @@ export class GroupSettingsComponent {
       next: response => {
         this.groupName = response.name;
         this.groupDescription = response.description;
+        // this.groupPicture = response.picture ?? null; // načti profilovku
+        // Oprava: Pokud GroupDataModel nemá picture, nastav na null nebo použij správný property
+        this.groupPicture = null; // nebo např. response.groupPicture ?? null pokud existuje
         this.saveInitialState();
       },
       error: err => {
@@ -149,6 +156,7 @@ export class GroupSettingsComponent {
     this.initialGroupDescription = this.groupDescription;
     this.initialGroupPassword = this.groupPassword;
     this.initialGroupMembers = this.groupMembers.map(m => ({ ...m }));
+    this.initialGroupPicture = this.groupPicture;
   }
 
   private parseAccessModel(model: GroupUserAccessModel) : GroupMember {
@@ -211,7 +219,8 @@ export class GroupSettingsComponent {
     if (
       this.groupName !== this.initialGroupName ||
       this.groupDescription !== this.initialGroupDescription ||
-      this.groupPassword !== this.initialGroupPassword
+      this.groupPassword !== this.initialGroupPassword ||
+      this.groupPicture !== this.initialGroupPicture // přidej kontrolu profilovky
     ) {
       return true;
     }
@@ -236,6 +245,7 @@ export class GroupSettingsComponent {
     this.groupDescription = this.initialGroupDescription;
     this.groupPassword = this.initialGroupPassword;
     this.groupMembers = this.initialGroupMembers.map(m => ({ ...m }));
+    this.groupPicture = this.initialGroupPicture;
   }
 
   closeGroupSettings(): void {
@@ -380,6 +390,25 @@ export class GroupSettingsComponent {
 
   loadExistingGroupSettings(id: string): void {}
 
+  onGroupPictureSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+    const file = input.files[0];
+    if (!file.type.match('image/jpeg') && !file.type.match('image/png')) {
+      alert('Only JPG and PNG files are allowed.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.groupPicture = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  triggerPictureInput(input: HTMLInputElement): void {
+    input.click();
+  }
+
   private StoreGroup(): void {
     if (this.roomId === 'new') {
       this.CreateGroup();
@@ -389,6 +418,7 @@ export class GroupSettingsComponent {
   }
 
   private CreateGroup(): void {
+    // Oprava: odeber groupPicture z argumentů
     const response = this.grpEdi.createGroup(this.groupName, this.groupDescription, 0, this.groupPassword);
     response.subscribe({
       next: response => {
@@ -409,9 +439,9 @@ export class GroupSettingsComponent {
   }
 
   private UpdateGroup(): void {
+    // Oprava: odeber groupPicture z argumentů
     const response = this.grpEdi.updateGroup(
       Number(this.roomId), this.groupName, this.groupDescription, 0, this.groupPassword);
-
     response.subscribe({
       next: response => {
         if (response.success) {

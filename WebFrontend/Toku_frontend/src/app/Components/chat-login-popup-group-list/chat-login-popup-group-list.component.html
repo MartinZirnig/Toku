@@ -1,0 +1,38 @@
+<div class="fixed inset-0 flex items-center justify-center z-[99999] bg-black/40">
+  <div class="group-list-popup">
+    <button
+      class="absolute top-4 right-4 p-2 rounded-full bg-gray-700 hover:bg-gray-600 text-white transition"
+      (click)="close.emit()"
+      title="Close"
+      type="button"
+    >
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </button>
+    <h2 class="text-xl font-bold text-white mb-6 text-center tracking-wide">Public Groups</h2>
+    <ul class="mb-4 max-h-56 overflow-y-auto rounded-lg bg-gray-800 border border-gray-700 divide-y divide-gray-700 shadow-inner">
+      <li
+        *ngFor="let group of groups"
+        class="flex items-center justify-between px-4 py-2 hover:bg-gray-700 transition cursor-pointer"
+        (click)="select(group)"
+      >
+        <span class="flex items-center gap-3">
+          <app-profile-picture-circled [picture]="group.picture" style="width:2rem;height:2rem;"></app-profile-picture-circled>
+          <span class="flex flex-col">
+            <span class="text-white font-medium truncate">{{ group.name }}</span>
+            <span class="text-xs text-gray-400 font-mono">#{{ group.id }}</span>
+          </span>
+        </span>
+        <button
+          class="ml-2 px-3 py-1 rounded-full gradient-btn text-xs font-semibold shadow transition"
+          type="button"
+          (click)="select(group); $event.stopPropagation();"
+        >
+          Copy
+        </button>
+      </li>
+    </ul>
+    <div class="text-xs text-gray-400 text-center">Click group or "Copy" to fill in group fields</div>
+  </div>
+</div>

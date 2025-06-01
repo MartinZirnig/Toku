@@ -1,4 +1,5 @@
-<div class="relative chat-item flex items-center gap-4 p-4 rounded-xl shadow transition-all duration-200 mt-1.5
+<div
+    class="relative chat-item flex items-center gap-4 p-4 rounded-xl shadow transition-all duration-200 mt-1.5
     hover:bg-gray-700/80 hover:shadow-lg
     group"
     [ngClass]="{
@@ -7,7 +8,9 @@
       'bg-gray-800': !active
     }"
     (click)="!service.inEditMode && onClick()"
-    (contextmenu)="onRightClick($event)">
+    (contextmenu)="!disableContextMenu && onRightClick($event)"
+    [title]="name"
+>
 
     <!-- Avatar -->
     <div class="w-12 h-12 flex items-center justify-center rounded-full bg-gradient-to-br from-gray-700 to-gray-900 shadow-inner">
@@ -40,5 +43,15 @@
             <circle cx="12" cy="19" r="2"/>
           </svg>
         </button>
+      <ng-container *ngIf="!hideMenuDots">
+        <!-- tři tečky/menu zde -->
+        <button
+          class="menu-dots-btn"
+          (click)="onMenuClick($event)"
+          tabindex="0"
+        >
+          <!-- svg nebo ikona tří teček -->
+        </button>
+      </ng-container>
     </div>
 </div>

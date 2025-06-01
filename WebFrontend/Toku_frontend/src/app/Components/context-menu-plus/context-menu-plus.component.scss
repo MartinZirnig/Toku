@@ -1,0 +1,17 @@
+div[ngStyle] {
+  pointer-events: auto;
+  box-sizing: border-box;
+  margin: 0 !important;
+  padding: 0 !important;
+  max-width: none !important;
+  max-height: none !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+  overflow: hidden;
+}
+div[ngStyle]::-webkit-scrollbar {
+  display: none !important;
+}
+ul, li {
+  overflow: visible !important;
+}

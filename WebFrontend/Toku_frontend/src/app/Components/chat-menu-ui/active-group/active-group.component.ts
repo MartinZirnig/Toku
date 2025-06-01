@@ -20,6 +20,8 @@ export class ActiveGroupComponent {
   
   @Input() data: any;
   @Input() active: boolean = false;
+  @Input() disableContextMenu: boolean = false;
+  @Input() hideMenuDots: boolean = false;
   ngOnChanges() {
     if (this.data) {
       this.load(this.data);
@@ -40,6 +42,7 @@ export class ActiveGroupComponent {
   }
 
   public onClick() {
+    // Žádná podmínka, redirect funguje pro všechny skupiny včetně AI
     const request = this.loader.updateLastGroup(this.data.groupId)
     request.subscribe({
       next: response => {
@@ -55,11 +58,16 @@ export class ActiveGroupComponent {
   }
 
   editClicked() {
+    if (this.disableContextMenu) return; // Zákaz editace AI skupiny
     this.redirecter.GroupSettings(this.data.groupId);
   }
 
   onMenuClick(event: MouseEvent) {
-    event.stopPropagation();
+    if (this.hideMenuDots || this.disableContextMenu) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
     const rect = (event.target as HTMLElement).getBoundingClientRect();
     this.contextMenuGroupsService.open({
       x: rect.right,
@@ -73,6 +81,11 @@ export class ActiveGroupComponent {
 
   @HostListener('contextmenu', ['$event'])
   onRightClick(event: MouseEvent) {
+    if (this.disableContextMenu) {
+      event.preventDefault();
+      event.stopPropagation();
+      return false;
+    }
     event.preventDefault();
     event.stopPropagation();
     this.contextMenuGroupsService.open({
@@ -83,10 +96,31 @@ export class ActiveGroupComponent {
         mute: () => this.muteGroup()
       }
     });
+    return true;
   }
 
   muteGroup() {
+    if (this.disableContextMenu) return;
     // Implementace ztišení skupiny
     alert('Skupina ztišena!');
+  }
+
+  onGroupMenuClick(item: any, event: MouseEvent) {
+    if (this.disableContextMenu) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+    // ...existing code...
+  }
+
+  onContextMenu(event: MouseEvent) {
+    if (this.disableContextMenu) {
+      event.preventDefault();
+      event.stopPropagation();
+      return false;
+    }
+    // ...další logika context menu pokud existuje...
+    return true;
   }
 }

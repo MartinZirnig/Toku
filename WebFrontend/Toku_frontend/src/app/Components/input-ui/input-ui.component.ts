@@ -24,19 +24,23 @@ import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { MessagerService } from '../../data_managements/messager.service';
 import { User } from '../../data_managements/user';
+import { ReplyService, ReplyPreview } from '../../services/reply.service'; // Přidej import
+
 
 @Component({
   selector: 'app-input-ui',
   templateUrl: './input-ui.component.html',
   styleUrls: ['./input-ui.component.scss'], 
-  imports: [EmojisPopUpComponent, NgIf, NgStyle, NgClass, FormsModule, ReactiveFormsModule]
+  imports: [EmojisPopUpComponent, NgIf, NgStyle, NgClass, FormsModule, ReactiveFormsModule],
+
 })
 export class InputUiComponent implements OnInit {
   @Input() userTyping: string | null = '';
-  @ViewChild('chatTextarea', { static: true }) textarea!: ElementRef<HTMLTextAreaElement>;
-  @ViewChild('customScrollbarThumb', { static: true }) scrollThumb!: ElementRef<HTMLDivElement>;
-  @ViewChild('customScrollbarTrack', { static: true }) scrollTrack!: ElementRef<HTMLDivElement>;
-  @ViewChild('customScrollbarContainer', { static: true }) scrollContainer!: ElementRef<HTMLDivElement>;
+  @Input() IsAllowedToWrite: boolean = true;
+  @ViewChild('chatTextarea', { static: false }) textarea!: ElementRef<HTMLTextAreaElement>;
+  @ViewChild('customScrollbarThumb', { static: false }) scrollThumb!: ElementRef<HTMLDivElement>;
+  @ViewChild('customScrollbarTrack', { static: false }) scrollTrack!: ElementRef<HTMLDivElement>;
+  @ViewChild('customScrollbarContainer', { static: false }) scrollContainer!: ElementRef<HTMLDivElement>;
 
   isDragging = false;
   private mouseMoveListener!: () => void;
@@ -52,13 +56,19 @@ export class InputUiComponent implements OnInit {
   declare typingTimeout: any;
   declare typingSub: Subscription;
 
+  replyPreview: ReplyPreview | null = null;
+
+  private lastGroupId: string | number | null = null;
+  private groupCheckInterval: any;
+
   constructor(
     private renderer: Renderer2, 
     private service: MainInputService,
     private reloader: GroupReloadService,
     public emojiPopupService: EmojiPopupService, // Inject EmojiPopupService
     private fileUploadService: FileUploadService,
-    private messager: MessagerService
+    private messager: MessagerService,
+    private replyService: ReplyService // Přidej reply service
   ) {
     // Close emoji popup when clicking outside
     this.renderer.listen('document', 'click', (event: Event) => {
@@ -89,18 +99,44 @@ export class InputUiComponent implements OnInit {
     messager.appendCallback("start-typing", str => {this.userTyping = str})
     messager.appendCallback("stop-typing", str => {this.userTyping = null})
   
+    this.replyService.replyPreview$.subscribe(preview => {
+      this.replyPreview = preview;
+    });
   }
 
   ngOnInit(): void {
-    this.setupChatUI();
-    this.checkScrollability();
-    this.updateScrollThumbPosition();
-    this.emojiPopupService.openForInput(this.textarea.nativeElement); // Set input context
-    this.emojiPopupService.emojiPopupVisible = false;
-    this.emojiPopupService.emojiPopupVisible = false;
+    // Ulož aktuální groupId
+    this.lastGroupId = User.ActiveGroupId;
+
+    // Polling na změnu chatu/skupiny
+    this.groupCheckInterval = setInterval(() => {
+      if (User.ActiveGroupId !== this.lastGroupId) {
+        this.lastGroupId = User.ActiveGroupId;
+        this.replyService.clearReply();
+      }
+    }, 300);
+  }
+
+  ngAfterViewInit(): void {
+    // Ověř, že textarea existuje (IsAllowedToWrite může být false)
+    if (this.IsAllowedToWrite && this.textarea) {
+      this.setupChatUI();
+      this.checkScrollability();
+      this.updateScrollThumbPosition();
+      this.emojiPopupService.openForInput(this.textarea.nativeElement);
+      this.emojiPopupService.emojiPopupVisible = false;
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.groupCheckInterval) {
+      clearInterval(this.groupCheckInterval);
+    }
   }
 
   setupChatUI(): void {
+    // Ověř, že reference existují
+    if (!this.textarea || !this.scrollThumb || !this.scrollTrack || !this.scrollContainer) return;
     const pinButton = document.getElementById("pin-button");  
     const sendButton = document.getElementById("send-button");  
     const textarea = this.textarea.nativeElement; 
@@ -150,6 +186,7 @@ export class InputUiComponent implements OnInit {
   }
 
   checkScrollability(): void {
+    if (!this.textarea || !this.scrollContainer || !this.scrollThumb) return;
     const textarea = this.textarea.nativeElement;
     const scrollContainer = this.scrollContainer.nativeElement;
     const scrollThumb = this.scrollThumb.nativeElement;
@@ -169,6 +206,8 @@ export class InputUiComponent implements OnInit {
   }
 
   updateScrollThumbPosition(): void {
+    if (!this.textarea || !this.scrollThumb || !this.scrollTrack) return;
+
     if (this.animationFrameId !== null) {
       cancelAnimationFrame(this.animationFrameId); // Zrušíme předchozí frame, pokud existuje
     }
@@ -202,15 +241,18 @@ export class InputUiComponent implements OnInit {
   }
 
   onInput(): void {
+    if (!this.textarea || !this.scrollThumb || !this.scrollTrack || !this.scrollContainer) return;
     this.checkScrollability();
     this.updateScrollThumbPosition();
   }
 
   onScroll(): void {
+    if (!this.textarea || !this.scrollThumb || !this.scrollTrack) return;
     this.updateScrollThumbPosition();
   }
 
   onThumbMouseDown(event: MouseEvent): void {
+    if (!this.scrollThumb || !this.scrollTrack) return;
     this.isDragging = true;
 
     // Add mousemove and mouseup listeners dynamically
@@ -219,7 +261,7 @@ export class InputUiComponent implements OnInit {
   }
 
   handleMouseMove = (event: MouseEvent): void => {
-    if (!this.isDragging) return;
+    if (!this.isDragging || !this.scrollTrack || !this.scrollThumb || !this.textarea) return;
 
     const trackRect = this.scrollTrack.nativeElement.getBoundingClientRect();
     const thumbHeight = this.scrollThumb.nativeElement.offsetHeight;
@@ -245,6 +287,7 @@ export class InputUiComponent implements OnInit {
 
   @HostListener('window:resize')
   onResize(): void {
+    if (!this.textarea || !this.scrollThumb || !this.scrollTrack || !this.scrollContainer) return;
     this.checkScrollability();
     this.updateScrollThumbPosition();
   }
@@ -258,6 +301,7 @@ export class InputUiComponent implements OnInit {
   }
 
   send(): void {
+    if (!this.textarea) return;
     const text = this.textarea.nativeElement.value.trim();
     if (!text) return;
 
@@ -286,6 +330,9 @@ export class InputUiComponent implements OnInit {
 
     this.textarea.nativeElement.value = '';
 
+    // Po odeslání zprávy zruš reply preview
+    this.replyService.clearReply();
+
     setTimeout(() => {
       this.reloader.groupReload();
     }, 1000);
@@ -310,4 +357,17 @@ export class InputUiComponent implements OnInit {
       this.typing = false;
     }, 1500);
   }  
+
+  // Přidej možnost zrušit odpověď
+  cancelReplyPreview(): void {
+    this.replyService.clearReply();
+  }
+
+  getReplyPreviewText(): string {
+    const txt = this.replyPreview?.text ?? this.replyPreview?.previewText ?? '';
+    if (txt.length > 80) {
+      return txt.slice(0, 80) + '…';
+    }
+    return txt;
+  }
 }

@@ -7,6 +7,7 @@ import { EmojiPopupService } from '../../services/emoji-popup.service'; // Impor
 import { FileDownloadPopupService } from '../../services/file-download-popup.service'; // Import new service
 import { ContextMenuMessagesService } from '../../services/context-menu-messages.service';
 import { ProfilePictureCircledComponent } from '../profile-picture-circled/profile-picture-circled.component';
+import { ReplyService } from '../../services/reply.service'; // Přidej import
 
 @Component({
   selector: 'app-message-adresator',
@@ -38,9 +39,10 @@ export class MessageAdresatorComponent implements OnInit {
   constructor(
     private menuService: MenuService,
     private popupService: PopUpService,
-    private emojiPopupService: EmojiPopupService, // Inject EmojiPopupService
-    private fileDownloadPopupService: FileDownloadPopupService, // Inject new service
-    private contextMenuMessagesService: ContextMenuMessagesService
+    private emojiPopupService: EmojiPopupService,
+    private fileDownloadPopupService: FileDownloadPopupService,
+    private contextMenuMessagesService: ContextMenuMessagesService,
+    private replyService: ReplyService // Přidej reply service
   ) {}
 
   ngOnInit(): void {
@@ -72,11 +74,12 @@ export class MessageAdresatorComponent implements OnInit {
       x,
       y,
       showEdit: false,
-      showReply: false,
+      showReply: true, // Umožni odpovědět
       actions: {
         delete: () => this.onDelete(),
         react: () => this.onReact(),
-        copy: () => this.copyToClipboard()
+        copy: () => this.copyToClipboard(),
+        reply: () => this.onReply()
       }
     });
   }
@@ -88,11 +91,12 @@ export class MessageAdresatorComponent implements OnInit {
       x: event.clientX,
       y: event.clientY,
       showEdit: false,
-      showReply: false,
+      showReply: true, // Umožni odpovědět
       actions: {
         delete: () => this.onDelete(),
         react: () => this.onReact(),
-        copy: () => this.copyToClipboard()
+        copy: () => this.copyToClipboard(),
+        reply: () => this.onReply()
       }
     });
   }
@@ -133,6 +137,16 @@ export class MessageAdresatorComponent implements OnInit {
     const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  onReply(): void {
+    // Nastav reply service s náhledem na tuto zprávu
+    this.replyService.setReply({
+      text: this.text,
+      previewText: this.previewText,
+      hasFile: this.hasFile,
+      image: this.image
+    });
   }
 
   @HostListener('document:click', ['$event'])

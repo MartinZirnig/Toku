@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { AreYouSurePopUpService } from './are-you-sure-pop-up.service';
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-are-you-sure-pop-up',
   standalone: true,
-  imports: [],
+  imports: [NgIf],
   templateUrl: './are-you-sure-pop-up.component.html',
   styleUrl: './are-you-sure-pop-up.component.scss'
 })

@@ -342,7 +342,7 @@
     #ff73e3 100%
   );
   border-radius: 50%;
-  transition: background 0.2s, transform 0.2s, opacity 0.2s;
+  transition: background 0.2s, opacity 0.2s, transform 0.2s;
   cursor: pointer;
   user-select: none;
   z-index: 20;
@@ -471,34 +471,6 @@
   opacity: 1;
 }
 
-.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:focus {
-  opacity: 1;
-}
-
-.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:focus-visible {
-  opacity: 1;
-}
-
-.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:focus-within {
-  opacity: 1;
-}
-
-.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:focus:active {
-  opacity: 1;
-}
-
-.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:focus-visible:active {
-  opacity: 1;
-}
-
-.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:focus-within:active {
-  opacity: 1;
-}
-
-.input-bar .custom-scrollbar-container .custom-scrollbar-thumb:active {
-  opacity: 1;
-}
-
 .input-spinner-row {
   display: flex;
   align-items: center;
@@ -560,5 +532,67 @@
   .input-bar {
     max-width: 98vw;
   
+  }
+}
+
+.reply-preview-bar {
+  border-left: 4px solid #64748b; // decentní šedý rámeček
+  font-size: 0.97rem;
+  min-height: 2.5rem;
+  margin-bottom: 0.5rem;
+  position: absolute;
+  width: 100%;
+  max-width: 700px;
+  margin-top: -45px;
+  box-sizing: border-box;
+  background: rgba(30, 41, 59, 0.92); // stejné jako input-bar
+  color: #f1f5f9; // světlý text
+  box-shadow: 0 2px 8px 0 #33415533;
+  will-change: opacity, transform, max-height;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-24px) scaleY(0.97);
+  pointer-events: none;
+  visibility: hidden;
+  transition:
+    max-height 0.25s cubic-bezier(.4,0,.2,1),
+    opacity 0.22s cubic-bezier(.4,0,.2,1),
+    transform 0.22s cubic-bezier(.4,0,.2,1),
+    visibility 0.22s cubic-bezier(.4,0,.2,1);
+
+  &.reply-preview-bar--active {
+    max-height: 200px; // nebo větší podle obsahu
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+    pointer-events: auto;
+    visibility: visible;
+  }
+  .truncate-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* max 2 řádky */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    max-width: 100%;
+    word-break: break-all;
+  }
+  button {
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 0.2rem;
+    margin-left: 0.5rem;
+    color: #64748b;
+    transition: color 0.15s;
+  }
+  button:hover {
+    color: #fff;
+  }
+  svg {
+    color: #64748b !important; // decentní šedá pro ikony
+    fill: #64748b !important;
   }
 }

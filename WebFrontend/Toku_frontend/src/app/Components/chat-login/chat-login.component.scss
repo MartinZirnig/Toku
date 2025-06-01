@@ -179,6 +179,99 @@ body, :host {
   color: #ff73e3;
 }
 
+.group-row {
+  margin-bottom: 1.5rem;
+}
+
+.group-inputs {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+}
+
+.group-name-input {
+  width: 90px;
+  min-width: 0;
+  background: #23293a;
+  color: #fff;
+  border: 1px solid #334155;
+  border-radius: 0.5rem;
+  padding: 0.75rem 0.7rem;
+  font-size: 1rem;
+}
+
+.group-id-input {
+  width: 36px;
+  min-width: 0;
+  background: #23293a;
+  color: #fff;
+  border: 1px solid #334155;
+  border-radius: 0.5rem;
+  padding: 0.75rem 0.5rem;
+  font-size: 1rem;
+  text-align: left;
+}
+
+.hashtag {
+  color: #7c3aed;
+  font-size: 1.3rem;
+  font-weight: bold;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  
+  height: 100%;
+  /* zajistí vertikální zarovnání na střed mezi inputy */
+}
+
+.group-list-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: linear-gradient(135deg,
+    #46f3ff 0%,
+    #528aa9 9.2%,
+    #576086 45.4%,
+    #576086 56.8%,
+    #7b649a 79.2%,
+    #9967ab 93.2%,
+    #ff73e3 100%
+  );
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.5rem 1.1rem;
+  font-size: 1rem;
+  box-shadow: 0 2px 8px 0 #7c3aed33;
+  transition: background 0.2s, box-shadow 0.2s, color 0.2s;
+  cursor: pointer;
+  outline: none;
+}
+
+.group-list-btn:hover, .group-list-btn:focus {
+  background: linear-gradient(135deg,
+    #ff73e3 0%,
+    #9967ab 20%,
+    #7b649a 40%,
+    #576086 60%,
+    #528aa9 80%,
+    #46f3ff 100%
+  );
+  color: #fff;
+  box-shadow: 0 4px 16px 0 #7c3aed33;
+}
+
+.no-spinner::-webkit-outer-spin-button,
+.no-spinner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.no-spinner {
+  -moz-appearance: textfield;
+}
+
 @media (max-width: 600px) {
   .login-card {
     padding: 1.5rem 0.5rem;

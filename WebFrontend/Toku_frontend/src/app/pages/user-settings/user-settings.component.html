@@ -147,6 +147,20 @@
             </button>
           </div>
         </div>
+        <div>
+          <label class="block text-gray-300 text-sm mb-1">Show AI bot group</label>
+          <div class="flex items-center bg-gray-700 rounded-lg px-4 py-3">
+            <span class="flex-1 text-white">AI bot group is {{ showAiGroup ? 'visible' : 'hidden' }}</span>
+            <label class="switch ml-3 flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                [checked]="showAiGroup"
+                (change)="showAiGroup = !showAiGroup; onAiGroupToggle()"
+              />
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
       </div>
 
       <!-- Contacts tab -->
@@ -154,7 +168,7 @@
         <div class="flex items-center justify-between mb-4">
           <label class="block text-gray-300 text-lg font-bold">Contacts</label>
           <button class="update-btn px-4 py-2 flex items-center gap-2" (click)="openUserFinder()">
-            <span class="material-icons text-base">person_add</span>
+            
             Add Contact
           </button>
         </div>
@@ -162,9 +176,10 @@
         <div *ngIf="contacts.length > 0; else noContacts">
           <ul class="divide-y divide-gray-700 rounded-lg bg-gray-700/50 border border-gray-700 shadow-inner">
             <li *ngFor="let contact of contacts" class="flex items-center px-4 py-3">
-              <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-lg mr-4">
-                {{ contact.name ? contact.name.charAt(0).toUpperCase() : '?' }}
-              </div>
+              <app-profile-picture-circled
+                class="flex-shrink-0 w-10 h-10 mr-4"
+                [picture]="''" 
+              ></app-profile-picture-circled> <!-- TODO: Nastavit profilovou fotografii kontaktu-->
               <div class="flex-1 min-w-0">
                 <div class="text-white font-medium truncate">{{ contact.name || contact.userId }}</div>
                 <div class="text-gray-400 text-xs truncate">
@@ -172,12 +187,15 @@
                 </div>
               </div>
               <button
-                class="ml-4 px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-pink-500 text-white font-semibold shadow hover:from-red-600 hover:to-pink-600 transition"
+                class="ml-4 px-3 py-2 rounded-full flex items-center gap-2 bg-gray-700 hover:bg-red-600 transition text-white font-semibold shadow remove-contact-btn"
                 (click)="onRemoveContactClick(contact)"
                 title="Remove contact"
                 type="button"
               >
-                Remove
+                <svg class="w-5 h-5 text-red-400 group-hover:text-white transition" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 7V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v2m5 4v6m4-6v6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                
               </button>
             </li>
           </ul>
@@ -185,15 +203,17 @@
         <ng-template #noContacts>
           <div class="text-gray-400 italic text-center py-8">No contacts yet.</div>
         </ng-template>
-        
       </div>
 
-      <!-- Update button -->
-      <div class="flex justify-end mt-10">
-        <button class="update-btn px-6 py-2 font-semibold shadow" (click)="saveAndReturn()">Update</button>
+      <div *ngIf="showAddContactPopup">
+        <app-add-contact-popup
+          [allUsers]="allKnownUsers"
+          [existingContacts]="contacts"
+          (close)="onAddContactPopupClose()"
+          (addContact)="onAddContactSelected($event)"
+        ></app-add-contact-popup>
       </div>
     </div>
-    <!-- Are you sure popup -->
-        <app-are-you-sure-pop-up *ngIf="showAreYouSure"></app-are-you-sure-pop-up>
   </main>
 </div>
+<app-are-you-sure-pop-up *ngIf="showAreYouSure"></app-are-you-sure-pop-up>

@@ -10,8 +10,16 @@ import { NavigationService } from '../../services/navigation.service';
 import { Redirecter } from '../../data_managements/redirecter.service';
 import { User } from '../../data_managements/user';
 import { FormsModule } from '@angular/forms';
+import { ContextMenuPlusService } from '../../services/context-menu-plus.service';
+import { Injectable } from '@angular/core';
 
-
+// Přidej službu pro správu viditelnosti AI skupiny
+@Injectable({ providedIn: 'root' })
+export class AiGroupVisibilityService {
+  private _visible = true;
+  get visible() { return this._visible; }
+  set visible(val: boolean) { this._visible = val; }
+}
 
 @Component({
   selector: 'app-chat-menu-ui',
@@ -26,6 +34,14 @@ export class ChatMenuUiComponent {
   activeGroupId: string | number | null = null;
   @ViewChild('chatMenuContainer') chatMenuContainer!: ElementRef;
   private scrollPosition = 0;
+  showAiGroup = true;
+  aiGroup = {
+    groupId: 0,
+    groupName: 'AI bot',
+    lastDecryptedMessage: 'Talk to your AI assistant!',
+    picturePath: '',
+    lastOperation: "" // změna z čísla na string
+  }
 
   constructor(
     public menuService: OpenAndcloseMenuService,
@@ -35,13 +51,31 @@ export class ChatMenuUiComponent {
     private cdr: ChangeDetectorRef,
     public navigationService: NavigationService,
     private redirecter: Redirecter,
+    private contextMenuPlus: ContextMenuPlusService, // přidej službu
+    private aiGroupVisibility: AiGroupVisibilityService,
   ) {
     reloader.groupReload = this.reload.bind(this);
   }
 
   // Oprava názvu metody na appendGroup (správně)
-  appendGroup() {
-    this.redirecter.AddGroup();
+  appendGroup(event?: MouseEvent) {
+    // Otevři context menu plus na pozici tlačítka
+    const x = event?.clientX ?? 120;
+    const y = event?.clientY ?? 60;
+    this.contextMenuPlus.open({
+      x,
+      y,
+      actions: {
+        groupSettings: () => {
+          // Redirect na group-settings route
+          this.redirecter.AddGroup();
+        },
+        chatLogin: () => {
+          // Otevři chat-login v main-route
+          (window as any).openChatLogin?.();
+        }
+      }
+    });
   }
 
 
@@ -55,6 +89,7 @@ export class ChatMenuUiComponent {
   }
 
   ngOnInit() {
+    this.showAiGroup = this.aiGroupVisibility.visible;
     this.reload();
   }
 
@@ -128,8 +163,12 @@ export class ChatMenuUiComponent {
     request.subscribe({
       next: response => {
         this.items = response || [];
-        this.filteredItems = this.items; // vždy nastav i filteredItems
+        this.filteredItems = this.items;
         User.Groups = this.items.map(group => String(group.groupId));
+        // Přidej AI skupinu na začátek pokud je povolena
+        if (this.aiGroupVisibility.visible) {
+          this.filteredItems = [this.aiGroup, ...this.filteredItems];
+        }
       },
       error: err => {
         console.error('cannot load groups', err)
@@ -141,10 +180,14 @@ export class ChatMenuUiComponent {
 
   onSearch(): void {
     const term = this.search.trim().toLowerCase();
+    let baseItems = this.items;
+    if (this.aiGroupVisibility.visible) {
+      baseItems = [this.aiGroup, ...this.items];
+    }
     if (!term) {
-      this.filteredItems = this.items;
+      this.filteredItems = baseItems;
     } else {
-      this.filteredItems = this.items.filter(g =>
+      this.filteredItems = baseItems.filter(g =>
         g.groupName?.toLowerCase().includes(term) ||
         g.lastDecryptedMessage?.toLowerCase().includes(term)
       );

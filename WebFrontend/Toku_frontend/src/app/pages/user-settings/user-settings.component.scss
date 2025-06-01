@@ -78,3 +78,95 @@
 .user-settings-popup li:hover {
   background: #334155;
 }
+
+/* Custom switch for AI bot group (slider) */
+.switch {
+  --button-width: 3.5em;
+  --button-height: 2em;
+  --toggle-diameter: 1.5em;
+  --button-toggle-offset: calc((var(--button-height) - var(--toggle-diameter)) / 2);
+  --toggle-shadow-offset: 10px;
+  --toggle-wider: 3em;
+  --color-grey: #cccccc;
+  --color-green: #4296f4;
+  --gradient-on: linear-gradient(135deg,
+    #46f3ff 0%,
+    #528aa9 9.2%,
+    #576086 45.4%,
+    #576086 56.8%,
+    #7b649a 79.2%,
+    #9967ab 93.2%,
+    #ff73e3 100%
+  );
+  --gradient-off: linear-gradient(135deg, #e2e8f0 0%, #a0aec0 100%);
+  display: inline-block;
+  position: relative;
+  vertical-align: middle;
+}
+
+.switch input[type="checkbox"] {
+  display: none;
+}
+
+.slider {
+  display: inline-block;
+  width: var(--button-width);
+  height: var(--button-height);
+  background: var(--gradient-off);
+  border-radius: calc(var(--button-height) / 2);
+  position: relative;
+  transition: background 0.3s cubic-bezier(.4,0,.2,1);
+  cursor: pointer;
+}
+
+.slider::after {
+  content: "";
+  display: inline-block;
+  width: var(--toggle-diameter);
+  height: var(--toggle-diameter);
+  background-color: #fff;
+  border-radius: 50%;
+  position: absolute;
+  top: var(--button-toggle-offset);
+  left: var(--button-toggle-offset);
+  box-shadow: var(--toggle-shadow-offset) 0 calc(var(--toggle-shadow-offset) * 0.4) rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s cubic-bezier(.4,0,.2,1), width 0.3s cubic-bezier(.4,0,.2,1), box-shadow 0.3s cubic-bezier(.4,0,.2,1);
+}
+
+.switch input[type="checkbox"]:checked + .slider {
+  background: var(--gradient-on);
+}
+
+.switch input[type="checkbox"]:checked + .slider::after {
+  transform: translateX(calc(var(--button-width) - var(--toggle-diameter) - 2 * var(--button-toggle-offset)));
+  box-shadow: calc(var(--toggle-shadow-offset) * -1) 0 calc(var(--toggle-shadow-offset) * 0.4) rgba(0, 0, 0, 0.1);
+}
+
+.switch input[type="checkbox"]:active + .slider::after {
+  width: var(--toggle-wider);
+}
+
+.switch input[type="checkbox"]:checked:active + .slider::after {
+  transform: translateX(calc(var(--button-width) - var(--toggle-wider) - 2 * var(--button-toggle-offset)));
+}
+
+.remove-contact-btn {
+  background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+  color: #fff;
+  border: none;
+  outline: none;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+  box-shadow: 0 2px 8px 0 #dc262633;
+  font-weight: 500;
+  .w-5, .h-5 {
+    transition: color 0.18s;
+  }
+}
+.remove-contact-btn:hover, .remove-contact-btn:focus {
+  background: linear-gradient(135deg, #dc2626 0%, #be185d 100%);
+  color: #fff;
+  box-shadow: 0 4px 16px 0 #dc262655;
+}
+.remove-contact-btn:active {
+  background: linear-gradient(135deg, #991b1b 0%, #831843 100%);
+}

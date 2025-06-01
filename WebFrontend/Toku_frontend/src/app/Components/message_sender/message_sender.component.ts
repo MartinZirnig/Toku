@@ -7,10 +7,11 @@ import { PopUpService } from '../../services/pop-up.service'; // Import the popu
 import { EmojiPopupService } from '../../services/emoji-popup.service'; // Import EmojiPopupService
 import { FileDownloadPopupService } from '../../services/file-download-popup.service';
 import { ContextMenuMessagesService } from '../../services/context-menu-messages.service';
+import { ReplyService } from '../../services/reply.service'; // Přidej import
 
 import { ReactionCounterComponent} from '../reaction-counter/reaction-counter.component'; 
 import { EmojisPopUpComponent } from '../emojis-pop-up/emojis-pop-up.component';
-import { ContextMenuMessagesComponent } from '../../context-menu-messages/context-menu-messages.component';
+import { ContextMenuMessagesComponent } from '../../Components/context-menu-messages/context-menu-messages.component';
 
 import { MessageControllService } from '../../data_managements/control-services/message-controll.service';
 import { StoredMessageModel } from '../../data_managements/models/stored-message-model';
@@ -66,7 +67,8 @@ Message_senderComponent implements OnInit {
     private popupService: PopUpService, // Inject the popup service
     private emojiPopupService: EmojiPopupService, // Inject EmojiPopupService
     private fileDownloadPopupService: FileDownloadPopupService, // Inject new service
-    private contextMenuMessagesService: ContextMenuMessagesService
+    private contextMenuMessagesService: ContextMenuMessagesService,
+    private replyService: ReplyService // Přidej reply service
   ) {} // Inject DomSanitizer
 
   private startX = 0; // Initial position
@@ -160,6 +162,15 @@ Message_senderComponent implements OnInit {
         copy: () => this.copyToClipboard(),
         reply: () => this.onReply()
       }
+    });
+  }
+
+  onReply(): void {
+    this.replyService.setReply({
+      text: this.text,
+      previewText: this.previewText,
+      hasFile: this.hasFile,
+      image: this.image
     });
   }
 
@@ -335,9 +346,5 @@ Message_senderComponent implements OnInit {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 
-  onReply(): void {
-    // Implement your reply logic here, or just show an alert for now
-    alert('Odpovědět');
-  }
   
 }

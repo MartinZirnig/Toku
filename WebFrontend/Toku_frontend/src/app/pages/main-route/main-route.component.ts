@@ -7,15 +7,17 @@ import { NgClass, NgFor, NgIf } from '@angular/common';
 import { PopUpComponent } from '../../Components/pop-up/pop-up.component';
 import { PopUpService } from '../../services/pop-up.service';
 import { OpenAndcloseMenuService } from '../../services/open-andclose-menu.service';
-import { ContextMenuMessagesComponent } from '../../context-menu-messages/context-menu-messages.component';
-import { ContextMenuGroupsComponent } from '../../context-menu-groups/context-menu-groups.component';
+import { ContextMenuMessagesComponent } from '../../Components/context-menu-messages/context-menu-messages.component';
+import { ContextMenuGroupsComponent } from '../../Components/context-menu-groups/context-menu-groups.component';
 import { InputUiComponent } from '../../Components/input-ui/input-ui.component';
 import { FileUploadService } from '../../services/file-upload.service';
 import { FileFormComponent } from '../../Components/file-form/file-form.component';
+import { ContextMenuPlusComponent } from '../../Components/context-menu-plus/context-menu-plus.component';
+import { ChatLoginComponent } from '../../Components/chat-login/chat-login.component';
 
 @Component({
   selector: 'app-main-route',
-  imports: [MainPageComponent, MenuUiComponent, InputUiComponent, FileFormComponent, ChatMenuUiComponent, NgClass, InputUiComponent, NgIf, NgFor, PopUpComponent, ContextMenuMessagesComponent, ContextMenuGroupsComponent],
+  imports: [MainPageComponent, MenuUiComponent, InputUiComponent, FileFormComponent, ChatMenuUiComponent, NgClass, InputUiComponent, NgIf, NgFor, PopUpComponent, ContextMenuMessagesComponent, ContextMenuGroupsComponent,ChatLoginComponent, ContextMenuPlusComponent],
   templateUrl: './main-route.component.html',
   styleUrl: './main-route.component.scss'
 })
@@ -26,6 +28,7 @@ export class MainRouteComponent {
   totalFileSize = '';
   fileCount = 0; // přidáno
   hasFiles = false;
+  showChatLogin = false;
 
   constructor(
     public menuService: OpenAndcloseMenuService,
@@ -54,8 +57,18 @@ export class MainRouteComponent {
     );
   }
 
+  openChatLogin() {
+    this.showChatLogin = true;
+  }
+
+  closeChatLogin() {
+    this.showChatLogin = false;
+  }
+
   ngOnInit() {
     setTimeout(() => this.attachScrollListener(), 0);
+    // Registrace funkce pro otevření chat-login
+    (window as any).openChatLogin = this.openChatLogin.bind(this);
   }
 
   attachScrollListener() {

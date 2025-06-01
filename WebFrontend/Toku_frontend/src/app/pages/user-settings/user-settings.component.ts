@@ -10,10 +10,13 @@ import { PopUpService } from '../../services/pop-up.service';
 import { KnownUserDataModel } from '../../data_managements/models/known-user-data-model';
 import { AreYouSurePopUpService } from '../../Components/are-you-sure-pop-up/are-you-sure-pop-up.service';
 import { AreYouSurePopUpComponent } from '../../Components/are-you-sure-pop-up/are-you-sure-pop-up.component';
+import { AiGroupVisibilityService } from '../../Components/chat-menu-ui/chat-menu-ui.component';
+import { ProfilePictureCircledComponent } from '../../Components/profile-picture-circled/profile-picture-circled.component';
+import { AddContactPopupComponent } from '../../Components/add-contact-popup/add-contact-popup.component';
 
 @Component({
   selector: 'app-user-settings',
-  imports: [NgIf, FormsModule, NgClass, NgFor, AreYouSurePopUpComponent],
+  imports: [NgIf, FormsModule, NgClass, NgFor, AreYouSurePopUpComponent, ProfilePictureCircledComponent, AddContactPopupComponent],
   standalone: true,
   templateUrl: './user-settings.component.html',
   styleUrls: ['./user-settings.component.scss']
@@ -45,6 +48,7 @@ export class UserSettingsComponent {
   searchQuery: string = '';
   filteredUsers: KnownUserDataModel[] = [];
   showAddContactInput: boolean = false;
+  showAddContactPopup = false;
 
   invalidEmail: boolean = false;
   invalidPhone: boolean = false;
@@ -52,12 +56,16 @@ export class UserSettingsComponent {
   showAreYouSure: boolean = false;
   contactToRemove: KnownUserDataModel | null = null;
 
+  showAiGroup: boolean = true;
+  private originalShowAiGroup: boolean = true;
+
   constructor(
     private redirecter: Redirecter,
     private sanitizer: DomSanitizer,
     private usrCtrl: UserControlService,
     private popupService: PopUpService,
-    private areYouSureService: AreYouSurePopUpService
+    private areYouSureService: AreYouSurePopUpService,
+    private aiGroupVisibility: AiGroupVisibilityService
   ) {}
 
   ngOnInit() {
@@ -67,6 +75,8 @@ export class UserSettingsComponent {
     this.originalEmail = this.userEmail;
     this.loadContacts();
     this.loadAllKnownUsers();
+    this.showAiGroup = this.aiGroupVisibility.visible;
+    this.originalShowAiGroup = this.showAiGroup;
   }
 
   loadContacts() {
@@ -136,6 +146,7 @@ export class UserSettingsComponent {
         }
       });
 
+    this.originalShowAiGroup = this.showAiGroup; // uložit novou hodnotu po uložení
     this.redirecter.LastGroup();
   }
 
@@ -143,11 +154,11 @@ export class UserSettingsComponent {
     const changed =
       this.userName !== this.originalName ||
       this.userPhone !== this.originalPhone ||
-      this.userEmail !== this.originalEmail;
+      this.userEmail !== this.originalEmail ||
+      this.showAiGroup !== this.originalShowAiGroup; // přidáno
 
     if (changed) {
       this.showAreYouSure = true;
-      // Zajistěte, že updateText je předán a AreYouSurePopUpComponent správně zobrazuje třetí tlačítko
       this.areYouSureService.open(
         (result) => {
           this.showAreYouSure = false;
@@ -155,6 +166,8 @@ export class UserSettingsComponent {
             this.userName = this.originalName;
             this.userPhone = this.originalPhone;
             this.userEmail = this.originalEmail;
+            this.showAiGroup = this.originalShowAiGroup; // přidáno
+            this.aiGroupVisibility.visible = this.originalShowAiGroup; // přidáno
             this.redirecter.LastGroup();
           } else if (result === 'update') {
             this.saveAndReturn();
@@ -164,13 +177,15 @@ export class UserSettingsComponent {
         'You have unsaved changes. Do you want to leave without saving, or update your changes?',
         'Leave',
         'Stay',
-        'Update' // <-- třetí možnost je předána
+        'Update'
       );
       return;
     }
     this.userName = this.originalName;
     this.userPhone = this.originalPhone;
     this.userEmail = this.originalEmail;
+    this.showAiGroup = this.originalShowAiGroup; // přidáno
+    this.aiGroupVisibility.visible = this.originalShowAiGroup; // přidáno
     this.redirecter.LastGroup();
   }
 
@@ -289,7 +304,16 @@ export class UserSettingsComponent {
   }
 
   openUserFinder() {
-    alert('Add contact functionality is not implemented yet.');
+    this.showAddContactPopup = true;
+  }
+
+  onAddContactPopupClose() {
+    this.showAddContactPopup = false;
+  }
+
+  onAddContactSelected(user: KnownUserDataModel) {
+    this.addContact(user);
+    this.showAddContactPopup = false;
   }
 
   closeAddContactInput() {
@@ -339,5 +363,9 @@ export class UserSettingsComponent {
     // TODO: Call backend to remove contact if needed
     this.contacts = this.contacts.filter(c => c.userId !== contact.userId);
     // Optionally reload contacts from backend here
+  }
+
+  onAiGroupToggle() {
+    this.aiGroupVisibility.visible = this.showAiGroup;
   }
 }

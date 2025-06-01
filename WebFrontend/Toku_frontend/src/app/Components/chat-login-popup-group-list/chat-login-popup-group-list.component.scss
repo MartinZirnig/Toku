@@ -1,0 +1,71 @@
+.group-list-popup {
+  position: relative;
+  background: #23293a;
+  border-radius: 1.25rem;
+  padding: 2rem 1.5rem 1.5rem 1.5rem;
+  min-width: 340px;
+  max-width: 96vw;
+  box-shadow: 0 0 32px 0 #7c3aed55, 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  border: 1.5px solid #334155;
+}
+
+.group-list-popup h2 {
+  color: #fff;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  letter-spacing: 0.05em;
+  font-size: 1.3rem;
+}
+
+.group-list-popup ul {
+  margin-bottom: 1.5rem;
+}
+
+.group-list-popup li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.7rem 0.5rem;
+  border-radius: 0.75rem;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+
+.group-list-popup li:hover {
+  background: #374151;
+}
+
+.group-list-popup img {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  object-fit: cover;
+  background: #475569;
+}
+
+.group-list-popup .gradient-btn {
+  background: linear-gradient(135deg, #46f3ff 0%, #528aa9 50%, #ff73e3 100%);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.4rem 1.1rem;
+  font-size: 0.95rem;
+  box-shadow: 0 2px 8px 0 #7c3aed33;
+  transition: background 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.group-list-popup .gradient-btn:hover {
+  background: linear-gradient(135deg, #ff73e3 0%, #528aa9 50%, #46f3ff 100%);
+  box-shadow: 0 4px 16px 0 #7c3aed33;
+}
+
+@media (max-width: 600px) {
+  .group-list-popup {
+    padding: 1rem 0.2rem 1rem 0.2rem;
+    min-width: 90vw;
+    border-radius: 1rem;
+  }
+}
