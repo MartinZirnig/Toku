@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
-import { ArgbColorModel, ColorSettingsModel } from '../../../../../../../ColorsModel';
+import { ColorSettingsModel } from '../data_managements/models/color-settings-model';
+import { ArgbColorModel } from '../data_managements/models/argb-color-model';
+
 
 @Injectable({
   providedIn: 'root'

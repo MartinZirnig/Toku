@@ -1,17 +1,4 @@
 import { Component, ElementRef, OnInit, ViewChild, HostListener, Renderer2, Input } from '@angular/core';
-import {
-
-  textColor,
-  placeholderColor,
-  textareaBackground,
-  textareaFocusBackground,
-  iconColor,
-  iconHoverColor,
-  pinButtonBackground,
-  sendButtonBackground,
-  pinButtonHoverBackground,
-  sendButtonHoverBackground,
-} from '../../services/colors.service';
 import { EmojisPopUpComponent } from '../emojis-pop-up/emojis-pop-up.component';
 import { NgClass, NgIf, NgStyle } from '@angular/common';
 
@@ -31,12 +18,13 @@ import { ReplyService, ReplyPreview } from '../../services/reply.service'; // P�
   selector: 'app-input-ui',
   templateUrl: './input-ui.component.html',
   styleUrls: ['./input-ui.component.scss'], 
-  imports: [EmojisPopUpComponent, NgIf, NgStyle, NgClass, FormsModule, ReactiveFormsModule],
+  imports: [EmojisPopUpComponent, NgIf, NgClass, FormsModule, ReactiveFormsModule],
 
 })
 export class InputUiComponent implements OnInit {
   @Input() userTyping: string | null = '';
   @Input() IsAllowedToWrite: boolean = true;
+  @Input() IsAllowedToSendFiles: boolean = true;
   @ViewChild('chatTextarea', { static: false }) textarea!: ElementRef<HTMLTextAreaElement>;
   @ViewChild('customScrollbarThumb', { static: false }) scrollThumb!: ElementRef<HTMLDivElement>;
   @ViewChild('customScrollbarTrack', { static: false }) scrollTrack!: ElementRef<HTMLDivElement>;
@@ -146,43 +134,6 @@ export class InputUiComponent implements OnInit {
       return;
     }
 
-    // Nastavení barev pro tlačítka
-    pinButton.style.backgroundColor = pinButtonBackground;
-    pinButton.style.color = iconColor;
-    sendButton.style.backgroundColor = sendButtonBackground;
-    sendButton.style.color = iconColor;
-
-    // Nastavení barev pro textarea
-    textarea.style.backgroundColor = textareaBackground;
-    textarea.style.color = textColor;
-    textarea.style.setProperty("--placeholder-color", placeholderColor); // Placeholder barva
-
-    // Hover efekty pro tlačítka
-    pinButton.addEventListener("mouseenter", () => {
-      pinButton.style.backgroundColor = pinButtonHoverBackground;
-      pinButton.style.color = iconHoverColor;
-    });
-    pinButton.addEventListener("mouseleave", () => {
-      pinButton.style.backgroundColor = pinButtonBackground;
-      pinButton.style.color = iconColor;
-    });
-
-    sendButton.addEventListener("mouseenter", () => {
-      sendButton.style.backgroundColor = sendButtonHoverBackground;
-      sendButton.style.color = iconHoverColor;
-    });
-    sendButton.addEventListener("mouseleave", () => {
-      sendButton.style.backgroundColor = sendButtonBackground;
-      sendButton.style.color = iconColor;
-    });
-
-    // Focus efekt pro textarea
-    textarea.addEventListener("focus", () => {
-      textarea.style.backgroundColor = textareaFocusBackground;
-    });
-    textarea.addEventListener("blur", () => {
-      textarea.style.backgroundColor = textareaBackground;
-    });
   }
 
   checkScrollability(): void {

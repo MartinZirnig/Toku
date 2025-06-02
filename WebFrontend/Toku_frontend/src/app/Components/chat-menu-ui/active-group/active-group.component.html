@@ -26,7 +26,7 @@
     <!-- Time + menu button in a row -->
     <div class="flex items-center ml-2 min-w-[56px] relative">
         <span class="text-xs text-gray-400 whitespace-nowrap">{{ time }}</span>
-        <button
+        <button *ngIf="!hideMenuDots"
           class="ml-2 p-2 rounded-full transition-all duration-200
                  opacity-0 pointer-events-none
                  group-hover:opacity-100 group-hover:pointer-events-auto
@@ -43,15 +43,8 @@
             <circle cx="12" cy="19" r="2"/>
           </svg>
         </button>
-      <ng-container *ngIf="!hideMenuDots">
-        <!-- tři tečky/menu zde -->
-        <button
-          class="menu-dots-btn"
-          (click)="onMenuClick($event)"
-          tabindex="0"
-        >
-          <!-- svg nebo ikona tří teček -->
-        </button>
-      </ng-container>
+      
+        
+        
     </div>
 </div>

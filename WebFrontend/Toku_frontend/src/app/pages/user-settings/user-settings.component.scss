@@ -170,3 +170,16 @@
 .remove-contact-btn:active {
   background: linear-gradient(135deg, #991b1b 0%, #831843 100%);
 }
+
+.group-picture-rectangle {
+  width: 120px;
+  height: 120px;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #374151 0%, #111827 100%);
+  box-shadow: 0 4px 24px 0 #23293a44;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

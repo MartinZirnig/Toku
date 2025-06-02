@@ -3,7 +3,7 @@ import { MainPageComponent } from '../main-page/main-page.component';
 import { ChatMenuUiComponent } from '../../Components/chat-menu-ui/chat-menu-ui.component';
 import { MenuUiComponent } from '../../Components/menu-ui/menu-ui.component';
 import { MenuService } from '../../services/menu.service';
-import { NgClass, NgFor, NgIf } from '@angular/common';
+import { NgClass, NgFor, NgIf, AsyncPipe } from '@angular/common';
 import { PopUpComponent } from '../../Components/pop-up/pop-up.component';
 import { PopUpService } from '../../services/pop-up.service';
 import { OpenAndcloseMenuService } from '../../services/open-andclose-menu.service';
@@ -14,10 +14,17 @@ import { FileUploadService } from '../../services/file-upload.service';
 import { FileFormComponent } from '../../Components/file-form/file-form.component';
 import { ContextMenuPlusComponent } from '../../Components/context-menu-plus/context-menu-plus.component';
 import { ChatLoginComponent } from '../../Components/chat-login/chat-login.component';
+import { DeletePopupComponent } from '../../Components/delete-popup/delete-popup.component';
+import { DeletePopupService } from '../../Components/delete-popup/delete-popup.service';
 
 @Component({
   selector: 'app-main-route',
-  imports: [MainPageComponent, MenuUiComponent, InputUiComponent, FileFormComponent, ChatMenuUiComponent, NgClass, InputUiComponent, NgIf, NgFor, PopUpComponent, ContextMenuMessagesComponent, ContextMenuGroupsComponent,ChatLoginComponent, ContextMenuPlusComponent],
+  imports: [
+    MainPageComponent, MenuUiComponent, InputUiComponent, FileFormComponent, ChatMenuUiComponent,
+    NgClass, InputUiComponent, NgIf, NgFor, AsyncPipe, PopUpComponent, ContextMenuMessagesComponent,
+    ContextMenuGroupsComponent, ChatLoginComponent, ContextMenuPlusComponent,
+    DeletePopupComponent
+  ],
   templateUrl: './main-route.component.html',
   styleUrl: './main-route.component.scss'
 })
@@ -33,7 +40,8 @@ export class MainRouteComponent {
   constructor(
     public menuService: OpenAndcloseMenuService,
     private ngZone: NgZone, // přidej NgZone do konstruktoru
-    private fileUploadService: FileUploadService
+    private fileUploadService: FileUploadService,
+    public deletePopupService: DeletePopupService // přidej tuto službu jako public
   )  {
 
 

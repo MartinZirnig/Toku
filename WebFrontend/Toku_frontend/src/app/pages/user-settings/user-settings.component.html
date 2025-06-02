@@ -1,4 +1,17 @@
 <div class="fixed inset-0 z-5000 flex bg-gray-900">
+  <!-- Save button vedle Esc -->
+  <button
+    *ngIf="hasUnsavedChanges()"
+    class="absolute top-6 right-32 z-50 flex items-center gap-2 px-4 py-2 rounded-lg update-btn"
+    (click)="saveAndReturn()"
+    style="min-width: 90px;"
+  >
+    <!-- SVG ikona disketky -->
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4zM16 21v-4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v4M7 3v4h8V3" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Save
+  </button>
   <!-- Esc button in the top right corner -->
   <button
     class="absolute top-6 right-8 z-50 flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white"
@@ -50,35 +63,60 @@
     <div class="user-settings-popup w-full max-w-2xl bg-gray-800 rounded-2xl shadow-xl p-10 relative">
       <!-- Header -->
       <div class="flex items-center justify-between mb-8">
-        <div>
+        <div *ngIf="selectedTab === 'user'" class="flex flex-col gap-2 flex-1">
+          <h2 class="text-2xl font-bold text-white mb-1">My account</h2>
+          <p class="text-gray-400 text-sm mb-2">Manage your personal information</p>
+          <div class="flex items-center gap-6">
+            <!-- Profilový obrázek -->
+            <div class="group-picture-rectangle relative flex items-center justify-center bg-gray-700 rounded-xl overflow-hidden shadow-lg" style="width: 120px; height: 120px;">
+              <app-profile-picture-circled [picture]="userPicture || undefined"></app-profile-picture-circled>
+              <button
+                type="button"
+                class="absolute bottom-2 right-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-2 shadow transition"
+                (click)="triggerPictureInput(userPictureInput)"
+                title="Change profile picture"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M15.232 5.232l3.536 3.536M9 13l6-6m2 2l-6 6m-2 2h6a2 2 0 002-2v-6a2 2 0 00-2-2h-6a2 2 0 00-2 2v6a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              </button>
+              <input #userPictureInput type="file" accept="image/png, image/jpeg" class="hidden" (change)="onUserPictureSelected($event)" />
+            </div>
+            <!-- Editace jména -->
+            <div class="flex-1 min-w-0">
+              <label class="block text-gray-300 text-sm mb-1">Name</label>
+              <div class="flex items-center bg-gray-700 rounded-lg px-4 py-3 user-name">
+                <span *ngIf="!isEditingName" class="flex-1 text-white font-medium" [innerHTML]="getTruncatedTextWithGradient(userName, characterLimits.name, true)"></span>
+                <input *ngIf="isEditingName" [(ngModel)]="userName"
+                  class="flex-1 bg-transparent text-white border-none outline-none"
+                  (keydown.enter)="confirmEdit('name')" [disabled]="!canChangeInformations" />
+                <button
+                  *ngIf="canChangeInformations"
+                  class="ml-3 p-2 rounded-full hover:bg-gray-600 focus:outline-none cursor-pointer"
+                  [ngClass]="{'bg-blue-500': isEditingName}"
+                  (click)="toggleEdit('name')"
+                  [disabled]="!canChangeInformations">
+                  <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+                    <path d="M18 2L22 6M2 22L3.2764 17.3199C3.35968 17.0145 3.40131 16.8619 3.46523 16.7195C3.52199 16.5931 3.59172 16.4729 3.67332 16.3609C3.76521 16.2348 3.87711 16.1229 4.1009 15.8991L14.4343 5.56569C14.6323 5.36768 14.7313 5.26867 14.8455 5.23158C14.9459 5.19895 15.0541 5.19895 15.1545 5.23158C15.2687 5.26867 15.3677 5.36768 15.5657 5.56569L18.4343 8.43431C18.6323 8.63232 18.7313 8.73133 18.7684 8.84549C18.8011 8.94591 18.8011 9.05409 18.7684 9.15451C18.7313 9.26867 18.6323 9.36768 18.4343 9.56569L8.1009 19.8991C7.87711 20.1229 7.76521 20.2348 7.63908 20.3267C7.52709 20.4083 7.40692 20.478 7.28052 20.5348C7.13815 20.5987 6.98548 20.6403 6.68014 20.7236L2 22Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Pro ostatní záložky -->
+        <div *ngIf="selectedTab !== 'user'">
           <h2 class="text-2xl font-bold text-white mb-1">
-            {{ selectedTab === 'user' ? 'User settings' : 'General settings' }}
+            {{ selectedTab === 'general' ? 'General settings' : 'Contacts' }}
           </h2>
           <p class="text-gray-400 text-sm">
-            {{ selectedTab === 'user' ? 'Manage your personal information' : 'General application settings' }}
+            {{ selectedTab === 'general' ? 'General application settings' : 'Manage your contacts' }}
           </p>
         </div>
       </div>
 
       <!-- User settings tab -->
       <div *ngIf="selectedTab === 'user'" class="space-y-8">
-        <!-- Name -->
-        <div>
-          <label class="block text-gray-300 text-sm mb-1">Name</label>
-          <div class="flex items-center bg-gray-700 rounded-lg px-4 py-3 user-name">
-            <span *ngIf="!isEditingName" class="flex-1 text-white font-medium" [innerHTML]="getTruncatedTextWithGradient(userName, characterLimits.name, true)"></span>
-            <input *ngIf="isEditingName" [(ngModel)]="userName"
-              class="flex-1 bg-transparent text-white border-none outline-none"
-              (keydown.enter)="confirmEdit('name')" />
-            <button class="ml-3 p-2 rounded-full hover:bg-gray-600 focus:outline-none cursor-pointer"
-              [ngClass]="{'bg-blue-500': isEditingName}"
-              (click)="toggleEdit('name')">
-              <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-                <path d="M18 2L22 6M2 22L3.2764 17.3199C3.35968 17.0145 3.40131 16.8619 3.46523 16.7195C3.52199 16.5931 3.59172 16.4729 3.67332 16.3609C3.76521 16.2348 3.87711 16.1229 4.1009 15.8991L14.4343 5.56569C14.6323 5.36768 14.7313 5.26867 14.8455 5.23158C14.9459 5.19895 15.0541 5.19895 15.1545 5.23158C15.2687 5.26867 15.3677 5.36768 15.5657 5.56569L18.4343 8.43431C18.6323 8.63232 18.7313 8.73133 18.7684 8.84549C18.8011 8.94591 18.8011 9.05409 18.7684 9.15451C18.7313 9.26867 18.6323 9.36768 18.4343 9.56569L8.1009 19.8991C7.87711 20.1229 7.76521 20.2348 7.63908 20.3267C7.52709 20.4083 7.40692 20.478 7.28052 20.5348C7.13815 20.5987 6.98548 20.6403 6.68014 20.7236L2 22Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-              </svg>
-            </button>
-          </div>
-        </div>
         <!-- Phone -->
         <div>
           <label class="block text-gray-300 text-sm mb-1">Phone</label>
@@ -87,10 +125,12 @@
             <span *ngIf="!isEditingPhone" class="flex-1 text-white" [innerHTML]="getTruncatedTextWithGradient(userPhone, characterLimits.phone, false)"></span>
             <input *ngIf="isEditingPhone" [(ngModel)]="userPhone"
               class="flex-1 bg-transparent text-white border-none outline-none"
-              (keydown.enter)="confirmEdit('phone')" />
-            <button class="ml-3 p-2 rounded-full hover:bg-gray-600 focus:outline-none cursor-pointer"
+              (keydown.enter)="confirmEdit('phone')" [disabled]="!canChangeInformations" />
+            <button
+              *ngIf="canChangeInformations"
+              class="ml-3 p-2 rounded-full hover:bg-gray-600 focus:outline-none cursor-pointer"
               [ngClass]="{'bg-blue-500': isEditingPhone}"
-              (click)="toggleEdit('phone')">
+              (click)="toggleEdit('phone')" [disabled]="!canChangeInformations">
               <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
                 <path d="M18 2L22 6M2 22L3.2764 17.3199C3.35968 17.0145 3.40131 16.8619 3.46523 16.7195C3.52199 16.5931 3.59172 16.4729 3.67332 16.3609C3.76521 16.2348 3.87711 16.1229 4.1009 15.8991L14.4343 5.56569C14.6323 5.36768 14.7313 5.26867 14.8455 5.23158C14.9459 5.19895 15.0541 5.19895 15.1545 5.23158C15.2687 5.26867 15.3677 5.36768 15.5657 5.56569L18.4343 8.43431C18.6323 8.63232 18.7313 8.73133 18.7684 8.84549C18.8011 8.94591 18.8011 9.05409 18.7684 9.15451C18.7313 9.26867 18.6323 9.36768 18.4343 9.56569L8.1009 19.8991C7.87711 20.1229 7.76521 20.2348 7.63908 20.3267C7.52709 20.4083 7.40692 20.478 7.28052 20.5348C7.13815 20.5987 6.98548 20.6403 6.68014 20.7236L2 22Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
               </svg>
@@ -105,10 +145,12 @@
             <span *ngIf="!isEditingEmail" class="flex-1 text-white" [innerHTML]="getTruncatedTextWithGradient(userEmail, characterLimits.email, false)"></span>
             <input *ngIf="isEditingEmail" [(ngModel)]="userEmail"
               class="flex-1 bg-transparent text-white border-none outline-none"
-              (keydown.enter)="confirmEdit('email')" />
-            <button class="ml-3 p-2 rounded-full hover:bg-gray-600 focus:outline-none cursor-pointer"
+              (keydown.enter)="confirmEdit('email')" [disabled]="!canChangeInformations" />
+            <button
+              *ngIf="canChangeInformations"
+              class="ml-3 p-2 rounded-full hover:bg-gray-600 focus:outline-none cursor-pointer"
               [ngClass]="{'bg-blue-500': isEditingEmail}"
-              (click)="toggleEdit('email')">
+              (click)="toggleEdit('email')" [disabled]="!canChangeInformations">
               <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
                 <path d="M18 2L22 6M2 22L3.2764 17.3199C3.35968 17.0145 3.40131 16.8619 3.46523 16.7195C3.52199 16.5931 3.59172 16.4729 3.67332 16.3609C3.76521 16.2348 3.87711 16.1229 4.1009 15.8991L14.4343 5.56569C14.6323 5.36768 14.7313 5.26867 14.8455 5.23158C14.9459 5.19895 15.0541 5.19895 15.1545 5.23158C15.2687 5.26867 15.3677 5.36768 15.5657 5.56569L18.4343 8.43431C18.6323 8.63232 18.7313 8.73133 18.7684 8.84549C18.8011 8.94591 18.8011 9.05409 18.7684 9.15451C18.7313 9.26867 18.6323 9.36768 18.4343 9.56569L8.1009 19.8991C7.87711 20.1229 7.76521 20.2348 7.63908 20.3267C7.52709 20.4083 7.40692 20.478 7.28052 20.5348C7.13815 20.5987 6.98548 20.6403 6.68014 20.7236L2 22Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
               </svg>
@@ -130,24 +172,6 @@
       <!-- General settings tab -->
       <div *ngIf="selectedTab === 'general'" class="space-y-8">
         <div>
-          <label class="block text-gray-300 text-sm mb-1">Language</label>
-          <div class="flex items-center bg-gray-700 rounded-lg px-4 py-3">
-            <span class="flex-1 text-white">English</span>
-            <button class="ml-3 p-2 rounded-full hover:bg-gray-600 focus:outline-none cursor-pointer">
-              <span class="material-icons text-white">edit</span>
-            </button>
-          </div>
-        </div>
-        <div>
-          <label class="block text-gray-300 text-sm mb-1">Theme</label>
-          <div class="flex items-center bg-gray-700 rounded-lg px-4 py-3">
-            <span class="flex-1 text-white">Dark</span>
-            <button class="ml-3 p-2 rounded-full hover:bg-gray-600 focus:outline-none cursor-pointer">
-              <span class="material-icons text-white">edit</span>
-            </button>
-          </div>
-        </div>
-        <div>
           <label class="block text-gray-300 text-sm mb-1">Show AI bot group</label>
           <div class="flex items-center bg-gray-700 rounded-lg px-4 py-3">
             <span class="flex-1 text-white">AI bot group is {{ showAiGroup ? 'visible' : 'hidden' }}</span>
@@ -161,6 +185,36 @@
             </label>
           </div>
         </div>
+        <div>
+          <label class="block text-gray-300 text-sm mb-1">Swipe right action</label>
+          <div class="flex items-center bg-gray-700 rounded-lg px-4 py-3">
+            <span class="flex-1 text-white">When you swipe right on a message:</span>
+            <select class="ml-3 bg-gray-800 text-white rounded px-2 py-1"
+                    [ngModel]="swipeRightAction"
+                    (ngModelChange)="setSwipeRightAction($event)">
+              <option value="reply">Reply</option>
+              <option value="react">React</option>
+              <option value="copy">Copy</option>
+              <option value="delete">Delete</option>
+              <option value="edit">Edit</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-gray-300 text-sm mb-1">Swipe left action</label>
+          <div class="flex items-center bg-gray-700 rounded-lg px-4 py-3">
+            <span class="flex-1 text-white">When you swipe left on a message:</span>
+            <select class="ml-3 bg-gray-800 text-white rounded px-2 py-1"
+                    [ngModel]="swipeLeftAction"
+                    (ngModelChange)="setSwipeLeftAction($event)">
+              <option value="react">React</option>
+              <option value="reply">Reply</option>
+              <option value="copy">Copy</option>
+              <option value="delete">Delete</option>
+              <option value="edit">Edit</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       <!-- Contacts tab -->
@@ -168,7 +222,6 @@
         <div class="flex items-center justify-between mb-4">
           <label class="block text-gray-300 text-lg font-bold">Contacts</label>
           <button class="update-btn px-4 py-2 flex items-center gap-2" (click)="openUserFinder()">
-            
             Add Contact
           </button>
         </div>
@@ -179,7 +232,8 @@
               <app-profile-picture-circled
                 class="flex-shrink-0 w-10 h-10 mr-4"
                 [picture]="''" 
-              ></app-profile-picture-circled> <!-- TODO: Nastavit profilovou fotografii kontaktu-->
+              ></app-profile-picture-circled>
+              <!-- TODO: Nastavit profilovou fotografii kontaktu-->
               <div class="flex-1 min-w-0">
                 <div class="text-white font-medium truncate">{{ contact.name || contact.userId }}</div>
                 <div class="text-gray-400 text-xs truncate">
@@ -195,7 +249,6 @@
                 <svg class="w-5 h-5 text-red-400 group-hover:text-white transition" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                   <path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 7V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v2m5 4v6m4-6v6" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                
               </button>
             </li>
           </ul>

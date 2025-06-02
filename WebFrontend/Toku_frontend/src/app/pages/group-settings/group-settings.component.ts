@@ -1,5 +1,5 @@
 import { formatPercent, NgClass, NgFor, NgIf } from '@angular/common';
-import { Component, HostListener, NgModule, Pipe, PipeTransform } from '@angular/core';
+import { Component, HostListener, Input, NgModule, Pipe, PipeTransform } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { UserFinderComponent } from './user-finder/user-finder.component';
 import { GroupSettingsService } from './group-settings.service';
@@ -51,6 +51,8 @@ export class GroupSettingsComponent {
 
   selectedMember: GroupMember | null = null;
   isEditingName: boolean = false;
+  isEditingDescription: boolean = false;
+  isEditingPassword: boolean = false;
   gridFits: boolean = true;
   isUserFinderVisible: boolean = false;
   maxNameLength: number = 15;
@@ -68,6 +70,12 @@ export class GroupSettingsComponent {
   private initialGroupDescription: string = '';
   private initialGroupPassword: string = '';
   private initialGroupMembers: GroupMember[] = [];
+
+  @Input() canEditGroup: boolean = true;
+  @Input() canEditGroupPicture: boolean = true;
+  @Input() canAddMembers: boolean = true;
+  @Input() canEditPermissions: boolean = true;
+  @Input() canViewLog: boolean = true;
 
   constructor(
     private sanitizer: DomSanitizer,
@@ -286,12 +294,20 @@ export class GroupSettingsComponent {
   toggleEdit(field: string): void {
     if (field === 'name') {
       this.isEditingName = !this.isEditingName;
+    } else if (field === 'description') {
+      this.isEditingDescription = !this.isEditingDescription;
+    } else if (field === 'password') {
+      this.isEditingPassword = !this.isEditingPassword;
     }
   }
 
   confirmEdit(field: string): void {
     if (field === 'name') {
       this.isEditingName = false;
+    } else if (field === 'description') {
+      this.isEditingDescription = false;
+    } else if (field === 'password') {
+      this.isEditingPassword = false;
     }
   }
 

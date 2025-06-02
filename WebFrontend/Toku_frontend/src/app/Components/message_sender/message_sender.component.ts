@@ -8,6 +8,7 @@ import { EmojiPopupService } from '../../services/emoji-popup.service'; // Impor
 import { FileDownloadPopupService } from '../../services/file-download-popup.service';
 import { ContextMenuMessagesService } from '../../services/context-menu-messages.service';
 import { ReplyService } from '../../services/reply.service'; // Přidej import
+import { DeletePopupService } from '../delete-popup/delete-popup.service';
 
 import { ReactionCounterComponent} from '../reaction-counter/reaction-counter.component'; 
 import { EmojisPopUpComponent } from '../emojis-pop-up/emojis-pop-up.component';
@@ -68,7 +69,8 @@ Message_senderComponent implements OnInit {
     private emojiPopupService: EmojiPopupService, // Inject EmojiPopupService
     private fileDownloadPopupService: FileDownloadPopupService, // Inject new service
     private contextMenuMessagesService: ContextMenuMessagesService,
-    private replyService: ReplyService // Přidej reply service
+    private replyService: ReplyService, // Přidej reply service
+    private deletePopupService: DeletePopupService // <-- přidej službu pro delete popup
   ) {} // Inject DomSanitizer
 
   private startX = 0; // Initial position
@@ -79,9 +81,22 @@ Message_senderComponent implements OnInit {
     this.isLongText = this.text.length > 50; // Adjust threshold as needed
     const truncatedText = this.getTruncatedPreviewText(this.previewText, 10); // Limit preview to 10 words
     this.formattedPreviewText = this.sanitizer.bypassSecurityTrustHtml(this.applyGradientToLastCharacters(truncatedText, 10)); // Apply gradient to last 10 characters
-  
-  
+    window.addEventListener('message-deleted', this.handleMessageDeleted);
   }
+
+  ngOnDestroy(): void {
+    window.removeEventListener('message-deleted', this.handleMessageDeleted);
+  }
+
+  private handleMessageDeleted = (event: Event) => {
+    // Pokud je id zprávy stejné, zavolej callback
+    const detail = (event as CustomEvent).detail;
+    if (detail && detail.messageId && this.raw?.messageId?.toString() === detail.messageId.toString()) {
+      if (this.onDeleteMessage) {
+        this.onDeleteMessage();
+      }
+    }
+  };
 
   ngAfterViewInit(): void {
     if (this.messageContainer && !this.hasAnimated) {
@@ -130,9 +145,11 @@ Message_senderComponent implements OnInit {
         delete: () => this.onDelete(),
         react: () => this.onReact(),
         copy: () => this.copyToClipboard(),
-        reply: () => this.onReply()
-      }
-    });
+        reply: () => this.onReply(),
+        onDeleteMessage: this.onDeleteMessage // <-- přidej callback
+      },
+      messageId: this.raw?.messageId
+    } as any);
   }
 
   @HostListener('document:click', ['$event'])
@@ -160,9 +177,11 @@ Message_senderComponent implements OnInit {
         delete: () => this.onDelete(),
         react: () => this.onReact(),
         copy: () => this.copyToClipboard(),
-        reply: () => this.onReply()
-      }
-    });
+        reply: () => this.onReply(),
+        onDeleteMessage: this.onDeleteMessage // <-- přidej callback
+      },
+      messageId: this.raw?.messageId
+    } as any);
   }
 
   onReply(): void {
@@ -294,11 +313,49 @@ Message_senderComponent implements OnInit {
   }
 
   private onSwipeRight(): void {
-    alert('Doprava'); // Trigger alert for right swipe
+    const action = localStorage.getItem('swipeRightAction') as 'reply' | 'react' | 'copy' | 'delete' | 'edit' | null;
+    this.handleSwipeAction(action);
   }
 
   private onSwipeLeft(): void {
-    alert('Doleva'); // Trigger alert for left swipe
+    const action = localStorage.getItem('swipeLeftAction') as 'reply' | 'react' | 'copy' | 'delete' | 'edit' | null;
+    this.handleSwipeAction(action);
+  }
+
+  private handleSwipeAction(action: string | null) {
+    switch (action) {
+      case 'react':
+        this.onReact();
+        break;
+      case 'reply':
+        this.onReply();
+        break;
+      case 'copy':
+        this.copyToClipboard();
+        break;
+      case 'delete':
+
+      // tohle nefunguje, protože nevím proč tak to prosím oprav
+      
+        const msgId = this.raw?.messageId?.toString() ?? '';
+        const deleteListener = (event: Event) => {
+          const detail = (event as CustomEvent).detail;
+          if (detail && detail.messageId && detail.messageId.toString() === msgId) {
+            if (this.onDeleteMessage) {
+              this.onDeleteMessage();
+            }
+            window.removeEventListener('message-deleted', deleteListener);
+          }
+        };
+        window.addEventListener('message-deleted', deleteListener);
+        this.deletePopupService.open(msgId);
+        break;
+      case 'edit':
+        this.onEdit();
+        break;
+      default:
+        this.onReply();
+    }
   }
 
   private resetPosition(): void {

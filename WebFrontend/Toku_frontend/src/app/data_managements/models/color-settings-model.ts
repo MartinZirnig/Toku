@@ -3,7 +3,7 @@ import { ArgbColorModel } from "./argb-color-model";
 export class ColorSettingsModel 
 {
     constructor(
-        public front: ArgbColorModel,
+        public input: ArgbColorModel,
         public button: ArgbColorModel
     ) {}
 }

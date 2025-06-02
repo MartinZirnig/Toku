@@ -32,3 +32,4 @@
 <app-context-menu-plus></app-context-menu-plus>
 <app-chat-login *ngIf="showChatLogin" (closed)="closeChatLogin()"></app-chat-login>
 <app-file-form *ngIf="isFileFormVisible"></app-file-form>
+<app-delete-popup *ngIf="deletePopupService.visible$ | async"></app-delete-popup>

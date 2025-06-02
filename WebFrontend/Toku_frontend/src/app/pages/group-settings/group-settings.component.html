@@ -1,4 +1,16 @@
 <div class="fixed inset-0 z-5000 flex bg-gray-900">
+  <!-- Save button vedle Esc -->
+  <button
+    *ngIf="hasUnsavedChanges()"
+    class="absolute top-6 right-32 z-50 flex items-center gap-2 px-4 py-2 rounded-lg update-btn"
+    (click)="saveGroupSettings()"
+    style="min-width: 90px;"
+  >
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4zM16 21v-4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v4M7 3v4h8V3" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Save
+  </button>
   <!-- Esc button in the top right corner -->
   <button
     class="absolute top-6 right-8 z-50 flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white"
@@ -32,7 +44,7 @@
             Members
           </button>
         </li>
-        <li>
+        <li *ngIf="canAddMembers && canEditPermissions">
           <button type="button"
             class="w-full text-left flex items-center px-3 py-2 rounded-lg transition font-semibold"
             [ngClass]="selectedTab === 'permissions' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white'"
@@ -41,7 +53,7 @@
             Permissions
           </button>
         </li>
-        <li>
+        <li *ngIf="canViewLog">
           <button type="button"
             class="w-full text-left flex items-center px-3 py-2 rounded-lg transition font-semibold"
             [ngClass]="selectedTab === 'log' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white'"
@@ -76,6 +88,7 @@
           <div class="group-picture-rectangle relative flex items-center justify-center bg-gray-700 rounded-xl overflow-hidden shadow-lg" style="width: 120px; height: 120px;">
             <app-profile-picture-circled [picture]="groupPicture || undefined"></app-profile-picture-circled>
             <button
+              *ngIf="canEditGroupPicture"
               type="button"
               class="absolute bottom-2 right-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-2 shadow transition"
               (click)="triggerPictureInput(groupPictureInput)"
@@ -87,14 +100,15 @@
             </button>
             <input #groupPictureInput type="file" accept="image/png, image/jpeg" class="hidden" (change)="onGroupPictureSelected($event)" />
           </div>
-          <div>
+          <div style="flex:1; min-width:0;">
             <label class="block text-gray-300 text-sm mb-1">Group name</label>
-            <div class="flex items-center bg-gray-700 rounded-lg px-4 py-3">
+            <div class="flex items-center bg-gray-700 rounded-lg px-4 py-3" style="width:100%;">
               <span *ngIf="!isEditingName" class="flex-1 text-white font-medium" [innerHTML]="getTruncatedTextWithGradient(groupName, 20, true)"></span>
               <input *ngIf="isEditingName" [(ngModel)]="groupName"
                 class="flex-1 bg-transparent text-white border-none outline-none"
-                (keydown.enter)="confirmEdit('name')" />
-              <button class="ml-3 p-2 rounded-full hover:bg-gray-600 focus:outline-none cursor-pointer"
+                style="width:100%;"
+                (keydown.enter)="confirmEdit('name')" [disabled]="!canEditGroup" />
+              <button *ngIf="canEditGroup" class="ml-3 p-2 rounded-full hover:bg-gray-600 focus:outline-none cursor-pointer"
                 [ngClass]="{'bg-blue-500': isEditingName}"
                 (click)="toggleEdit('name')">
                 <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
@@ -107,16 +121,54 @@
         <!-- Description -->
         <div>
           <label class="block text-gray-300 text-sm mb-1">Description</label>
-          <input type="text" [(ngModel)]="groupDescription"
-            class="w-full bg-gray-700 rounded-lg px-4 py-3 text-white border-none outline-none"
-            placeholder="Popis skupiny" />
+          <div class="flex items-center bg-gray-700 rounded-lg px-4 py-3" style="width:100%;">
+            <ng-container *ngIf="!isEditingDescription">
+              <span *ngIf="groupDescription; else descPlaceholder" class="flex-1 text-white">{{ groupDescription }}</span>
+              <ng-template #descPlaceholder>
+                <span class="flex-1 text-gray-400 italic">Popis skupiny</span>
+              </ng-template>
+            </ng-container>
+            <input *ngIf="isEditingDescription" [(ngModel)]="groupDescription"
+              class="flex-1 bg-transparent text-white border-none outline-none"
+              style="width:100%;"
+              (keydown.enter)="confirmEdit('description')" [disabled]="!canEditGroup"
+              placeholder="Popis skupiny"
+            />
+            <button *ngIf="canEditGroup" class="ml-3 p-2 rounded-full hover:bg-gray-600 focus:outline-none cursor-pointer"
+              [ngClass]="{'bg-blue-500': isEditingDescription}"
+              (click)="toggleEdit('description')">
+              <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+                <path d="M18 2L22 6M2 22L3.2764 17.3199C3.35968 17.0145 3.40131 16.8619 3.46523 16.7195C3.52199 16.5931 3.59172 16.4729 3.67332 16.3609C3.76521 16.2348 3.87711 16.1229 4.1009 15.8991L14.4343 5.56569C14.6323 5.36768 14.7313 5.26867 14.8455 5.23158C14.9459 5.19895 15.0541 5.19895 15.1545 5.23158C15.2687 5.26867 15.3677 5.36768 15.5657 5.56569L18.4343 8.43431C18.6323 8.63232 18.7313 8.73133 18.7684 8.84549C18.8011 8.94591 18.8011 9.05409 18.7684 9.15451C18.7313 9.26867 18.6323 9.36768 18.4343 9.56569L8.1009 19.8991C7.87711 20.1229 7.76521 20.2348 7.63908 20.3267C7.52709 20.4083 7.40692 20.478 7.28052 20.5348C7.13815 20.5987 6.98548 20.6403 6.68014 20.7236L2 22Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </button>
+          </div>
         </div>
         <!-- Password -->
         <div>
           <label class="block text-gray-300 text-sm mb-1">Password</label>
-          <input type="password" [(ngModel)]="groupPassword"
-            class="w-full bg-gray-700 rounded-lg px-4 py-3 text-white border-none outline-none"
-            placeholder="Heslo skupiny" />
+          <div class="flex items-center bg-gray-700 rounded-lg px-4 py-3" style="width:100%;">
+            <ng-container *ngIf="!isEditingPassword">
+              <span *ngIf="groupPassword; else passwordPlaceholder" class="flex-1 text-white">
+                {{ '•'.repeat(groupPassword.length) }}
+              </span>
+              <ng-template #passwordPlaceholder>
+                <span class="flex-1 text-gray-400 italic">No password</span>
+              </ng-template>
+            </ng-container>
+            <input *ngIf="isEditingPassword" type="password" [(ngModel)]="groupPassword"
+              class="flex-1 bg-transparent text-white border-none outline-none"
+              style="width:100%;"
+              (keydown.enter)="confirmEdit('password')" [disabled]="!canEditGroup"
+              placeholder="Heslo skupiny"
+            />
+            <button *ngIf="canEditGroup" class="ml-3 p-2 rounded-full hover:bg-gray-600 focus:outline-none cursor-pointer"
+              [ngClass]="{'bg-blue-500': isEditingPassword}"
+              (click)="toggleEdit('password')">
+              <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+                <path d="M18 2L22 6M2 22L3.2764 17.3199C3.35968 17.0145 3.40131 16.8619 3.46523 16.7195C3.52199 16.5931 3.59172 16.4729 3.67332 16.3609C3.76521 16.2348 3.87711 16.1229 4.1009 15.8991L14.4343 5.56569C14.6323 5.36768 14.7313 5.26867 14.8455 5.23158C14.9459 5.19895 15.0541 5.19895 15.1545 5.23158C15.2687 5.26867 15.3677 5.36768 15.5657 5.56569L18.4343 8.43431C18.6323 8.63232 18.7313 8.73133 18.7684 8.84549C18.8011 8.94591 18.8011 9.05409 18.7684 9.15451C18.7313 9.26867 18.6323 9.36768 18.4343 9.56569L8.1009 19.8991C7.87711 20.1229 7.76521 20.2348 7.63908 20.3267C7.52709 20.4083 7.40692 20.478 7.28052 20.5348C7.13815 20.5987 6.98548 20.6403 6.68014 20.7236L2 22Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -134,14 +186,14 @@
                   <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                 </svg>
                 <span class="truncate max-w-[120px] flex-1" title="{{ member.name }}">{{ member.name }}</span>
-                <button class="p-2 rounded-full hover:bg-red-500 transition" (click)="removeMember(member); $event.stopPropagation()">
+                <button *ngIf="canAddMembers" class="p-2 rounded-full hover:bg-red-500 transition" (click)="removeMember(member); $event.stopPropagation()">
                   <svg class="w-4 h-4 text-red-400" fill="none" viewBox="0 0 24 24">
                     <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                 </button>
               </div>
-              <!-- OPRAVA: Zajistěte, že tlačítko není disabled a není překryté -->
               <button
+                *ngIf="canAddMembers"
                 type="button"
                 class="add-member-btn flex items-center justify-center px-4 py-2 rounded-lg text-white transition z-10"
                 (click)="toggleUserFinder(); $event.stopPropagation();"
@@ -203,12 +255,6 @@
             <pre class="whitespace-pre-wrap break-all">{{ logContent }}</pre>
           </div>
         </div>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="flex justify-end mt-10">
-        <button class="update-btn px-6 py-2 font-semibold shadow" (click)="saveGroupSettings()">Save</button>
-        <button class="ml-4 bg-gray-600 hover:bg-gray-700 text-white font-semibold px-6 py-2 rounded-lg shadow" (click)="logGroupSettings()">Log</button>
       </div>
     </div>
   </main>

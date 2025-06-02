@@ -1,5 +1,5 @@
 import { NgClass, NgFor, NgIf } from '@angular/common';
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, Input } from '@angular/core';
 import { FormsModule, NgModel } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { User } from '../../data_managements/user';
@@ -13,6 +13,8 @@ import { AreYouSurePopUpComponent } from '../../Components/are-you-sure-pop-up/a
 import { AiGroupVisibilityService } from '../../Components/chat-menu-ui/chat-menu-ui.component';
 import { ProfilePictureCircledComponent } from '../../Components/profile-picture-circled/profile-picture-circled.component';
 import { AddContactPopupComponent } from '../../Components/add-contact-popup/add-contact-popup.component';
+
+export type SwipeAction = 'reply' | 'react' | 'copy' | 'delete' | 'edit';
 
 @Component({
   selector: 'app-user-settings',
@@ -59,6 +61,14 @@ export class UserSettingsComponent {
   showAiGroup: boolean = true;
   private originalShowAiGroup: boolean = true;
 
+  swipeRightAction: SwipeAction = 'reply';
+  swipeLeftAction: SwipeAction = 'react';
+
+  userPicture: string | null = null;
+  private originalUserPicture: string | null = null;
+
+  @Input() canChangeInformations: boolean = true;
+
   constructor(
     private redirecter: Redirecter,
     private sanitizer: DomSanitizer,
@@ -77,6 +87,9 @@ export class UserSettingsComponent {
     this.loadAllKnownUsers();
     this.showAiGroup = this.aiGroupVisibility.visible;
     this.originalShowAiGroup = this.showAiGroup;
+    this.loadSwipeActions();
+    this.userPicture = null;
+    this.originalUserPicture = this.userPicture;
   }
 
   loadContacts() {
@@ -102,6 +115,14 @@ export class UserSettingsComponent {
         this.filteredUsers = [];
       }
     });
+  }
+
+  loadSwipeActions() {
+    const allowed: SwipeAction[] = ['reply', 'react', 'copy', 'delete', 'edit'];
+    const right = localStorage.getItem('swipeRightAction');
+    const left = localStorage.getItem('swipeLeftAction');
+    this.swipeRightAction = allowed.includes(right as SwipeAction) ? (right as SwipeAction) : 'reply';
+    this.swipeLeftAction = allowed.includes(left as SwipeAction) ? (left as SwipeAction) : 'react';
   }
 
   saveAndReturn(): void {
@@ -146,6 +167,7 @@ export class UserSettingsComponent {
         }
       });
 
+    this.originalUserPicture = this.userPicture;
     this.originalShowAiGroup = this.showAiGroup; // uložit novou hodnotu po uložení
     this.redirecter.LastGroup();
   }
@@ -155,7 +177,8 @@ export class UserSettingsComponent {
       this.userName !== this.originalName ||
       this.userPhone !== this.originalPhone ||
       this.userEmail !== this.originalEmail ||
-      this.showAiGroup !== this.originalShowAiGroup; // přidáno
+      this.showAiGroup !== this.originalShowAiGroup ||
+      this.userPicture !== this.originalUserPicture; // přidáno
 
     if (changed) {
       this.showAreYouSure = true;
@@ -166,13 +189,13 @@ export class UserSettingsComponent {
             this.userName = this.originalName;
             this.userPhone = this.originalPhone;
             this.userEmail = this.originalEmail;
-            this.showAiGroup = this.originalShowAiGroup; // přidáno
-            this.aiGroupVisibility.visible = this.originalShowAiGroup; // přidáno
+            this.showAiGroup = this.originalShowAiGroup;
+            this.aiGroupVisibility.visible = this.originalShowAiGroup;
+            this.userPicture = this.originalUserPicture; // přidáno
             this.redirecter.LastGroup();
           } else if (result === 'update') {
             this.saveAndReturn();
           }
-          // 'no' => zůstat na stránce
         },
         'You have unsaved changes. Do you want to leave without saving, or update your changes?',
         'Leave',
@@ -184,8 +207,9 @@ export class UserSettingsComponent {
     this.userName = this.originalName;
     this.userPhone = this.originalPhone;
     this.userEmail = this.originalEmail;
-    this.showAiGroup = this.originalShowAiGroup; // přidáno
-    this.aiGroupVisibility.visible = this.originalShowAiGroup; // přidáno
+    this.showAiGroup = this.originalShowAiGroup;
+    this.aiGroupVisibility.visible = this.originalShowAiGroup;
+    this.userPicture = this.originalUserPicture; // přidáno
     this.redirecter.LastGroup();
   }
 
@@ -231,6 +255,7 @@ export class UserSettingsComponent {
   }
 
   toggleEdit(field: string): void {
+    if (!this.canChangeInformations) return;
     setTimeout(() => {
       if (field === 'name') {
         if (this.isEditingName) {
@@ -367,5 +392,44 @@ export class UserSettingsComponent {
 
   onAiGroupToggle() {
     this.aiGroupVisibility.visible = this.showAiGroup;
+  }
+
+  setSwipeRightAction(action: SwipeAction) {
+    this.swipeRightAction = action;
+    localStorage.setItem('swipeRightAction', action);
+  }
+
+  setSwipeLeftAction(action: SwipeAction) {
+    this.swipeLeftAction = action;
+    localStorage.setItem('swipeLeftAction', action);
+  }
+
+  onUserPictureSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+    const file = input.files[0];
+    if (!file.type.match('image/jpeg') && !file.type.match('image/png')) {
+      alert('Only JPG and PNG files are allowed.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.userPicture = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  triggerPictureInput(input: HTMLInputElement): void {
+    input.click();
+  }
+
+  hasUnsavedChanges(): boolean {
+    return (
+      this.userName !== this.originalName ||
+      this.userPhone !== this.originalPhone ||
+      this.userEmail !== this.originalEmail ||
+      this.showAiGroup !== this.originalShowAiGroup ||
+      this.userPicture !== this.originalUserPicture
+    );
   }
 }

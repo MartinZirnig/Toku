@@ -26,6 +26,8 @@ export class MessageAdresatorComponent implements OnInit {
   @Input() fileCount: number = 0;
   @Input() fileTotalSize: number = 0;
   @Input() adresatorPicture?: string; // <-- přidáno pro avatar obrázek
+  @Input() messageId?: number; // změň na number, pokud to jde
+  @Input() raw?: { messageId: number }; // přidej tento input
 
   @ViewChild('menuTrigger', { static: false }) menuTrigger!: ElementRef;
   @ViewChild('messageContainer') messageContainer!: ElementRef;
@@ -74,14 +76,16 @@ export class MessageAdresatorComponent implements OnInit {
       x,
       y,
       showEdit: false,
-      showReply: true, // Umožni odpovědět
+      showReply: true,
       actions: {
         delete: () => this.onDelete(),
         react: () => this.onReact(),
         copy: () => this.copyToClipboard(),
-        reply: () => this.onReply()
-      }
-    });
+        reply: () => this.onReply(),
+        onDeleteMessage: this.onDeleteMessage // <-- přidej callback
+      },
+      messageId: this.raw?.messageId // musí být číslo a nesmí být undefined!
+    } as any);
   }
 
   onRightClick(event: MouseEvent): void {
@@ -91,14 +95,16 @@ export class MessageAdresatorComponent implements OnInit {
       x: event.clientX,
       y: event.clientY,
       showEdit: false,
-      showReply: true, // Umožni odpovědět
+      showReply: true,
       actions: {
         delete: () => this.onDelete(),
         react: () => this.onReact(),
         copy: () => this.copyToClipboard(),
-        reply: () => this.onReply()
-      }
-    });
+        reply: () => this.onReply(),
+        onDeleteMessage: this.onDeleteMessage // <-- přidej callback
+      },
+      messageId: this.raw?.messageId // musí být číslo a nesmí být undefined!
+    } as any);
   }
 
   onEdit(): void {
@@ -106,9 +112,8 @@ export class MessageAdresatorComponent implements OnInit {
   }
 
   onDelete(): void {
-    if (this.onDeleteMessage) {
-      this.onDeleteMessage(); // Notify parent component to remove the message
-    }
+    // Nevolat mazání na serveru ani lokálně zde!
+    // Mazání řeší context-menu-messages.component.ts po úspěchu z API
   }
 
   copyToClipboard(): void {
