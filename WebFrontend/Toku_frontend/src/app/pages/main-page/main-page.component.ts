@@ -18,6 +18,7 @@ import { FileDownloadComponent } from '../../Components/file-download/file-downl
 import { FileDownloadPopupService } from '../../services/file-download-popup.service';
 import { PopUpService } from '../../services/pop-up.service';
 import { MessagerService } from '../../data_managements/messager.service';
+import { MessageFilterService } from '../../services/message-filter.service';
 
 @Component({
   selector: 'app-main-page',
@@ -52,14 +53,16 @@ constructor(
   private redirecter: Redirecter,
   public fileDownloadPopupService: FileDownloadPopupService,
   private popup: PopUpService,
-  private messager: MessagerService
+  private messager: MessagerService,
+  private filter: MessageFilterService
 ) {}
 
 ngOnInit(): void {
+  this.filter.Load();
   this.dummyVisible = true;
   this.sendService.messageAdded = this.AddMessage.bind(this);
   this.sendService.mainPage = this;
-
+  
   this.route.fragment.subscribe(fragment => {
     const url = this.redirecter.GetUrl().split('#')[0];
     if (url === '/main') {
@@ -115,7 +118,10 @@ ngOnInit(): void {
           this.rawMessages = response;
           this.messages = [];
   
-          this.rawMessages.forEach(msg => this.AddMessage(msg));
+          this.rawMessages.forEach(msg => {
+            if (this.filter.IsNotFiltered(msg.messageId))
+              this.AddMessage(msg)
+            });
         },
         error: err => {
           console.error('error during message loading: ', err)
