@@ -1,28 +1,38 @@
+:host {
+  /* CSS custom properties budou nastaveny v šabloně pomocí [style] */
+}
+
+.popup-overlay {
+  /* overlay background */
+  background: var(--popup-overlay-bg, rgba(0,0,0,0.4));
+}
+
 .group-list-popup {
-  position: relative;
-  background: #23293a;
+  background: var(--popup-bg, #23293a);
   border-radius: 1.25rem;
   padding: 2rem 1.5rem 1.5rem 1.5rem;
   min-width: 340px;
   max-width: 96vw;
-  box-shadow: 0 0 32px 0 #7c3aed55, 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-  border: 1.5px solid #334155;
+  box-shadow: 0 0 32px 0 var(--popup-shadow, #7c3aed55), 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  border: 1.5px solid var(--popup-border, #334155);
+  position: relative;
 }
 
-.group-list-popup h2 {
-  color: #fff;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-  text-align: center;
-  letter-spacing: 0.05em;
-  font-size: 1.3rem;
+.popup-title {
+  color: var(--primary-text, #fff);
 }
 
-.group-list-popup ul {
-  margin-bottom: 1.5rem;
+.group-list {
+  background: var(--card-bg, #1e293b);
+  border: 1px solid var(--list-border, #334155);
+  box-shadow: 0 1px 4px 0 var(--popup-shadow, #23293a88) inset;
+  /* divide-y */
+  > li:not(:last-child) {
+    border-bottom: 1px solid var(--list-divider, #374151);
+  }
 }
 
-.group-list-popup li {
+.group-list-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -30,36 +40,49 @@
   border-radius: 0.75rem;
   transition: background 0.2s;
   cursor: pointer;
+  background: transparent;
+  &:hover {
+    background: var(--highlight-bg, #374151);
+  }
 }
 
-.group-list-popup li:hover {
-  background: #374151;
+.group-name {
+  color: var(--primary-text, #fff);
+  font-weight: 500;
 }
 
-.group-list-popup img {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 9999px;
-  object-fit: cover;
-  background: #475569;
+.group-id {
+  color: var(--secondary-text, #cbd5e1);
 }
 
-.group-list-popup .gradient-btn {
-  background: linear-gradient(135deg, #46f3ff 0%, #528aa9 50%, #ff73e3 100%);
-  color: #fff;
+.gradient-btn {
+  background: var(--gradient-btn-bg);
+  color: var(--button-text, #fff);
   font-weight: 600;
   border: none;
   border-radius: 0.75rem;
   padding: 0.4rem 1.1rem;
   font-size: 0.95rem;
-  box-shadow: 0 2px 8px 0 #7c3aed33;
+  box-shadow: 0 2px 8px 0 #00000033;
   transition: background 0.2s, box-shadow 0.2s;
   cursor: pointer;
+  &:hover {
+    background: var(--gradient-btn-bg-hover, linear-gradient(135deg, #ff0000 0%, #528aa9 50%, #46f3ff 100%));
+    box-shadow: 0 4px 16px 0  #00000033;
+  }
 }
 
-.group-list-popup .gradient-btn:hover {
-  background: linear-gradient(135deg, #ff73e3 0%, #528aa9 50%, #46f3ff 100%);
-  box-shadow: 0 4px 16px 0 #7c3aed33;
+.close-btn {
+  background: var(--close-btn-bg, #334155);
+  color: var(--close-btn-icon, #fff);
+  transition: background 0.2s;
+  &:hover {
+    background: var(--close-btn-bg-hover, #475569);
+  }
+}
+
+.group-list-hint {
+  color: var(--secondary-text, #cbd5e1);
 }
 
 @media (max-width: 600px) {

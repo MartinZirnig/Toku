@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { BackgroundLoginComponent } from '../../Components/background-login/background-login.component';
 import { UserRegistrationModel } from '../../data_managements/models/user-registration-model';
 import { Redirecter } from '../../data_managements/redirecter.service';
 import { UserControlService } from '../../data_managements/control-services/user-control-service.service';
@@ -13,7 +12,7 @@ import { IconComponent } from '../../Components/icon/icon.component';
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, BackgroundLoginComponent, IconComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, IconComponent],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss']
 })

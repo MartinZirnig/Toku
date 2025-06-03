@@ -18,3 +18,48 @@ div[ngStyle]::-webkit-scrollbar {
 ul, li {
   overflow: visible !important;
 }
+
+.context-menu-messages-root {
+  background: var(--menu-bg, #1f2937);
+  color: var(--menu-text, #fff);
+  box-shadow: 0 4px 24px 0 var(--menu-shadow, rgba(35,41,58,0.4));
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  z-index: 50;
+  pointer-events: auto;
+  box-sizing: border-box;
+  margin: 0 !important;
+  max-width: none !important;
+  max-height: none !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+  overflow: hidden;
+}
+.context-menu-messages-root::-webkit-scrollbar {
+  display: none !important;
+}
+ul, li {
+  overflow: visible !important;
+}
+
+.context-menu-messages-item {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  color: var(--menu-text, #fff);
+  background: transparent;
+  border-radius: 0.375rem;
+  transition: background 0.15s, color 0.15s;
+}
+.context-menu-messages-item:hover {
+  background: var(--menu-hover-bg, #374151);
+  color: var(--menu-hover-text, #3b82f6);
+}
+.context-menu-messages-item-danger {
+  color: var(--menu-delete-text, #f87171);
+}
+.context-menu-messages-item-danger:hover {
+  background: var(--menu-delete-hover-bg, #be185d);
+  color: var(--menu-delete-text, #f87171);
+}

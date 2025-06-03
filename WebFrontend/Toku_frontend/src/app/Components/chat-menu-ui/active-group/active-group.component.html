@@ -1,11 +1,12 @@
 <div
-    class="relative chat-item flex items-center gap-4 p-4 rounded-xl shadow transition-all duration-200 mt-1.5
-    hover:bg-gray-700/80 hover:shadow-lg
-    group"
+    class="relative chat-item flex items-center gap-4 p-4 rounded-xl shadow transition-all duration-200 mt-1.5 group
+      active-group-bg
+      "
     [ngClass]="{
       'cursor-pointer': !service.inEditMode,
-      'ring-1 ring-blue-300 bg-gray-700/80': active,
-      'bg-gray-800': !active
+      'active-group-ring': active,
+      'active-group-active-bg': active,
+      'active-group-inactive-bg': !active
     }"
     (click)="!service.inEditMode && onClick()"
     (contextmenu)="!disableContextMenu && onRightClick($event)"
@@ -13,38 +14,35 @@
 >
 
     <!-- Avatar -->
-    <div class="w-12 h-12 flex items-center justify-center rounded-full bg-gradient-to-br from-gray-700 to-gray-900 shadow-inner">
+    <div class="w-12 h-12 flex items-center justify-center rounded-full avatar-bg">
         <app-profile-picture-circled [picture]="data?.pictureUrl"></app-profile-picture-circled>
     </div>
 
     <!-- Chat info -->
     <div class="flex-1 min-w-0">
-        <p class="font-semibold text-white truncate text-base">{{ name }}</p>
-        <p class="text-sm text-gray-400 truncate">{{ lastMessage }}</p>
+        <p class="font-semibold truncate text-base primary-text">{{ name }}</p>
+        <p class="text-sm last-message-text truncate">{{ lastMessage }}</p>
     </div>
 
     <!-- Time + menu button in a row -->
     <div class="flex items-center ml-2 min-w-[56px] relative">
-        <span class="text-xs text-gray-400 whitespace-nowrap">{{ time }}</span>
+        <span class="text-xs time-text whitespace-nowrap">{{ time }}</span>
         <button *ngIf="!hideMenuDots"
           class="ml-2 p-2 rounded-full transition-all duration-200
                  opacity-0 pointer-events-none
                  group-hover:opacity-100 group-hover:pointer-events-auto
                  group-focus-within:opacity-100 group-focus-within:pointer-events-auto
                  will-change-transform
-                 "
+                 menu-btn"
           (click)="onMenuClick($event)"
           title="Další akce"
           [ngStyle]="{ transition: 'opacity 0.25s cubic-bezier(.4,0,.2,1)' }"
         >
-          <svg class="w-6 h-6 text-gray-400 hover:text-blue-500 transition-colors duration-200" fill="currentColor" viewBox="0 0 24 24">
+          <svg class="w-6 h-6 menu-btn-icon transition-colors duration-200" fill="currentColor" viewBox="0 0 24 24">
             <circle cx="12" cy="5" r="2"/>
             <circle cx="12" cy="12" r="2"/>
             <circle cx="12" cy="19" r="2"/>
           </svg>
         </button>
-      
-        
-        
     </div>
 </div>

@@ -1,15 +1,15 @@
 <div #chatMenuContainer
-    class="chat-menu-gradient-border fixed top-0 left-0 h-screen max-h-screen origin-top-right w-96 shadow-2xl bg-gray-900 flex flex-col z-9999 chat-menu-scrollbar"
+    class="chat-menu-gradient-border fixed top-0 left-0 h-screen max-h-screen origin-top-right w-96 flex flex-col z-9999 chat-menu-scrollbar"
     [ngClass]="{
       'animate-fade-in-right': menuService.isVisible,
       'animate-fade-out-left': !menuService.isVisible
     }"
     style="height: 100vh; max-height: 100vh; overflow-y: auto; -ms-overflow-style: auto;">
     <!-- Header: Search + Plus -->
-    <div class="sticky top-0 z-10 bg-gray-900 pt-4 pb-2 px-6 flex items-center gap-3">
+    <div class="sticky top-0 z-10 chat-menu-header pt-4 pb-2 px-6 flex items-center gap-3">
       <!-- Search Input -->
-      <div class="flex items-center bg-gray-800 rounded-full px-4 py-2 flex-1 shadow">
-        <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <div class="flex items-center chat-menu-search rounded-full px-4 py-2 flex-1 chat-menu-search-shadow">
+        <svg class="w-5 h-5 chat-menu-search-icon mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
           <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
@@ -18,16 +18,16 @@
           (input)="onSearch()"
           type="text"
           placeholder="Search chats..."
-          class="bg-transparent outline-none border-none text-white placeholder-gray-400 w-full"
+          class="bg-transparent outline-none border-none w-full chat-menu-search-input"
         />
       </div>
       <!-- Permanent Plus Button -->
       <button
-        class="add-chat-btn w-11 h-11 transition-all duration-300 cursor-pointer rounded-full flex items-center justify-center shadow"
+        class="add-chat-btn w-11 h-11 transition-all duration-300 cursor-pointer rounded-full flex items-center justify-center chat-menu-plus-btn"
         (click)="appendGroup($event)"
         title="Add new chat"
       >
-        <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg class="w-6 h-6 chat-menu-plus-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
       </button>

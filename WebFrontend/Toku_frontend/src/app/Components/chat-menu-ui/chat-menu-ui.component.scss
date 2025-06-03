@@ -1,3 +1,25 @@
+:host {
+  // CSS proměnné pro barvy
+  --chat-menu-bg: #1f2937;
+  --chat-menu-gradient-border: linear-gradient(135deg, #46f3ff 0%, #528aa9 12%, #576086 45%, #7b649a 80%, #ff73e3 100%);
+  --chat-menu-shadow: #23293a44;
+  --chat-menu-item-bg: #23293a;
+  --chat-menu-item-hover-bg: #1e293b;
+  --chat-menu-item-text: #fff;
+  --chat-menu-item-secondary-text: #cbd5e1;
+  --chat-menu-scrollbar-thumb: #334155;
+  --chat-menu-scrollbar-thumb-hover: #2563eb;
+  --chat-menu-scrollbar-track: transparent;
+  --chat-menu-plus-bg: linear-gradient(135deg, #46f3ff 0%, #528aa9 30%, #7b649a 80%, #ff73e3 100%);
+  --chat-menu-plus-bg-hover: linear-gradient(135deg, #ff73e3 0%, #7b649a 30%, #528aa9 80%, #46f3ff 100%);
+  --chat-menu-plus-icon: #fff;
+  --chat-menu-search-bg: #23293a;
+  --chat-menu-search-text: #fff;
+  --chat-menu-search-placeholder: #64748b;
+  --chat-menu-search-icon: #64748b;
+}
+
+/* Animation classes */
 .animate-fade-in-right {
   animation: none;
   transform: translateX(0);
@@ -13,18 +35,18 @@
 /* Custom scrollbar: hidden by default, visible on hover/scroll with smooth transition */
 :host ::ng-deep .chat-menu-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: #334155 transparent;
+  scrollbar-color: var(--chat-menu-scrollbar-thumb) var(--chat-menu-scrollbar-track);
 }
 
 /* Webkit browsers */
 :host ::ng-deep .chat-menu-scrollbar::-webkit-scrollbar {
   width: 5px;
-  background: transparent;
+  background: var(--chat-menu-scrollbar-track);
   transition: background 0.4s cubic-bezier(.4,0,.2,1);
 }
 
 :host ::ng-deep .chat-menu-scrollbar::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: var(--chat-menu-scrollbar-thumb);
   border-radius: 6px;
   opacity: 0;
   transition: opacity 0.4s cubic-bezier(.4,0,.2,1), background 0.3s cubic-bezier(.4,0,.2,1);
@@ -38,7 +60,7 @@
 }
 
 :host ::ng-deep .chat-menu-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #2563eb;
+  background: var(--chat-menu-scrollbar-thumb-hover);
 }
 
 /* Gradient border for chat menu */
@@ -46,10 +68,11 @@
   
   border-radius: 0 0 1.25rem 1.25rem; // pouze dolní rohy zaoblené
   border: 2px solid transparent;
-  background: rgba(30, 41, 59, 0.98);
-  box-shadow: 0 8px 40px 0 #23293a44, 0 2px 8px 0 #ff73e344;
+  background: var(--chat-menu-bg);
+  box-shadow: 0 8px 40px 0 var(--chat-menu-shadow), 0 2px 8px 0 #ff73e344;
   overflow: hidden;
   z-index: 10; // border je pod obsahem
+  
 }
 .chat-menu-gradient-border::before {
   content: '';
@@ -57,13 +80,7 @@
   inset: 0;
   border-radius: 0 0 1.25rem 1.25rem; // pouze dolní rohy zaoblené
   padding: 2px;
-  background: linear-gradient(135deg,
-    #46f3ff 0%,
-    #528aa9 12%,
-    #576086 45%,
-    #7b649a 80%,
-    #ff73e3 100%
-  );
+  background: var(--chat-menu-gradient-border);
   -webkit-mask:
     linear-gradient(#fff 0 0) content-box, 
     linear-gradient(#fff 0 0);
@@ -77,22 +94,41 @@
   z-index: 2; // obsah nad borderem
 }
 
-/* Accent for plus button */
-.add-chat-btn {
-  background: linear-gradient(135deg,
-    #46f3ff 0%,
-    #528aa9 30%,
-    #7b649a 80%,
-    #ff73e3 100%
-  );
-  color: #fff;
-  transition: background 0.18s, box-shadow 0.18s;
+/* Header background */
+.chat-menu-header {
+  background: var(--chat-menu-header-bg);
 }
-.add-chat-btn:hover {
-  background: linear-gradient(135deg,
-    #ff73e3 0%,
-    #7b649a 30%,
-    #528aa9 80%,
-    #46f3ff 100%
-  );
+
+/* Search bar */
+.chat-menu-search {
+  background: var(--chat-menu-search-bg);
+}
+.chat-menu-search-input {
+  color: var(--chat-menu-search-text);
+  &::placeholder {
+    color: var(--chat-menu-search-placeholder);
+    opacity: 1;
+  }
+}
+.chat-menu-search-icon {
+  color: var(--chat-menu-search-icon);
+}
+.chat-menu-search-shadow {
+  box-shadow: 0 1px 4px 0 #00000022;
+}
+
+/* Accent for plus button */
+.add-chat-btn,
+.chat-menu-plus-btn {
+  background: var(--chat-menu-plus-bg);
+  color: var(--chat-menu-plus-icon);
+  transition: background 0.18s, box-shadow 0.18s;
+  box-shadow: 0 2px 8px 0 #23293a44;
+}
+.add-chat-btn:hover,
+.chat-menu-plus-btn:hover {
+  background: var(--chat-menu-plus-bg-hover);
+}
+.chat-menu-plus-icon {
+  color: var(--chat-menu-plus-icon);
 }

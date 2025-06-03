@@ -12,6 +12,7 @@ import { User } from '../../data_managements/user';
 import { FormsModule } from '@angular/forms';
 import { ContextMenuPlusService } from '../../services/context-menu-plus.service';
 import { Injectable } from '@angular/core';
+import { ColorManagerService } from '../../services/color-manager.service'; // přidej import
 
 // Přidej službu pro správu viditelnosti AI skupiny
 @Injectable({ providedIn: 'root' })
@@ -42,6 +43,7 @@ export class ChatMenuUiComponent {
     picturePath: '',
     lastOperation: "" // změna z čísla na string
   }
+  
 
   constructor(
     public menuService: OpenAndcloseMenuService,
@@ -53,10 +55,12 @@ export class ChatMenuUiComponent {
     private redirecter: Redirecter,
     private contextMenuPlus: ContextMenuPlusService, // přidej službu
     private aiGroupVisibility: AiGroupVisibilityService,
+    private colorManager: ColorManagerService, // přidej službu
   ) {
     reloader.groupReload = this.reload.bind(this);
+    this.csm = this.colorManager.csm;
   }
-
+public csm; // přidej csm
   // Oprava názvu metody na appendGroup (správně)
   appendGroup(event?: MouseEvent) {
     // Otevři context menu plus na pozici tlačítka
@@ -99,6 +103,43 @@ export class ChatMenuUiComponent {
       this.chatMenuContainer.nativeElement.addEventListener('mouseenter', this.onScrollbarHover.bind(this));
       this.chatMenuContainer.nativeElement.addEventListener('mouseleave', this.onScrollbarLeave.bind(this));
     }
+    // Nastav CSS proměnné pro barvy
+    if (!this.csm) return;
+    const root = this.chatMenuContainer?.nativeElement ?? document.documentElement;
+    const setVar = (name: string, value: string) => root.style.setProperty(name, value);
+
+    const csm = this.csm;
+    setVar('--chat-menu-bg', csm.menuBackground.toRgbaString());
+    setVar('--chat-menu-gradient-border', csm.menuGradientBorder.toLinearGradientString(135));
+    setVar('--chat-menu-shadow', csm.menuShadow.toRgbaString());
+    setVar('--chat-menu-item-bg', csm.cardBackground.toRgbaString());
+    setVar('--chat-menu-item-hover-bg', csm.highlightBackground.toRgbaString());
+    setVar('--chat-menu-item-text', csm.primaryText.toRgbaString());
+    setVar('--chat-menu-item-secondary-text', csm.secondaryText.toRgbaString());
+    setVar('--chat-menu-scrollbar-thumb', csm.scrollbarThumb.toRgbaString());
+    setVar('--chat-menu-scrollbar-thumb-hover', csm.scrollbarThumbHover.toRgbaString());
+    setVar('--chat-menu-scrollbar-track', csm.scrollbarTrack.toRgbaString());
+    setVar('--chat-menu-plus-bg', csm.gradientButton.toLinearGradientString(135));
+    setVar('--chat-menu-plus-bg-hover', csm.gradientButtonHover.toLinearGradientString(135));
+    setVar('--chat-menu-plus-icon', csm.buttonText.toRgbaString());
+    setVar('--chat-menu-search-bg', csm.inputBackground.toRgbaString());
+    setVar('--chat-menu-search-text', csm.inputText.toRgbaString());
+    setVar('--chat-menu-search-placeholder', csm.inputPlaceholder.toRgbaString());
+    setVar('--chat-menu-search-icon', csm.inputPlaceholder.toRgbaString());
+
+    // Ztmav barvu menuBackground pro header (např. o 10 %)
+    const darkenRgba = (rgba: string, factor: number) => {
+      // rgba(31,41,55,1.000)
+      const match = rgba.match(/rgba?\((\d+),\s*(\d+),\s*(\d+),\s*([0-9.]+)\)/);
+      if (!match) return rgba;
+      let [r, g, b, a] = [parseInt(match[1]), parseInt(match[2]), parseInt(match[3]), parseFloat(match[4])];
+      r = Math.max(0, Math.floor(r * (1 - factor)));
+      g = Math.max(0, Math.floor(g * (1 - factor)));
+      b = Math.max(0, Math.floor(b * (1 - factor)));
+      return `rgba(${r},${g},${b},${a})`;
+    };
+    setVar('--chat-menu-header-bg', darkenRgba(csm.menuBackground.toRgbaString(), 0.10));
+    // ...případně další barvy dle potřeby...
   }
 
   ngOnDestroy() {

@@ -22,7 +22,7 @@ export class MessageAdresatorComponent implements OnInit {
   @Input() previewText!: string | null; // New input for preview text
   @Input() hasFile: boolean = false; // New input to indicate if the previous message has a file
   @Input() onDeleteMessage!: () => void; // Callback to notify parent component about deletion
-  @Input() reactionsData: string = ''; // Input for reaction data
+  @Input() reactionsData: string = 'j'; // Input for reaction data
   @Input() fileCount: number = 0;
   @Input() fileTotalSize: number = 0;
   @Input() adresatorPicture?: string; // <-- přidáno pro avatar obrázek

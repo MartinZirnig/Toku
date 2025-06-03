@@ -1,4 +1,4 @@
-import { Component, HostListener, Input, OnChanges } from '@angular/core';
+import { Component, HostListener, Input, OnChanges, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule, NgIf } from '@angular/common';
 import { ActiveGroupMenuService} from '../../../services/active-group-menu-service.service';
 import { AvailableGroupsModel } from '../../../data_managements/models/available-groups-model';
@@ -6,6 +6,8 @@ import { GroupsLoaderService } from '../../../data_managements/control-services/
 import { Redirecter } from '../../../data_managements/redirecter.service';
 import { ContextMenuGroupsService } from '../../../services/context-menu-groups.service';
 import { ProfilePictureCircledComponent } from '../../profile-picture-circled/profile-picture-circled.component';
+import { ColorManagerService } from '../../../services/color-manager.service';
+import { ColorSettingsModel } from '../../../data_managements/models/color-settings-model';
 
 @Component({
   selector: 'app-active-group',
@@ -13,7 +15,7 @@ import { ProfilePictureCircledComponent } from '../../profile-picture-circled/pr
   templateUrl: './active-group.component.html',
   styleUrl: './active-group.component.scss'
 })
-export class ActiveGroupComponent {
+export class ActiveGroupComponent implements AfterViewInit {
   declare public name: string;
   declare public lastMessage: string;
   declare public time: string;
@@ -22,6 +24,8 @@ export class ActiveGroupComponent {
   @Input() active: boolean = false;
   @Input() disableContextMenu: boolean = false;
   @Input() hideMenuDots: boolean = false;
+  public csm: ColorSettingsModel;
+
   ngOnChanges() {
     if (this.data) {
       this.load(this.data);
@@ -32,8 +36,31 @@ export class ActiveGroupComponent {
     public service: ActiveGroupMenuService,
     private loader: GroupsLoaderService,
     private redirecter: Redirecter,
-    private contextMenuGroupsService: ContextMenuGroupsService
-  ) { }
+    private contextMenuGroupsService: ContextMenuGroupsService,
+    private el: ElementRef,
+    private colorManager: ColorManagerService
+  ) { 
+    this.csm = this.colorManager.csm;
+  }
+
+  ngAfterViewInit() {
+    if (!this.csm) return;
+    const root = this.el.nativeElement;
+    const setVar = (name: string, value: string) => root.style.setProperty(name, value);
+
+    const csm = this.csm;
+    setVar('--active-bg', csm.highlightBackground.toRgbaString());
+    setVar('--inactive-bg', csm.menuBackground.toRgbaString());
+    setVar('--active-ring', csm.listItemRing.toRgbaString());
+    setVar('--primary-text', csm.primaryText.toRgbaString());
+    setVar('--secondary-text', csm.secondaryText.toRgbaString());
+    setVar('--last-message-text', csm.secondaryText.toRgbaString());
+    setVar('--avatar-bg', csm.avatarGradientBackground.toLinearGradientString(135));
+    setVar('--menu-btn-bg', csm.menuButtonBackground.toRgbaString());
+    setVar('--menu-btn-hover-bg', csm.menuButtonBackgroundHover.toRgbaString());
+    setVar('--menu-btn-icon-hover', csm.menuButtonIconHover.toRgbaString());
+    setVar('--time-text', csm.secondaryText.toRgbaString());
+  }
 
   public load(model: AvailableGroupsModel) : void {
     this.name = model.groupName;

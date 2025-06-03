@@ -6,3 +6,38 @@
   pointer-events: auto !important;
   transition: opacity 0.25s cubic-bezier(.4,0,.2,1);
 }
+
+.active-group-active-bg {
+  background: var(--active-bg) !important;
+}
+.active-group-inactive-bg {
+  background: var(--inactive-bg) !important;
+}
+.active-group-ring {
+  box-shadow: 0 0 0 2px var(--active-ring) !important;
+}
+.primary-text {
+  color: var(--primary-text) !important;
+}
+.last-message-text {
+  color: var(--last-message-text) !important;
+}
+.time-text {
+  color: var(--time-text) !important;
+}
+.avatar-bg {
+  background: var(--avatar-bg) !important;
+}
+.menu-btn {
+  background: var(--menu-btn-bg) !important;
+  &:hover, &:focus {
+    background: var(--menu-btn-hover-bg) !important;
+  }
+}
+.menu-btn-icon {
+  color: var(--secondary-text) !important;
+  transition: color 0.2s;
+  &:hover, &:focus {
+    color: var(--menu-btn-icon-hover) !important;
+  }
+}

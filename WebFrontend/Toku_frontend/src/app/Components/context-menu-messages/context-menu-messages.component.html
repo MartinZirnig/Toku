@@ -1,7 +1,7 @@
-<div *ngIf="config?.visible" #menu [ngStyle]="menuStyle" class="fixed z-50 bg-gray-800/30 backdrop-blur-md shadow-md text-white rounded-lg p-2 w-48">
+<div *ngIf="config?.visible" #menu [ngStyle]="menuStyle" class="context-menu-messages-root w-48 backdrop-blur-md">
   <ul class="list-none m-0 p-0">
-    <li *ngIf="config?.showEdit"
-        class="flex items-center px-4 py-2 hover:bg-gray-200/30 cursor-pointer"
+    <li *ngIf="config?.showEdit && IsAllowedToEdit"
+        class="context-menu-messages-item"
         (click)="config.actions.edit && config.actions.edit()">
       <!-- Edit SVG -->
       <svg class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.x.org/1999/xlink">
@@ -9,7 +9,8 @@
       </svg>
       Upravit
     </li>
-    <li class="flex items-center px-4 py-2 hover:bg-gray-200/30 cursor-pointer"
+    <li *ngIf="IsAllowedToDelete"
+        class="context-menu-messages-item context-menu-messages-item-danger"
         (click)="config.actions.delete(); $event.stopPropagation()">
       <!-- Delete SVG -->
       <svg class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.x.org/1999/xlink">
@@ -17,8 +18,8 @@
       </svg>
       Smazat
     </li>
-    <li *ngIf="config?.showReply"
-        class="flex items-center px-4 py-2 hover:bg-gray-200/30 cursor-pointer"
+    <li *ngIf="config?.showReply && IsAllowedToAnswer"
+        class="context-menu-messages-item"
         (click)="config.actions.reply && config.actions.reply()">
       <!-- Reply SVG -->
       <svg class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.x.org/1999/xlink">
@@ -26,7 +27,8 @@
       </svg>
       Odpovědět
     </li>
-    <li class="flex items-center px-4 py-2 hover:bg-gray-200/30 cursor-pointer"
+    <li *ngIf="IsAllowedToReact"
+        class="context-menu-messages-item"
         (click)="config.actions.react()">
       <!-- React SVG -->
       <svg class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.x.org/1999/xlink">
@@ -34,7 +36,8 @@
       </svg>
       Reagovat
     </li>
-    <li class="flex items-center px-4 py-2 hover:bg-gray-200/30 cursor-pointer"
+    <li *ngIf="IsAllowedToCopy"
+        class="context-menu-messages-item"
         (click)="config.actions.copy()">
       <!-- Copy SVG -->
       <svg class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.x.org/1999/xlink">

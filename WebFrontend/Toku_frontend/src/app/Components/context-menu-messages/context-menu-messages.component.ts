@@ -1,9 +1,11 @@
 import { NgIf, NgStyle, AsyncPipe } from '@angular/common';
-import { Component, ElementRef, HostListener, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, ViewChild, AfterViewInit, Input } from '@angular/core';
 import { ContextMenuMessagesService, ContextMenuMessagesConfig } from '../../services/context-menu-messages.service';
 import { DeletePopupService } from '../delete-popup/delete-popup.service';
 import { DeletePopupComponent } from '../delete-popup/delete-popup.component';
 import { MessageControllService } from '../../data_managements/control-services/message-controll.service';
+import { ColorManagerService } from '../../services/color-manager.service';
+import { ColorSettingsModel } from '../../data_managements/models/color-settings-model';
 
 // Rozšiř typ actions o onDeleteMessage
 type ActionsWithDelete = ContextMenuMessagesConfig['actions'] & { onDeleteMessage?: () => void };
@@ -19,7 +21,7 @@ type ContextMenuMessagesConfigWithId = Omit<ContextMenuMessagesConfig, 'actions'
   styleUrls: ['./context-menu-messages.component.scss'],
   standalone: true
 })
-export class ContextMenuMessagesComponent {
+export class ContextMenuMessagesComponent implements AfterViewInit {
   config: ContextMenuMessagesConfigWithId = {
     visible: false,
     x: 0,
@@ -34,11 +36,20 @@ export class ContextMenuMessagesComponent {
   };
 
   @ViewChild('menu', { static: false }) menuRef!: ElementRef;
+  public csm: ColorSettingsModel;
+
+  @Input() IsAllowedToEdit: boolean = true;
+  @Input() IsAllowedToAnswer: boolean = true;
+  @Input() IsAllowedToReact: boolean = true;
+  @Input() IsAllowedToCopy: boolean = true;
+  @Input() IsAllowedToDelete: boolean = true;
 
   constructor(
     public menuService: ContextMenuMessagesService,
     public deletePopupService: DeletePopupService,
-    private msgCtrl: MessageControllService // přidej službu pro mazání zpráv
+    private msgCtrl: MessageControllService,
+    private colorManager: ColorManagerService,
+    private el: ElementRef
   ) {
     this.menuService.config$.subscribe(cfg => {
       // Přetypuj actions na ActionsWithDelete
@@ -80,6 +91,28 @@ export class ContextMenuMessagesComponent {
       };
       this.config = { ...cfg, actions };
     });
+    this.csm = this.colorManager.csm;
+  }
+
+  ngAfterViewInit() {
+    if (!this.csm) return;
+    const root = this.el.nativeElement ?? document.querySelector('app-context-menu-messages') ?? document.documentElement;
+    const setVar = (name: string, value: string) => root.style.setProperty(name, value);
+
+    const csm = this.csm;
+    setVar('--menu-bg', csm.menuActionBackground.toRgbaString());
+    setVar('--menu-shadow', csm.menuShadow.toRgbaString());
+    setVar('--menu-text', csm.menuActionText.toRgbaString());
+    setVar('--menu-hover-bg', csm.menuActionBackgroundHover.toRgbaString());
+    setVar('--menu-hover-text', csm.menuActionIconHover.toRgbaString());
+    setVar('--menu-disabled-text', csm.menuActionDisabledText.toRgbaString());
+    setVar('--menu-delete-text', csm.menuDeleteText.toRgbaString());
+    setVar('--menu-delete-bg', csm.menuDeleteBackground.toRgbaString());
+    setVar('--menu-delete-hover-bg', csm.menuDeleteBackgroundHover.toRgbaString());
+    setVar('--menu-delete-icon', csm.menuDeleteIcon.toRgbaString());
+    setVar('--menu-delete-icon-hover', csm.menuDeleteIconHover.toRgbaString());
+    setVar('--menu-action-icon', csm.menuActionIcon.toRgbaString());
+    setVar('--menu-action-icon-hover', csm.menuActionIconHover.toRgbaString());
   }
 
   get menuStyle() {

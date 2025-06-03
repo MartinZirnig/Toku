@@ -2,7 +2,6 @@ import { Component, importProvidersFrom, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { BackgroundLoginComponent } from '../../Components/background-login/background-login.component';
 import { Redirecter } from '../../data_managements/redirecter.service';
 import { UserControlService } from '../../data_managements/control-services/user-control-service.service';
 import { Observable } from 'rxjs';

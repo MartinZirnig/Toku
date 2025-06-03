@@ -6,9 +6,46 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0,0,0,0.4);
+  background: none;
 }
 
-.bg-gray-800 {
-  background: #1e293b;
+.popup-overlay {
+  background: var(--overlay-bg, rgba(0,0,0,0.4));
+}
+
+.popup-box {
+  background: var(--popup-bg, #1e293b);
+  border: 2px solid var(--popup-border, #ec4899);
+}
+
+.popup-title {
+  color: var(--heading-text, #fff);
+}
+
+.popup-message {
+  color: var(--secondary-text, #d1d5db);
+}
+
+.yes-btn {
+  background: var(--yes-btn-bg, linear-gradient(90deg, #ef4444 0%, #ec4899 100%));
+  color: var(--button-text, #fff);
+  &:hover {
+    background: var(--yes-btn-bg-hover, linear-gradient(90deg, #dc2626 0%, #be185d 100%));
+  }
+}
+
+.no-btn {
+  background: var(--no-btn-bg, #4b5563);
+  color: var(--button-text, #fff);
+  &:hover {
+    background: var(--no-btn-bg-hover, #374151);
+  }
+}
+
+.update-btn {
+  background: var(--update-btn-bg, linear-gradient(90deg, #22c55e 0%, #3b82f6 100%));
+  color: var(--button-text, #fff);
+  &:hover {
+    background: var(--update-btn-bg-hover, linear-gradient(90deg, #16a34a 0%, #2563eb 100%));
+  }
 }

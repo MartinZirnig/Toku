@@ -26,11 +26,11 @@ roomId<div class="login-overlay">
       </div>
       <div class="mb-4">
         <label for="password" class="block text-sm font-medium mb-1">Password</label>
-        <input id="password" formControlName="password" type="password" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500" />
+        <input id="password" formControlName="password" type="password" class="w-full px-3 py-2 border rounded-md custom-input" />
       </div>
-      <button type="submit" class="w-full py-2 bg-gradient-to-r from-green-300 to-blue-300 text-white rounded-md hover:from-green-400 hover:to-blue-400 transition-all duration-300 shadow-md">Login</button>
+      <button type="submit" class="w-full py-2 custom-gradient-btn">Login</button>
     </form>
-    <div *ngIf="errorMessage" class="text-center text-red-500 mt-4 font-medium">
+    <div *ngIf="errorMessage" class="text-center error-message mt-4 font-medium">
       {{ errorMessage }}
     </div>
     <app-chat-login-popup-group-list
