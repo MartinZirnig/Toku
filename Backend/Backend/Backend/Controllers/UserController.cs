@@ -4,6 +4,8 @@ using BackendInterface;
 using BackendInterface.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Org.BouncyCastle.Bcpg;
+using System.Net.WebSockets;
 
 namespace Backend.Controllers
 {
@@ -68,6 +70,26 @@ namespace Backend.Controllers
                .Select(gcp => (UserPermissionModel)gcp);
 
             return Ok(options);
+        }
+
+        [HttpPut("set-profile")]
+        public async Task<IActionResult> SetProfilePictureAsync([FromQuery] uint fileId)
+        {
+            using var service = _serviceProvider.GetUserService();
+            var executor = (Guid)AuthorizationAttribute.GetUID(HttpContext)!;
+
+            var result = await service.SetProfileImageAsync(executor, fileId);
+
+            return Ok(result);
+        }
+        [HttpGet("get-profile")]
+        public async Task<IActionResult> GetProfilePictureAsync([FromQuery] uint UserId)
+        {
+            using var service = _serviceProvider.GetUserService();
+
+            var result = await service.GetProfileImageAsync(UserId);
+
+            return Ok(result);
         }
     }
 }

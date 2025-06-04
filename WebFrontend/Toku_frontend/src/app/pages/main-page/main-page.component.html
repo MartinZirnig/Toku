@@ -32,7 +32,7 @@
           [hasFile]="message.hasFile"
           [timeStamp]="message.timeStamp"
           [onDeleteMessage]="onDeleteMessage.bind(this, i)"
-          [reactionsData]="message.reactionsData ?? ''"
+          [reactionsData]="''"
           [raw]="message.raw">
         </app-message>
       </ng-container>
@@ -41,8 +41,9 @@
           [text]="message.text"
           [time]="message.time"
           [onDeleteMessage]="onDeleteMessage.bind(this, i)"
-          [reactionsData]="message.reactionsData ?? ''"
-          [raw]="message.raw">
+          [reactionsData]="''"
+          [raw]="message.raw"
+          [adresatorPicture]="message.senderPicture">
         </app-message-adresator>
       </ng-template>
     </div>

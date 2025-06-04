@@ -3,6 +3,7 @@ using BackendInterface;
 using BackendInterface.DataObjects;
 using BackendInterface.Models;
 using Crypto;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using MysqlDatabase.Tables;
 using MysqlDatabaseControl;
@@ -215,6 +216,13 @@ internal class DataService : DatabaseServisLifecycle, IDataService
                 um.MessageId == messageId);
         if (userMessage is null) return null;
 
+        var sender = await context.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.UserId == message.SenderId);
+        if (sender is null) return null;
+
+
+
         var encryptedMessage = new EncryptedMessage(message.Content, userMessage.EncryptedKey);
         var decryptedMessage = encryptedMessage.DecryptKey(userData.DecryptedPrivateKey);
         var content = decryptedMessage.Decrypt();
@@ -244,7 +252,8 @@ internal class DataService : DatabaseServisLifecycle, IDataService
             GroupService.GetCorrectTimeFormat(message.CreatedTime
                 .AddMinutes(-userData.TimeZoneOffset)),
             await GetLastStatusChange(messageId, context),
-            pin
+            pin,
+            sender.PictureId.ToString() ?? string.Empty
         );
         if (disposeContext)
             await context.DisposeAsync();
@@ -366,5 +375,87 @@ internal class DataService : DatabaseServisLifecycle, IDataService
             return new RequestResultModel(
                 false, ex.Message);
         }
+    }
+
+    public async Task<StoredMessageModel> AskAiAsync(AiQueryModel query, Guid executor)
+    {
+        try
+        {
+            await AddGeminiRequestRecordAsync(query.Query, executor, true)
+                 .ConfigureAwait(false);
+
+            var service = new GeminiService();
+            var context = await GetContextAsync(executor);
+            service.LoadContext(context);
+            var response = await service.AskAiAsync(query.Query)
+                .ConfigureAwait(false);
+
+            await AddGeminiRequestRecordAsync(response, executor, false);
+
+            return new StoredMessageModel(
+                0, response,
+                null, null,
+                0, 255,
+                GroupService.GetCorrectTimeFormat(DateTime.UtcNow),
+                null, null, "2");
+        }
+        catch (Exception ex)
+        {
+            return new StoredMessageModel(
+                0, ex.Message,
+                null, null,
+                0, 255,
+                GroupService.GetCorrectTimeFormat(DateTime.UtcNow),
+                null, null, "2");
+        }
+    }
+    private async Task AddGeminiRequestRecordAsync(string text, Guid executor, bool isQuery)
+    {
+        var context = new GeminiContext()
+        {
+            SessionId = executor,
+            Content = text,
+            Time = DateTime.UtcNow,
+            IsSender = isQuery
+        };
+
+        await Context.GeminiContext.AddAsync(context);
+        await Context.SaveChangesAsync();
+    }
+
+    private async Task<GeminiContext[]> GetContextAsync(Guid executor)
+    {
+        return await Context.GeminiContext
+            .Where(gc => gc.SessionId == executor)
+            .ToArrayAsync();
+    }
+
+    public async Task<RequestResultModel> ClearAiAsync(Guid executor)
+    {
+        try
+        {
+            await Context.Database.ExecuteSqlInterpolatedAsync(
+                $"DELETE FROM GeminiContext WHERE SessionId = {executor}");
+            await Context.SaveChangesAsync()
+                .ConfigureAwait(false);
+
+            return new RequestResultModel(
+                true, string.Empty);
+        }
+        catch (Exception ex)
+        {
+            return new RequestResultModel(
+                false, ex.Message);
+        }
+
+    }
+
+    public async Task ClearAllAiAsync()
+    {
+        await Context.Database
+            .ExecuteSqlRawAsync($"DELETE FROM {nameof(GeminiContext)}")
+            .ConfigureAwait(false);
+        await Context.SaveChangesAsync()
+            .ConfigureAwait(false);
     }
 }

@@ -17,6 +17,7 @@ export class FileService {
 
   saveUserFile(fromData: FormData, fileName: string) : Observable<RequestResultModel> {
     const path = this.baseUrl + "/upload-user/" + User.InnerId;
+    console.log("Saving user file to: " + path);
     let params = new HttpParams();
     params = params.append("fileName", fileName);
     return this.http.put<RequestResultModel>(path, fromData, {params: params});
@@ -38,5 +39,14 @@ export class FileService {
     let params = new HttpParams();
     params = params.append("fileName", fileName);
     return this.http.put<RequestResultModel>(path, fromData, {params: params});
+  }
+
+  getUserFile(fileId: string): Observable<any> {
+    const path = this.baseUrl + "/get-file/" + fileId;
+
+    return this.http.get(path, {
+      responseType: 'blob', 
+      observe: 'response',
+    });
   }
 }

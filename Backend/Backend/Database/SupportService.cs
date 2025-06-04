@@ -28,6 +28,7 @@ internal static class SupportService
             LastHeartbeat = user.LashHearthBeat,
             TimeZoneOffset = user.TimeZoneOffset,
             CreatedTime = user.User.CreatedTime,
+            PictureId = user.User.PictureId
         };
     }
     public static async IAsyncEnumerable<LoggedUserData> GetUserLoginsAsync(uint identification, DatabaseContext context)

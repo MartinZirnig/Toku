@@ -221,7 +221,7 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
     private static async Task<string> DecryptLastMessageAsync(Guid uid, uint groupId)
     {
         var dataService = new DataService(null!);
-        var context = dataService.GetContext();
+        var context = dataService.GetContextAsync();
 
         var last = await context.Messages
                 .Where(m => m.DeletedTime == null)
@@ -260,6 +260,9 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
 
     public async Task<RequestResultModel> UpdateLastGroupAsync(UserGroupModel model)
     {
+        if (model.GroupId == 0)
+            return new RequestResultModel(true, "cannot set zero as last");
+
         await using var transaction = await Context.Database
             .BeginTransactionAsync()
             .ConfigureAwait(false);
@@ -292,6 +295,9 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
 
     public async Task<RequestResultModel> ReadGroupAsync(UserGroupModel model)
     {
+        if (model.GroupId == 0)
+            return new RequestResultModel(true, string.Empty);
+
         await using var transaction = await Context.Database
             .BeginTransactionAsync()
             .ConfigureAwait(false);

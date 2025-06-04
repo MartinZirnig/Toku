@@ -15,6 +15,8 @@ public class LoggedUserData
     public int TimeZoneOffset { get; set; }
     public DateTime CreatedTime { get; set; }
 
+    public uint? PictureId { get; set; }
+
     public bool ShouldBeRemoved =>
         LastHeartbeat.AddMinutes(MinutesToRemove) < DateTime.Now;
 }

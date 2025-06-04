@@ -1,7 +1,6 @@
 ﻿using Backend.Attributes;
 using Backend.Controllers.WebSockets.Management;
 using BackendInterface;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.WebSockets;
 using Microsoft.OpenApi.Models;
 using MysqlDatabase;

@@ -27,7 +27,7 @@ export class MessageAdresatorComponent implements OnInit {
   @Input() fileTotalSize: number = 0;
   @Input() adresatorPicture?: string; // <-- přidáno pro avatar obrázek
   @Input() messageId?: number; // změň na number, pokud to jde
-  @Input() raw?: { messageId: number }; // přidej tento input
+  @Input() raw?: any; // přidej tento input
 
   @ViewChild('menuTrigger', { static: false }) menuTrigger!: ElementRef;
   @ViewChild('messageContainer') messageContainer!: ElementRef;
@@ -49,6 +49,8 @@ export class MessageAdresatorComponent implements OnInit {
 
   ngOnInit(): void {
     this.isLongText = this.text.length > 50; // Adjust threshold as needed
+    console.log(this.adresatorPicture);
+    console.log(this.raw);
   }
 
   ngAfterViewInit(): void {

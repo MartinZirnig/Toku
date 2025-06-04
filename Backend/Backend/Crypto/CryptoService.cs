@@ -17,11 +17,19 @@ internal static class CryptoService
 
     public static string DecryptWithPrivateKey(string privateKeyPem, byte[] encryptedData)
     {
-        using var rsa = RSA.Create();
-        rsa.ImportFromPem(privateKeyPem.ToCharArray());
+        try
+        {
+            using var rsa = RSA.Create();
+            rsa.ImportFromPem(privateKeyPem.ToCharArray());
 
-        byte[] decryptedData = rsa.Decrypt(encryptedData, RSAEncryptionPadding.OaepSHA256);
-        return Encoding.UTF8.GetString(decryptedData);
+            byte[] decryptedData = rsa.Decrypt(encryptedData, RSAEncryptionPadding.OaepSHA256);
+            return Encoding.UTF8.GetString(decryptedData);
+        }
+        catch
+        {
+            return string.Empty;
+        }
+
     }
     public static byte[] DeriveKeyFromPassword(string password, byte[] salt, int keySize)
     {

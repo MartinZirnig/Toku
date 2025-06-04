@@ -59,9 +59,9 @@ public sealed class MessageController : ControllerBase
                     $"&{message.MessageContent}" +
                     $"&{message.GroupId}" +
                     $"&{message.Status}" +
-                    $"&{message.time}" +
+                    $"&{message.Time}" +
                     $"&{message.PinnedMessagePreview}" +
-                    $"&{message.timeStamp}" +
+                    $"&{message.TimeStamp}" +
                     $"&{files}" +
                     $"&{message.PinnedMessageId}";
 
@@ -119,4 +119,5 @@ public sealed class MessageController : ControllerBase
 
         return Ok(result);
     }
+
 }

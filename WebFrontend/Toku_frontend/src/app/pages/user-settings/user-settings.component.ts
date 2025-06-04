@@ -13,6 +13,8 @@ import { AreYouSurePopUpComponent } from '../../Components/are-you-sure-pop-up/a
 import { AiGroupVisibilityService } from '../../Components/chat-menu-ui/chat-menu-ui.component';
 import { ProfilePictureCircledComponent } from '../../Components/profile-picture-circled/profile-picture-circled.component';
 import { AddContactPopupComponent } from '../../Components/add-contact-popup/add-contact-popup.component';
+import { UserService } from '../../data_managements/services/user.service';
+import { FileService } from '../../data_managements/services/file.service';
 
 export type SwipeAction = 'reply' | 'react' | 'copy' | 'delete' | 'edit';
 
@@ -67,6 +69,9 @@ export class UserSettingsComponent {
   userPicture: string | null = null;
   private originalUserPicture: string | null = null;
 
+  userPictureId: string | null = null;
+  originalUserPictureId: string | null = null;
+
   @Input() canChangeInformations: boolean = true;
 
   constructor(
@@ -75,10 +80,13 @@ export class UserSettingsComponent {
     private usrCtrl: UserControlService,
     private popupService: PopUpService,
     private areYouSureService: AreYouSurePopUpService,
-    private aiGroupVisibility: AiGroupVisibilityService
+    private aiGroupVisibility: AiGroupVisibilityService,
+    private userService: UserService,
+    private fileService: FileService
   ) {}
 
   ngOnInit() {
+    this.loadPicture();
     document.body.style.overflow = 'hidden';
     this.originalName = this.userName;
     this.originalPhone = this.userPhone;
@@ -152,7 +160,7 @@ export class UserSettingsComponent {
       return;
     }
 
-    this.usrCtrl.updateUserData(this.userName, this.userEmail, this.userPhone)
+    this.usrCtrl.updateUserData(this.userName, this.userEmail, this.userPhone, this.userPictureId ?? undefined)
       .subscribe({
         next: response => {
           if (response.success) {
@@ -412,11 +420,27 @@ export class UserSettingsComponent {
       alert('Only JPG and PNG files are allowed.');
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.userPicture = reader.result as string;
-    };
-    reader.readAsDataURL(file);
+
+    const formData = new FormData();
+    formData.append('file', file);
+    this.fileService.saveUserFile(formData, crypto.randomUUID()).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.userPictureId = response.description;
+          this.originalUserPictureId = response.description;
+          console.log("loading1");
+          this.loadPictureFile(this.userPictureId);
+          this.popupService.showMessage('Profile picture updated successfully!', 2000, '#4ade80', '#fff');
+        } else {
+          console.error('Error uploading picture:', response.description);
+          this.popupService.showMessage('Failed to upload picture: ' + response.description, 2000, '#dc2626', '#fff');
+        }
+      },
+      error: (error) => {
+        console.error('Error uploading picture:', error);
+        this.popupService.showMessage('Error uploading picture: ' + error.message, 2000, '#dc2626', '#fff');
+      }
+    })
   }
 
   triggerPictureInput(input: HTMLInputElement): void {
@@ -429,7 +453,45 @@ export class UserSettingsComponent {
       this.userPhone !== this.originalPhone ||
       this.userEmail !== this.originalEmail ||
       this.showAiGroup !== this.originalShowAiGroup ||
-      this.userPicture !== this.originalUserPicture
+      this.userPicture !== this.originalUserPicture ||
+      this.originalUserPictureId !== this.userPictureId
     );
+  }
+
+  loadPicture(): void {
+    this.userService.getPicture(Number(User.InnerId)).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.loadPictureFile(response.description, true);
+
+          this.userPictureId = response.description;
+          this.originalUserPictureId = response.description;
+        } else {
+          console.error('Error loading user picture:', response.description);
+        }
+      },
+      error: (error) => {
+        console.error('Error loading user picture:', error);
+      }
+    });
+  }
+  loadPictureFile(picId: string, update?: any) : void {
+    console.log('Loading user picture file with ID:', picId);
+    this.fileService.getUserFile(picId).subscribe({
+      next: file => {
+        console.log(file);
+        const reader = new FileReader();
+        reader.onload = () => {
+          this.userPicture = reader.result as string;
+          if (update) {
+            this.originalUserPicture = this.userPicture;
+          }
+        };
+        reader.readAsDataURL(file.body as Blob);
+      },
+      error: (error) => {
+        console.error('Error loading user picture file:', error);
+      }
+    });
   }
 }

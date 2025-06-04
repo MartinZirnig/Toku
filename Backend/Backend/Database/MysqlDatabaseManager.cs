@@ -90,10 +90,16 @@ public sealed class MysqlDatabaseManager
     private bool _disposed;
     public MysqlDatabaseManager()
     {
-        InitializeDatabase();
-
+        Initialize().GetAwaiter().GetResult();
+    }
+    private async Task Initialize()
+    {
+        using var context = new DataService(this);
+        await context.ClearAllAiAsync()
+            .ConfigureAwait(false);
         UserWatcher = new UserWatcher();
-        UserWatcher.LogoutAll();
+        await UserWatcher.LogoutAll()
+            .ConfigureAwait(false);
         UserWatcher.StartWatch();
         Console.WriteLine("created");
     }

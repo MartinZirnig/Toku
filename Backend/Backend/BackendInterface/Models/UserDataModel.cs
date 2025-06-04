@@ -6,5 +6,6 @@ public record UserDataModel(
     string Name,
     string Email,
     string PhoneNumber,
-    string Active
+    string Active,
+    string? Picture
     );

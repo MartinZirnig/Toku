@@ -24,7 +24,7 @@ internal abstract class DatabaseServisLifecycle(MysqlDatabaseManager creator) : 
 
         _disposed = true;
     }
-    internal DatabaseContext GetContext() => Context;
+    internal DatabaseContext GetContextAsync() => Context;
 
     ~DatabaseServisLifecycle()
     {

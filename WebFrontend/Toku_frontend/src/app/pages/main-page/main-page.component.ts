@@ -19,7 +19,9 @@ import { FileDownloadPopupService } from '../../services/file-download-popup.ser
 import { PopUpService } from '../../services/pop-up.service';
 import { MessagerService } from '../../data_managements/messager.service';
 import { MessageFilterService } from '../../services/message-filter.service';
-
+import { FileService } from '../../data_managements/services/file.service';
+import { from, Observable } from 'rxjs';
+import { concatMap, filter, observeOn } from 'rxjs/operators';
 @Component({
   selector: 'app-main-page',
   imports: [
@@ -37,7 +39,7 @@ import { MessageFilterService } from '../../services/message-filter.service';
   styleUrls: ['./main-page.component.scss']
 })
 export class MainPageComponent implements OnInit {
-  public messages: Array<any> = [];
+  public messages: Array<MessageFormat> = [];
   public rawMessages: Array<StoredMessageModel> = []
   public roomId: number = 0;
   public dummyVisible: boolean = true;
@@ -54,13 +56,14 @@ constructor(
   public fileDownloadPopupService: FileDownloadPopupService,
   private popup: PopUpService,
   private messager: MessagerService,
-  private filter: MessageFilterService
+  private filter: MessageFilterService,
+  private fileService: FileService
 ) {}
 
 ngOnInit(): void {
   this.filter.Load();
   this.dummyVisible = true;
-  this.sendService.messageAdded = this.AddMessage.bind(this);
+  this.sendService.messageAdded = this.addMessage.bind(this);
   this.sendService.mainPage = this;
   
   this.route.fragment.subscribe(fragment => {
@@ -112,22 +115,30 @@ ngOnInit(): void {
   }
 
   initializeMessages(group: number): void {
-    this.msgCtrl.loadMessages(group)
-      .subscribe({
-        next: response => {
-          this.rawMessages = response;
-          this.messages = [];
-  
-          this.rawMessages.forEach(msg => {
-            if (this.filter.IsNotFiltered(msg.messageId))
-              this.AddMessage(msg)
-            });
-        },
-        error: err => {
-          console.error('error during message loading: ', err)
-        }
-      });
-  }
+  this.msgCtrl.loadMessages(group).subscribe({
+    next: response => {
+      this.rawMessages = response;
+      this.messages = [];
+
+      from(this.rawMessages)
+        .pipe(
+          filter(msg => this.filter.IsNotFiltered(msg.messageId)),
+          concatMap(msg => this.AddManyMessage(msg))
+        )
+        .subscribe({
+          complete: () => {
+          },
+          error: err => {
+            console.error('Error while fetching messagesd:', err);
+          }
+        });
+    },
+    error: err => {
+      console.error('Error while fetching messagesd:', err);
+    }
+  });
+}
+
   readMessages(group: number): void {
     this.grpCtrl.readGroup(group).subscribe({
       next: response => {
@@ -142,24 +153,75 @@ ngOnInit(): void {
   
 
 
-
+private addMessage(msg: StoredMessageModel): void {
+  if (msg.senderPictureId && msg.status === 255) {
+      this.fileService.getUserFile(msg.senderPictureId).subscribe({
+        next: blob => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            this.appendMessage(msg, reader.result as string);
+          };
+          reader.onerror = () => {
+            console.error('Chyba při čtení obrázku');
+            this.appendMessage(msg);
+          };
+          reader.readAsDataURL(blob.body as Blob);
+        },
+        error: err => {
+          console.error('Nepodařilo se načíst obrázek odesílatele:', err);
+          this.appendMessage(msg);
+        }
+      });
+    } else {
+      this.appendMessage(msg);
+    }
+}
   
 
-  private AddMessage(msg: StoredMessageModel){
+  private AddManyMessage(msg: StoredMessageModel) : Observable<void> {
+    return new Observable<void>((observer) => {
+    if (msg.senderPictureId && msg.status === 255) {
+      this.fileService.getUserFile(msg.senderPictureId).subscribe({
+        next: blob => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            this.appendMessage(msg, reader.result as string);
+            observer.next();
+            observer.complete();
+          };
+          reader.onerror = () => {
+            console.error('Chyba při čtení obrázku');
+            this.appendMessage(msg);
+            observer.next();
+            observer.complete();
+          };
+          reader.readAsDataURL(blob.body as Blob);
+        },
+        error: err => {
+          console.error('Nepodařilo se načíst obrázek odesílatele:', err);
+          this.appendMessage(msg);
+          observer.next();
+          observer.complete();
+        }
+      });
+    } else {
+      this.appendMessage(msg);
+      observer.next();
+      observer.complete();
+    }
+  });
+}
+  private appendMessage(msg: StoredMessageModel, file?: string) {
     const stat = StoredMessageModel.getStatus(msg.status);
     const sender = StoredMessageModel.isSender(msg.status);
+    
     const message = new MessageFormat(
         msg.messageContent, msg.time, 
         stat, msg.pinnedMessagePrewiev ?? null, 
-        (msg.attachedFilesId?.length ?? 0) !== 0, msg.timeStamp ?? null, sender, msg)
+        (msg.attachedFilesId?.length ?? 0) !== 0, msg.timeStamp ?? null, sender, msg, file ?? "");
 
     this.messages.push(message);
-  
-  this.ngZone.onStable.pipe(take(1)).subscribe(() => {
-    this.dummyVisible = false;
-    this.scrollDown();
-  });
-}
+  }
 
 private scrollDown(){
   setTimeout(() => {
@@ -198,7 +260,7 @@ private scrollDown(){
     );
     model.status = 255;
 
-    this.AddMessage(model);
+    this.addMessage(model);
     }
 catch (error)
 { 
@@ -219,6 +281,7 @@ class MessageFormat {
     public hasFile: boolean,
     public timeStamp: string | null,
     public isSender: boolean, 
-    public raw: StoredMessageModel
+    public raw: StoredMessageModel,
+    public senderPicture: string,
   ) { }
 }

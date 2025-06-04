@@ -1,6 +1,5 @@
 ﻿using BackendInterface.DataObjects;
 using BackendInterface.Models;
-using MySql.Data.MySqlClient;
 
 namespace BackendInterface;
 public interface IUserService : IDisposable
@@ -14,8 +13,11 @@ public interface IUserService : IDisposable
     Task LogoutAllUsersAsync();
 
     Task<RequestResultModel> EditUserAsync(UserDataModel model, Guid identification);
-    Task<UserDataModel> GetUserDataAsync(Guid identification);
+    Task<UserDataModel?> GetUserDataAsync(Guid identification);
 
     Task<LoggedUserData?> GetLoggedUserDataAsync(Guid identification);
     Task<IEnumerable<KnownUserDataModel>> GetKnownUserAsync(Guid identification);
+    Task<RequestResultModel> SetProfileImageAsync(Guid executor, uint fileId);
+    Task<RequestResultModel> GetProfileImageAsync(uint userId);
+    Task<bool> IsExecutorUserAsync(Guid executor, uint user);
 }

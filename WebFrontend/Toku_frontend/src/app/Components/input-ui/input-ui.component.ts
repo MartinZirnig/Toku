@@ -12,6 +12,7 @@ import { Subscription } from 'rxjs';
 import { MessagerService } from '../../data_managements/messager.service';
 import { User } from '../../data_managements/user';
 import { ReplyService, ReplyPreview } from '../../services/reply.service'; // Přidej import
+import { AiService } from '../../data_managements/services/ai-service.service';
 
 
 @Component({
@@ -53,7 +54,7 @@ export class InputUiComponent implements OnInit {
     private renderer: Renderer2, 
     private service: MainInputService,
     private reloader: GroupReloadService,
-    public emojiPopupService: EmojiPopupService, // Inject EmojiPopupService
+    public emojiPopupService: EmojiPopupService,
     private fileUploadService: FileUploadService,
     private messager: MessagerService,
     private replyService: ReplyService // Přidej reply service

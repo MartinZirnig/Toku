@@ -8,6 +8,7 @@ import { ContextMenuGroupsService } from '../../../services/context-menu-groups.
 import { ProfilePictureCircledComponent } from '../../profile-picture-circled/profile-picture-circled.component';
 import { ColorManagerService } from '../../../services/color-manager.service';
 import { ColorSettingsModel } from '../../../data_managements/models/color-settings-model';
+import { AiService } from '../../../data_managements/services/ai-service.service';
 
 @Component({
   selector: 'app-active-group',
@@ -38,7 +39,8 @@ export class ActiveGroupComponent implements AfterViewInit {
     private redirecter: Redirecter,
     private contextMenuGroupsService: ContextMenuGroupsService,
     private el: ElementRef,
-    private colorManager: ColorManagerService
+    private colorManager: ColorManagerService,
+    private ai: AiService
   ) { 
     this.csm = this.colorManager.csm;
   }
@@ -73,8 +75,22 @@ export class ActiveGroupComponent implements AfterViewInit {
     const request = this.loader.updateLastGroup(this.data.groupId)
     request.subscribe({
       next: response => {
-        if (response.success)
-          this.redirecter.Group(this.data.groupId);
+        if (response.success){
+
+          if (this.data.groupId === 0) // AI skupina
+            this.ai.RefreshAi().subscribe({
+              next: aiResponse => {
+                if (!aiResponse.success) {
+                  console.error('AI refresh failed: ' + aiResponse.description);
+                } 
+              },
+              error: err => {
+                console.error('AI refresh failed: ', err);
+              }
+            });
+
+          this.redirecter.Group(this.data.groupId);           
+        }
         else
           console.log('failed setting last group: ' + response.description);
       },

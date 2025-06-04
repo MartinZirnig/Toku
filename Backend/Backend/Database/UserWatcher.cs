@@ -79,7 +79,7 @@ internal class UserWatcher
             Console.WriteLine(ex.Message);
         }
     }
-    public async Task Logout(Guid userContext, DatabaseContext context)
+    public async Task LogoutAsync(Guid userContext, DatabaseContext context)
     {
         var loginData = await context.UserLogins
             .FirstOrDefaultAsync(ul => ul.SessionId == userContext)
@@ -93,7 +93,5 @@ internal class UserWatcher
         login.LoggedOut = now;
         login.DecryptedKey = string.Empty;
     }
-
-
 }
 

@@ -1,4 +1,6 @@
 export class StoredMessageModel {
+  declare public senderPicture?: string;
+
   constructor(
     public messageId: number,
     public messageContent: string,
@@ -9,7 +11,10 @@ export class StoredMessageModel {
     public timeStamp?: string,
     public attachedFilesId?: number[],
     public pinnedMessageId?: number,
+    public senderPictureId?: string
   ) {}
+
+
 
   public static getStatus(status: number): 'undelivered' | 'delivered' | 'read'{
     if (status === 0) return "undelivered"
@@ -20,4 +25,6 @@ export class StoredMessageModel {
   public static isSender(staus: number) : boolean {
     return staus !== 255;
   }
+
+
 }

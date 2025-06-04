@@ -8,7 +8,8 @@ public record StoredMessageModel(
     uint? PinnedMessageId,
     uint GroupId,
     byte Status,
-    string time,
-    string? timeStamp,
-    string? PinnedMessagePreview
+    string Time,
+    string? TimeStamp,
+    string? PinnedMessagePreview,
+    string? SenderPictureId
     );

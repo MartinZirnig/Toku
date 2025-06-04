@@ -99,7 +99,7 @@ public sealed class FileController : ControllerBase
 
 
     [HttpGet("get-file/{fileId}")]
-    public async Task<IActionResult> GetFileAsync(uint fileId)
+    public async Task<IActionResult> GetFileAsync([FromRoute] uint fileId)
     {
         using var service = _serviceProvider.GetFileService();
 

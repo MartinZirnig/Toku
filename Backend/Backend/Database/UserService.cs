@@ -228,7 +228,7 @@ internal class UserService : DatabaseServisLifecycle, IUserService
             .ConfigureAwait(false);
         try
         {
-            await this.Creator.UserWatcher.Logout(identification, Context);
+            await this.Creator.UserWatcher.LogoutAsync(identification, Context);
 
             await Context.SaveChangesAsync();
             await transaction.RollbackAsync();
@@ -285,6 +285,8 @@ internal class UserService : DatabaseServisLifecycle, IUserService
             userData.Name = model.Name;
             userData.Email = model.Email;
             userData.Phone = model.PhoneNumber;
+            userData.PictureId = model.Picture is not null
+                ? uint.Parse(model.Picture): 1;
 
             await Context.SaveChangesAsync();
             await transaction.CommitAsync();
@@ -310,7 +312,8 @@ internal class UserService : DatabaseServisLifecycle, IUserService
 
             var result = new UserDataModel(
             user.Name, user.Email, user.Phone,
-            user.CreatedTime.ToString("dd.MMMM yyyy")
+            user.CreatedTime.ToString("dd.MMMM yyyy"),
+            user.PictureId.ToString()
             );
             return result;
         }
@@ -363,5 +366,91 @@ internal class UserService : DatabaseServisLifecycle, IUserService
         }
     }
 
+    public async Task<RequestResultModel> SetProfileImageAsync(Guid executor, uint fileId)
+    {
+        await using var transaction = await Context.Database
+            .BeginTransactionAsync()
+            .ConfigureAwait(false);
 
+        try
+        {
+            var login = await SupportService
+                .GetUserDataAsync(executor, Context)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+            var owner = await Context.StoredFileOwners
+                .FirstOrDefaultAsync(sfw => sfw.FileId == fileId)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException(); ;
+
+            if (owner.UserOwnerId != login.UserId)
+                throw new UnauthorizedAccessException();
+
+            await Context.Users
+                .Where(u => u.UserId == login.UserId)
+                .ExecuteUpdateAsync(u =>
+                    u.SetProperty(up => up.PictureId, fileId))
+                .ConfigureAwait(false);
+
+            await Context.SaveChangesAsync()
+                .ConfigureAwait(false);
+            await transaction.CommitAsync()
+                .ConfigureAwait(false);
+
+            return new RequestResultModel(
+                true, string.Empty);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            await transaction.RollbackAsync()
+                .ConfigureAwait(false);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync()
+                .ConfigureAwait(false);
+            return new RequestResultModel(
+                false, ex.Message);
+        }
+
+    }
+
+    public async Task<RequestResultModel> GetProfileImageAsync(uint userId)
+    {
+        try
+        {
+            var user = await Context.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.UserId == userId)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+            return new RequestResultModel(
+                true, user.PictureId.ToString());
+        }
+        catch (Exception ex)
+        {
+            return new RequestResultModel(
+                false, ex.Message);
+        }
+    }
+
+    public async Task<bool> IsExecutorUserAsync(Guid executor, uint user)
+    {
+        try
+        {
+            var login = await SupportService
+                .GetUserDataAsync(executor, Context)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+            return login.UserId == user;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }
