@@ -144,7 +144,6 @@ export class ColorSettingsModel
         public listItemHover: ArgbColorModel,                           // Used in: seznamy (li:hover)
         public listItemActive: ArgbColorModel,                          // Used in: seznamy (li.active)
         public listItemRing: ArgbColorModel,                            // Used in: seznamy (li.ring)
-        
     ) {}
 
 

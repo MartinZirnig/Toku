@@ -36,6 +36,7 @@ export class ChatMenuUiComponent {
   @ViewChild('chatMenuContainer') chatMenuContainer!: ElementRef;
   private scrollPosition = 0;
   showAiGroup = true;
+  
   aiGroup = {
     groupId: 0,
     groupName: 'AI bot',
