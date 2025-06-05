@@ -149,4 +149,24 @@ public sealed class GroupController : ControllerBase
 
         return Ok(log);
     }
+
+    [HttpPatch("set-picure")]
+    public async Task<IActionResult> SetGroupPicture([FromBody] GroupPictureModel model)
+    {
+        using var service = _serviceProvider.GetGroupService();
+
+        var result = await service.SetGroupPictureAsync(model.GroupId, model.FileId)
+            .ConfigureAwait(false);
+
+        return Ok(result);
+    }
+    [HttpGet("get-picture")]
+    public async Task<IActionResult> GetGroupPicture([FromQuery] uint groupId)
+    {
+        using var service = _serviceProvider.GetGroupService();
+        var result = await service.GetGroupPicture(groupId)
+            .ConfigureAwait(false);
+
+        return Ok(result);
+    }
 }

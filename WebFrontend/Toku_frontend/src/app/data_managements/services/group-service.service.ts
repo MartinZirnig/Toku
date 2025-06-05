@@ -13,6 +13,7 @@ import { GroupUserAccessModel } from '../models/group-user-access-model';
 import { GroupUpdateModel } from '../models/group-update-model';
 import { GroupDataModel } from '../models/group-data-model';
 import { GroupRemoveUserModel } from '../models/group-remove-user-model';
+import { GroupPictureModel } from '../models/group-picture-model';
 
 @Injectable({
   providedIn: 'root'
@@ -78,4 +79,19 @@ export class GroupService {
     }});
     return this.http.get<RequestResultModel>(path, {params: params});
   }
+
+  getPicture(groupId: number) : Observable<RequestResultModel> {
+    const path = `${this.baseUrl}/get-picture`
+    const params = new HttpParams({
+      fromObject: {
+       groupId: groupId
+    }});
+    return this.http.get<RequestResultModel>(path, {params: params});
+  }
+  setPicture(groupId: number, fileId: number) : Observable<RequestResultModel> {
+    var model = new GroupPictureModel(fileId, groupId);
+
+    return this.http.patch<RequestResultModel>(`${this.baseUrl}/set-picture`, model);
+  }
+
 }

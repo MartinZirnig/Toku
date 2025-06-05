@@ -19,4 +19,7 @@ public interface IGroupService : IDisposable
     Task<IEnumerable<GroupUserAccessModel>> GetGroupMembersAsync(Guid executor, uint groupId);
     Task<IEnumerable<LoggedUserData>> GetActiveGroupUsersAsync(uint groupId);
     Task<RequestResultModel> GetGroupLogAsync(uint groupId);
+
+    Task<RequestResultModel> SetGroupPictureAsync(uint groupId, uint fileId);
+    Task<RequestResultModel> GetGroupPicture(uint groupId);
 }

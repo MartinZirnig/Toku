@@ -14,15 +14,25 @@ import { AreYouSurePopUpComponent } from '../../Components/are-you-sure-pop-up/a
 import { UserPermissionModel } from '../../data_managements/models/user-permission-model';
 import { UserControlService } from '../../data_managements/control-services/user-control-service.service';
 import { ProfilePictureCircledComponent } from '../../Components/profile-picture-circled/profile-picture-circled.component';
+import { GroupService } from '../../data_managements/services/group-service.service';
+import { FileService } from '../../data_managements/services/file.service';
 
 
 
 export class GroupMember {
+  declare private basePermissions: number[];
   constructor(
     public name: string,
     public userId: number,
     public permissions: number[]
-  ) {}
+  ) {
+    this.basePermissions = permissions.map(p => p);
+  }
+  get changed() : boolean {
+    return this.basePermissions.length !== this.permissions.length ||
+      this.basePermissions.some(p => !this.permissions.includes(p)) ||
+      this.permissions.some(p => !this.basePermissions.includes(p));
+  }
 }
 
 @Pipe({ name: 'stringify', standalone: true })
@@ -45,9 +55,11 @@ export class GroupSettingsComponent {
   groupPassword: string = '';
   groupMembers: GroupMember[] = [];
   originalMembers: GroupMember[] = [];
-
+;
   groupPicture: string | null = null; // profilová fotka skupiny
+  groupPictureId?: number; 
   private initialGroupPicture: string | null = null;
+  private initialGroupPictureId?: number; 
 
   selectedMember: GroupMember | null = null;
   isEditingName: boolean = false;
@@ -85,8 +97,9 @@ export class GroupSettingsComponent {
     private grpEdi: GroupEditService,
     private grpLdr: GroupsLoaderService,
     private areYouSureService: AreYouSurePopUpService,
-    private usrCtrl: UserControlService
-    
+    private usrCtrl: UserControlService,
+    private groupService: GroupService,
+    private fileService: FileService
   ) {}
 
   ngOnInit() {
@@ -105,6 +118,7 @@ export class GroupSettingsComponent {
     this.loadData();
     this.loadPermissions();
     this.loadLog();
+    this.loadPicture();
 
     this.groupSettingsService.selectedUsers$.subscribe((users) => {
       users.forEach(user => {
@@ -120,7 +134,7 @@ export class GroupSettingsComponent {
     });
 
     // Ulož původní hodnoty po načtení (malé zpoždění pro jistotu)
-    setTimeout(() => this.saveInitialState(), 500);
+    setTimeout(() => this.saveInitialState(), 2000);
   }
 
   private loadMembers(){
@@ -148,6 +162,8 @@ export class GroupSettingsComponent {
       next: response => {
         this.groupName = response.name;
         this.groupDescription = response.description;
+
+        
         // this.groupPicture = response.picture ?? null; // načti profilovku
         // Oprava: Pokud GroupDataModel nemá picture, nastav na null nebo použij správný property
         this.groupPicture = null; // nebo např. response.groupPicture ?? null pokud existuje
@@ -163,8 +179,9 @@ export class GroupSettingsComponent {
     this.initialGroupName = this.groupName;
     this.initialGroupDescription = this.groupDescription;
     this.initialGroupPassword = this.groupPassword;
-    this.initialGroupMembers = this.groupMembers.map(m => ({ ...m }));
+    this.initialGroupMembers = this.groupMembers.map(m => m);//.map(m => ({ ...m }));
     this.initialGroupPicture = this.groupPicture;
+    this.initialGroupPictureId = this.groupPictureId;
   }
 
   private parseAccessModel(model: GroupUserAccessModel) : GroupMember {
@@ -222,37 +239,47 @@ export class GroupSettingsComponent {
   }
 
   // Implementujte podle vaší logiky
-  hasUnsavedChanges(): boolean {
-    // Porovnej aktuální hodnoty s původními
-    if (
-      this.groupName !== this.initialGroupName ||
-      this.groupDescription !== this.initialGroupDescription ||
-      this.groupPassword !== this.initialGroupPassword ||
-      this.groupPicture !== this.initialGroupPicture // přidej kontrolu profilovky
-    ) {
-      return true;
-    }
-    if (this.groupMembers.length !== this.initialGroupMembers.length) {
-      return true;
-    }
-    for (let i = 0; i < this.groupMembers.length; i++) {
-      const a = this.groupMembers[i];
-      const b = this.initialGroupMembers[i];
-      if (
-        a.name !== b.name ||
-        a.userId !== b.userId
-      ) {
-        return true;
-      }
-    }
-    return false;
+hasUnsavedChanges(): boolean {
+  return (
+    this.hasBasicInfoChanged() ||
+    this.hasPictureChanged() ||
+    this.haveMembersChanged() ||
+    this.hasPermissionsChanged()
+  );
+}
+
+private hasPermissionsChanged(): boolean {
+  return this.groupMembers.some(member => member.changed);
+}
+
+private hasBasicInfoChanged(): boolean {
+  return (
+    this.groupName !== this.initialGroupName ||
+    this.groupDescription !== this.initialGroupDescription ||
+    this.groupPassword !== this.initialGroupPassword
+  );
+}
+
+private hasPictureChanged(): boolean {
+  return this.groupPicture !== this.initialGroupPicture;
+}
+
+private haveMembersChanged(): boolean {
+  if (this.groupMembers.length !== this.initialGroupMembers.length) {
+    return true;
   }
+
+  return this.groupMembers.some((member, index) => {
+    const original = this.initialGroupMembers[index];
+    return member.name !== original.name || member.userId !== original.userId;
+  });
+}
 
   discardChanges(): void {
     this.groupName = this.initialGroupName;
     this.groupDescription = this.initialGroupDescription;
     this.groupPassword = this.initialGroupPassword;
-    this.groupMembers = this.initialGroupMembers.map(m => ({ ...m }));
+    this.groupMembers = this.initialGroupMembers.map(m => m);//.map(m => ({ ...m }));
     this.groupPicture = this.initialGroupPicture;
   }
 
@@ -414,11 +441,28 @@ export class GroupSettingsComponent {
       alert('Only JPG and PNG files are allowed.');
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.groupPicture = reader.result as string;
-    };
-    reader.readAsDataURL(file);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    this.fileService.saveGroupFile(formData, crypto.randomUUID()).subscribe({
+      next: response => {
+        if (response.success) {
+          this.groupPictureId = Number(response.description);
+          const reader = new FileReader();
+          reader.onload = () => {
+            this.groupPicture = reader.result as string;
+          };
+          reader.readAsDataURL(file);
+        } else {
+          console.error('Error uploading group picture:', response.description);
+        }
+      },
+      error: err => {
+        console.error('Error uploading group picture:', err);
+      }
+    });
+
+
   }
 
   triggerPictureInput(input: HTMLInputElement): void {
@@ -441,7 +485,7 @@ export class GroupSettingsComponent {
         if (response.success) {
           this.roomId = response.description;
           this.redirecter.SetFragment(this.roomId);
-          this.AppendGroupUsers();
+          this.UpdateGroup();
           // Redirect po úspěšném vytvoření
           this.redirecter.LastGroup();
         } else {
@@ -455,9 +499,9 @@ export class GroupSettingsComponent {
   }
 
   private UpdateGroup(): void {
-    // Oprava: odeber groupPicture z argumentů
+    console.log("updating group with id: ", this.groupPictureId);
     const response = this.grpEdi.updateGroup(
-      Number(this.roomId), this.groupName, this.groupDescription, 0, this.groupPassword);
+      Number(this.roomId), this.groupName, this.groupDescription, 0, this.groupPassword, this.groupPictureId);
     response.subscribe({
       next: response => {
         if (response.success) {
@@ -576,4 +620,37 @@ export class GroupSettingsComponent {
       }
     })
   }
+  loadPicture(): void {
+    this.groupService.getPicture(Number(this.roomId)).subscribe({
+      next: response => {
+        if (response.success) {
+          this.fileService.getGroupFile(response.description).subscribe({
+            next: file => {
+              if (file) {
+                const reader = new FileReader();
+                  reader.onload = () => {
+                this.groupPicture = reader.result as string;
+                  this.groupPictureId = Number(response.description);
+                };
+                reader.readAsDataURL(file.body as Blob);
+
+              } else {
+                console.error("Cannot load group picture file: No response received");
+              }
+            },
+            error: err => {
+              console.error("Cannot load group picture filče: ", err);
+            }
+          });
+
+        } else {
+          console.error("Cannot load group picture id: ", response.description);
+        }
+      },
+      error: err => {
+        console.error("Cannot load group picture id: ", err);
+      }
+    });
+  }
+
 }

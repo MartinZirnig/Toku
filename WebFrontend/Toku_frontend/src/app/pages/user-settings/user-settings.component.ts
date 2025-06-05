@@ -476,10 +476,8 @@ export class UserSettingsComponent {
     });
   }
   loadPictureFile(picId: string, update?: any) : void {
-    console.log('Loading user picture file with ID:', picId);
     this.fileService.getUserFile(picId).subscribe({
       next: file => {
-        console.log(file);
         const reader = new FileReader();
         reader.onload = () => {
           this.userPicture = reader.result as string;

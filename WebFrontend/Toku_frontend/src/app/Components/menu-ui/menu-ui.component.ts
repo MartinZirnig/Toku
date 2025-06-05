@@ -1,4 +1,4 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OpenAndcloseMenuService } from '../../services/open-andclose-menu.service';
 import { IconComponent } from '../icon/icon.component';
@@ -6,15 +6,19 @@ import { User } from '../../data_managements/user';
 import { Redirecter } from '../../data_managements/redirecter.service';
 import { Heart } from '../../data_managements/heart.service';
 import { MessagerService } from '../../data_managements/messager.service';
+import { ProfilePictureCircledComponent } from "../profile-picture-circled/profile-picture-circled.component";
 
 @Component({
   selector: 'app-menu-ui',
   standalone: true,
-  imports: [CommonModule, IconComponent],
+  imports: [CommonModule, IconComponent, ProfilePictureCircledComponent],
   templateUrl: './menu-ui.component.html',
   styleUrls: ['./menu-ui.component.scss']
 })
 export class MenuUiComponent {
+  @Input() picture?: string;
+
+
   showDropdown_user = false;
   isVisible_user = false;
   active_user = false;

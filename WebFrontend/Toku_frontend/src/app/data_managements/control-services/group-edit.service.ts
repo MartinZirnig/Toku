@@ -27,9 +27,9 @@ export class GroupEditService {
   }
 
   updateGroup(
-    groupId: number, name: string, description: string, groupType: number, password: string): Observable<RequestResultModel> {
+    groupId: number, name: string, description: string, groupType: number, password: string, pictureId?: number): Observable<RequestResultModel> {
     const model = new GroupUpdateModel(
-      name, description, groupType, password, groupId
+      name, description, groupType, password, groupId, pictureId
     )
     return this.grpCtrl.update(model);
     }

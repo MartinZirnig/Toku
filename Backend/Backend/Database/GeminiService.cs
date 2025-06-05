@@ -6,6 +6,7 @@ namespace MysqlDatabase;
 
 internal class GeminiService
 {
+    // api key is no more valid
     private const string ApiKey = "AIzaSyAhrgEsKLqSVT6wCMGa-eU8kBWzz1J2tlo";
     private static readonly string Endpoint =
            $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={ApiKey}";
@@ -31,6 +32,9 @@ internal class GeminiService
     }
     private static StringContent BuildQuery(string query)
     {
+        query += "\n\n\n\n\n (max response size = 500 letters! => midlleware limitation, " +
+            "do not response to that part of question and answer in languare userd in query!)";
+
         var requestBody = new
         {
             contents = new[]

@@ -49,4 +49,12 @@ export class FileService {
       observe: 'response',
     });
   }
+    getGroupFile(fileId: string): Observable<any> {
+    const path = this.baseUrl + "/get-file/" + fileId;
+
+    return this.http.get(path, {
+      responseType: 'blob', 
+      observe: 'response',
+    });
+  }
 }

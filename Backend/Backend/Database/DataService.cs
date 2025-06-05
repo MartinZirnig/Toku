@@ -384,19 +384,27 @@ internal class DataService : DatabaseServisLifecycle, IDataService
             await AddGeminiRequestRecordAsync(query.Query, executor, true)
                  .ConfigureAwait(false);
 
+            var login = await SupportService
+                .GetUserDataAsync(executor, Context)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
             var service = new GeminiService();
-            var context = await GetContextAsync(executor);
+            var context = await GetContextAsync(executor)
+                .ConfigureAwait(false);
             service.LoadContext(context);
             var response = await service.AskAiAsync(query.Query)
                 .ConfigureAwait(false);
 
-            await AddGeminiRequestRecordAsync(response, executor, false);
+            await AddGeminiRequestRecordAsync(response, executor, false)
+                .ConfigureAwait(false);
 
             return new StoredMessageModel(
                 0, response,
                 null, null,
                 0, 255,
-                GroupService.GetCorrectTimeFormat(DateTime.UtcNow),
+                GroupService.GetCorrectTimeFormat(DateTime.UtcNow
+                .AddMinutes(-login.TimeZoneOffset)),
                 null, null, "2");
         }
         catch (Exception ex)

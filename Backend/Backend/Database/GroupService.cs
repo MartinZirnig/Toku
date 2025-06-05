@@ -517,6 +517,8 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
             group.Description = model.Description;
             group.Password = HashedValue.HashPassword(model.Password);
             group.GroupType = (GroupType)model.GroupType;
+            if (model.FileId is uint picture)
+                group.PictureId = picture;
 
             await InsertGroupOperation(
                 login.UserId, model.GroupId,
@@ -666,6 +668,57 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
         builder.Append(' ');
         builder.Append(operation.Description);
         return builder.ToString();
+    }
+
+    public async Task<RequestResultModel> SetGroupPictureAsync(uint groupId, uint fileId)
+    {
+        var transaction = await Context.Database
+            .BeginTransactionAsync()
+            .ConfigureAwait(false);
+        try
+        {
+            var group = await Context.Groups
+                .FirstOrDefaultAsync(g => g.GroupId == groupId)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException("Group not found.");
+
+            group.PictureId = fileId;
+
+            await Context.SaveChangesAsync()
+                .ConfigureAwait(false);
+
+            await transaction.CommitAsync()
+                .ConfigureAwait(false);
+
+            return new RequestResultModel(true, string.Empty);
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync()
+                .ConfigureAwait(false);
+
+            return new RequestResultModel(false, ex.Message);
+        }
+    }
+
+    public async Task<RequestResultModel> GetGroupPicture(uint groupId)
+    {
+        try
+        {
+            var group = await Context.Groups
+                .AsNoTracking()
+                .FirstOrDefaultAsync(g => g.GroupId == groupId)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+            return new RequestResultModel(
+                true, group.PictureId.ToString());
+        }
+        catch (Exception ex)
+        {
+            return new RequestResultModel(
+                false, ex.Message);
+        }
     }
 }
 

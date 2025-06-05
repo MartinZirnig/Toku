@@ -13,6 +13,8 @@ import { FormsModule } from '@angular/forms';
 import { ContextMenuPlusService } from '../../services/context-menu-plus.service';
 import { Injectable } from '@angular/core';
 import { ColorManagerService } from '../../services/color-manager.service'; // přidej import
+import { GroupService } from '../../data_managements/services/group-service.service';
+import { FileService } from '../../data_managements/services/file.service';
 
 // Přidej službu pro správu viditelnosti AI skupiny
 @Injectable({ providedIn: 'root' })
@@ -57,6 +59,8 @@ export class ChatMenuUiComponent {
     private contextMenuPlus: ContextMenuPlusService, // přidej službu
     private aiGroupVisibility: AiGroupVisibilityService,
     private colorManager: ColorManagerService, // přidej službu
+    private groupService: GroupService,
+    private fileService: FileService
   ) {
     reloader.groupReload = this.reload.bind(this);
     this.csm = this.colorManager.csm;
@@ -201,13 +205,43 @@ public csm; // přidej csm
   }
 
   reload(){
-    const request = this.loader.getGroups()
-    request.subscribe({
+    this.loader.getGroups().subscribe({
       next: response => {
         this.items = response || [];
         this.filteredItems = this.items;
         User.Groups = this.items.map(group => String(group.groupId));
-        // Přidej AI skupinu na začátek pokud je povolena
+
+        this.items.forEach(group => {
+          this.groupService.getPicture(group.groupId).subscribe({
+            next: response => {
+              if (response.success) {
+                this.fileService.getGroupFile(response.description).subscribe({
+                  next: file => {
+                    if (file){
+                      const reader = new FileReader();
+                      reader.onload = () => {    
+                        group.picture = reader.result as string;                          
+                      };
+                      reader.readAsDataURL(file.body as Blob);
+                    }
+                    else {
+                      console.error(`No picture found for group ${group.groupId}`);
+                    }
+                  },
+                  error: err => {
+                    console.error(`Error loading picture for group ${group.groupId}:`, err);
+                  }
+                });
+              } else {
+                console.error(`Error loading picture id for group ${group.groupId}:`, response.description);
+              }
+            },
+            error: err => {
+              console.error(`Error loading picture id for group ${group.groupId}:`, err);
+            }
+        })
+        });
+
         if (this.aiGroupVisibility.visible) {
           this.filteredItems = [this.aiGroup, ...this.filteredItems];
         }

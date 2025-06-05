@@ -32,7 +32,6 @@ export class MessagerService {
     this.socket.binaryType = "arraybuffer";
 
     this.socket.onopen = (event) => {
-      console.log("Socket opened:", event);
       this.startPeriodicBinaryMessages();
     };
 

@@ -25,6 +25,7 @@ export class ActiveGroupComponent implements AfterViewInit {
   @Input() active: boolean = false;
   @Input() disableContextMenu: boolean = false;
   @Input() hideMenuDots: boolean = false;
+  @Input() picture?: string;
   public csm: ColorSettingsModel;
 
   ngOnChanges() {

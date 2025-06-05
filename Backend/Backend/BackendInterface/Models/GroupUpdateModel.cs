@@ -5,5 +5,6 @@ public record GroupUpdateModel(
     string Description,
     byte GroupType,
     string Password,
-    uint GroupId
+    uint GroupId,
+    uint? FileId = null
     );

@@ -7,13 +7,14 @@ import { EmojiPopupService } from '../../services/emoji-popup.service'; // Impor
 import { FileDownloadPopupService } from '../../services/file-download-popup.service'; // Import new service
 import { ContextMenuMessagesService } from '../../services/context-menu-messages.service';
 import { ProfilePictureCircledComponent } from '../profile-picture-circled/profile-picture-circled.component';
-import { ReplyService } from '../../services/reply.service'; // Přidej import
+import { ReplyService } from '../../services/reply.service';
+import { FormatedTextComponent } from "../formated-text/formated-text.component";
 
 @Component({
   selector: 'app-message-adresator',
   templateUrl: './message-adresator.component.html',
   styleUrls: ['./message-adresator.component.scss'],
-  imports: [NgIf, NgClass, ReactionCounterComponent, ProfilePictureCircledComponent],
+  imports: [NgIf, NgClass, ReactionCounterComponent, ProfilePictureCircledComponent, FormatedTextComponent],
 })
 export class MessageAdresatorComponent implements OnInit {
   @Input() text!: string;
@@ -49,8 +50,6 @@ export class MessageAdresatorComponent implements OnInit {
 
   ngOnInit(): void {
     this.isLongText = this.text.length > 50; // Adjust threshold as needed
-    console.log(this.adresatorPicture);
-    console.log(this.raw);
   }
 
   ngAfterViewInit(): void {

@@ -58,7 +58,6 @@ export class LoginComponent implements OnInit{
 
   private fynishLogin(name: string, password: string) : void {
     const request = this.usrCtrl.login(name, password);
-    console.log(request);
     this.manageLoginResponse(request);
   }
 
@@ -78,6 +77,7 @@ export class LoginComponent implements OnInit{
             this.printError('cannot login user, user data is not valid');
       },
       error: err => {
+        console.error("error in user loading: ", err);
         this.printError('cannot login user, user data is not valid');
       }
 

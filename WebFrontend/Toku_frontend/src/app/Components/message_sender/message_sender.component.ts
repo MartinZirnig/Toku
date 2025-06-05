@@ -16,13 +16,14 @@ import { ContextMenuMessagesComponent } from '../../Components/context-menu-mess
 
 import { MessageControllService } from '../../data_managements/control-services/message-controll.service';
 import { StoredMessageModel } from '../../data_managements/models/stored-message-model';
+import { FormatedTextComponent } from "../formated-text/formated-text.component";
 
 
 @Component({
   selector: 'app-message',
   templateUrl: './message_sender.component.html',
   styleUrls: ['./message_sender.component.scss'],
-  imports: [NgIf, NgClass, FormsModule, NgStyle, ReactionCounterComponent, ContextMenuMessagesComponent],
+  imports: [NgIf, NgClass, FormsModule, NgStyle, ReactionCounterComponent, ContextMenuMessagesComponent, FormatedTextComponent],
 })
 export class 
 Message_senderComponent implements OnInit {

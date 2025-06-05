@@ -1,6 +1,5 @@
 import { NgIf } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
-import { Server } from '../../data_managements/server';
 
 @Component({
   selector: 'app-profile-picture-circled',

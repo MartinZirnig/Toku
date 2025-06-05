@@ -4,6 +4,7 @@ export class GroupUpdateModel {
       public description: string,
       public groupType: number,
       public password: string,
-      public groupId: number   
+      public groupId: number,
+      public fileId?: number
     ) {}
   }

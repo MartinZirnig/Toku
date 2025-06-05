@@ -25,7 +25,7 @@
         <!-- Image content -->
         <img *ngIf="image" [src]="image" alt="Message Image" class="mb-2 rounded-lg max-w-full">
         <!-- Text content -->
-        <p *ngIf="text" class="text-gray-800">{{ text }}</p>
+        <app-formated-text *ngIf="text" class="text-gray-800" [text]="text"></app-formated-text>
         <div class="mt-5 flex">
           <!-- Time -->
           <div class="absolute bottom-2 right-2 flex items-center text-gray-500 text-sm space-x-2">

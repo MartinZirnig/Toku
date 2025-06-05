@@ -2,9 +2,14 @@
 
 public enum GroupClientPermission : byte
 {
-    DenyAll = 0,
-    ReadMessages = 1,
-    EditMessages = 2,
-    EditSettings = 3,
+    IsAllowedToWrite = 0,
+    IsAllowedToSendFiles = 1,
+    CanChangeInformations = 2,
+    CanEditGroup = 3,
+    CanEditGroupPicture = 4,
+    CanAddMembers = 5,
+    CanEditPermissions = 6,
+    CanViewLog = 7,
+
     Admin = 255
 }

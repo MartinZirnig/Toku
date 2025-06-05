@@ -18,9 +18,7 @@ export class Redirecter {
  public ChangePassword() {
    this.router.navigate(['chagepass']);
  }
- public Settings() {
-  this.router.navigate(['/user-settings']);
- }
+
  
  public LastGroup(){
     this.router.navigate(['main'], { fragment: Cache.peek('room') });
@@ -34,7 +32,10 @@ export class Redirecter {
   public Chat(chatId: number) {
     this.router.navigate(['main'], { fragment: String(chatId) });
   }
-
+ public Settings() {
+  this.router.navigate(['/user-settings']);
+ }
+ 
   public GroupSettings(groupId: number) {
     const group = String(groupId);
 
