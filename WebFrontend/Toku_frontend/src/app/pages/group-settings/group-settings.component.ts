@@ -82,6 +82,19 @@ export class GroupSettingsComponent {
   private initialGroupDescription: string = '';
   private initialGroupPassword: string = '';
   private initialGroupMembers: GroupMember[] = [];
+  private initialIsPublicGroup: boolean = false;
+
+  private _isPublicGroup: boolean = false;
+  get isPublicGroup(): boolean {
+    return this._isPublicGroup;
+  }
+  set isPublicGroup(value: boolean) {
+    // Pokud se přepíná z public (true) na private (false), smaž heslo
+    if (this._isPublicGroup && !value) {
+      this.groupPassword = '';
+    }
+    this._isPublicGroup = value;
+  }
 
   @Input() canEditGroup: boolean = true;
   @Input() canEditGroupPicture: boolean = true;
@@ -162,8 +175,9 @@ export class GroupSettingsComponent {
       next: response => {
         this.groupName = response.name;
         this.groupDescription = response.description;
-
-        
+        // Nastav public/private podle hesla (pokud není heslo, je public)
+        this.isPublicGroup = !response.password || response.password;
+        this.groupPassword = typeof response.password === 'string' ? response.password : '';
         // this.groupPicture = response.picture ?? null; // načti profilovku
         // Oprava: Pokud GroupDataModel nemá picture, nastav na null nebo použij správný property
         this.groupPicture = null; // nebo např. response.groupPicture ?? null pokud existuje
@@ -179,9 +193,10 @@ export class GroupSettingsComponent {
     this.initialGroupName = this.groupName;
     this.initialGroupDescription = this.groupDescription;
     this.initialGroupPassword = this.groupPassword;
-    this.initialGroupMembers = this.groupMembers.map(m => m);//.map(m => ({ ...m }));
+    this.initialGroupMembers = this.groupMembers.map(m => m);
     this.initialGroupPicture = this.groupPicture;
     this.initialGroupPictureId = this.groupPictureId;
+    this.initialIsPublicGroup = this.isPublicGroup;
   }
 
   private parseAccessModel(model: GroupUserAccessModel) : GroupMember {
@@ -256,7 +271,8 @@ private hasBasicInfoChanged(): boolean {
   return (
     this.groupName !== this.initialGroupName ||
     this.groupDescription !== this.initialGroupDescription ||
-    this.groupPassword !== this.initialGroupPassword
+    this.groupPassword !== this.initialGroupPassword ||
+    this.isPublicGroup !== this.initialIsPublicGroup
   );
 }
 
@@ -279,8 +295,9 @@ private haveMembersChanged(): boolean {
     this.groupName = this.initialGroupName;
     this.groupDescription = this.initialGroupDescription;
     this.groupPassword = this.initialGroupPassword;
-    this.groupMembers = this.initialGroupMembers.map(m => m);//.map(m => ({ ...m }));
+    this.groupMembers = this.initialGroupMembers.map(m => m);
     this.groupPicture = this.initialGroupPicture;
+    this.isPublicGroup = this.initialIsPublicGroup;
   }
 
   closeGroupSettings(): void {
@@ -398,6 +415,10 @@ private haveMembersChanged(): boolean {
   }
 
   saveGroupSettings(): void {
+    // Pokud je public, heslo se smaže
+    if (this.isPublicGroup) {
+      this.groupPassword = '';
+    }
     this.StoreGroup();
   }
 
@@ -479,7 +500,13 @@ private haveMembersChanged(): boolean {
 
   private CreateGroup(): void {
     // Oprava: odeber groupPicture z argumentů
-    const response = this.grpEdi.createGroup(this.groupName, this.groupDescription, 0, this.groupPassword);
+    // Přidejte isPublicGroup do createGroup pokud backend podporuje, jinak použijte groupPassword podle public/private
+    const response = this.grpEdi.createGroup(
+      this.groupName,
+      this.groupDescription,
+      this.isPublicGroup ? 1 : 0, // nebo použijte správný parametr pro public/private
+      this.isPublicGroup ? '' : this.groupPassword
+    );
     response.subscribe({
       next: response => {
         if (response.success) {
@@ -501,7 +528,13 @@ private haveMembersChanged(): boolean {
   private UpdateGroup(): void {
     console.log("updating group with id: ", this.groupPictureId);
     const response = this.grpEdi.updateGroup(
-      Number(this.roomId), this.groupName, this.groupDescription, 0, this.groupPassword, this.groupPictureId);
+      Number(this.roomId),
+      this.groupName,
+      this.groupDescription,
+      this.isPublicGroup ? 1 : 0, // nebo použijte správný parametr pro public/private
+      this.isPublicGroup ? '' : this.groupPassword,
+      this.groupPictureId
+    );
     response.subscribe({
       next: response => {
         if (response.success) {

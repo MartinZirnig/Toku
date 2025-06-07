@@ -100,7 +100,7 @@ export class ColorManagerService {
         128, 255,115,227
       ), // gradientButtonDisabled
 
-      new ArgbColorModel(128, 55,65,81), // buttonDisabled: #37415180
+      new ArgbColorModel(55,65,81,128), // buttonDisabled: #37415180
       new GradientArgbColorModel(
         255, 70,243,255,
         255, 82,138,169,
@@ -109,15 +109,15 @@ export class ColorManagerService {
         255, 123,100,154,
         255, 255,115,227
       ), // buttonActive (stejný jako confirmGradientButton)
-      new ArgbColorModel(255, 30, 41, 59), // secondaryButton: #1e293b
-      new ArgbColorModel(255, 51, 65, 85), // secondaryButtonHover: #334155
-      new ArgbColorModel(255, 51, 65, 85), // closeButtonBackground: #334155
-      new ArgbColorModel(255, 71, 85, 105), // closeButtonBackgroundHover: #475569
-      new ArgbColorModel(255, 255, 255, 255), // closeButtonIcon: #fff
+      new ArgbColorModel(30, 41, 59,255), // secondaryButton: #1e293b
+      new ArgbColorModel(51, 65, 85,255), // secondaryButtonHover: #334155
+      new ArgbColorModel(51, 65, 85,255), // closeButtonBackground: #334155
+      new ArgbColorModel(71, 85, 105,255), // closeButtonBackgroundHover: #475569
+      new ArgbColorModel(255, 255, 255,255), // closeButtonIcon: #fff
 
       // BACKGROUNDS
-      new ArgbColorModel(102, 0, 0, 0), // overlayBackground: rgba(0,0,0,0.4)
-      new ArgbColorModel(255, 30, 41, 59), // popupBackground: #1e293b
+      new ArgbColorModel( 0, 0, 0,102), // overlayBackground: rgba(0,0,0,0.4)
+      new ArgbColorModel(30, 41, 59,255), // popupBackground: #1e293b
       new GradientArgbColorModel(
         255, 50,50,50,    // #323232 0%
         255, 30,30,60,    // #1e1e3c 20%
@@ -126,23 +126,23 @@ export class ColorManagerService {
         255, 5,5,30,      // #05051e 80%
         255, 0,0,0        // #000000 100%
       ), // mainBackground (viz .gradient-bg ve styles.scss)
-      new ArgbColorModel(255, 31, 41, 55), // sidebarBackground: #1f2937
-      new ArgbColorModel(255, 35, 41, 58), // inputBackground: #23293a
-      new ArgbColorModel(255, 30, 41, 59), // inputBackgroundFocus: #1e293b
-      new ArgbColorModel(255, 31, 41, 55), // cardBackground: #1f2937
-      new ArgbColorModel(255, 30, 41, 59), // highlightBackground: #1e293b
-      new ArgbColorModel(255, 31, 41, 55), // menuBackground: #1f2937
-      new ArgbColorModel(255, 31, 41, 55), // menuDropdownBackground: #1f2937
-      new ArgbColorModel(255, 55, 65, 81), // menuDropdownItemHoverBackground: #374151
+      new ArgbColorModel(31, 41, 55, 255), // sidebarBackground: #1f2937
+      new ArgbColorModel(35, 41, 58, 255), // inputBackground: #23293a
+      new ArgbColorModel(30, 41, 59, 255), // inputBackgroundFocus: #1e293b
+      new ArgbColorModel(31, 41, 55, 255), // cardBackground: #1f2937
+      new ArgbColorModel(30, 41, 59, 255), // highlightBackground: #1e293b
+      new ArgbColorModel(31, 41, 55, 255), // menuBackground: #1f2937
+      new ArgbColorModel(31, 41, 55, 255), // menuDropdownBackground: #1f2937
+      new ArgbColorModel(55, 65, 81, 255), // menuDropdownItemHoverBackground: #374151
       new GradientArgbColorModel(
-        180, 0,0,0,      // rgba(0,0,0,0.7)
+        0.7, 0,0,0,      // rgba(0,0,0,0.7)
         0, 0,0,0,        // transparent
         0, 0,0,0,
         0, 0,0,0,
         0, 0,0,0,
         0, 0,0,0
       ), // menuBarBackground
-      new ArgbColorModel(255, 30, 41, 59), // inputBarBackground: #1e293b
+      new ArgbColorModel(30, 41, 59,255), // inputBarBackground: #1e293b
       new ArgbColorModel(51, 65, 85, 51), // inputBarShadow: #33415533
       new GradientArgbColorModel(
         255, 55,65,81,   // #374151 0%
@@ -160,18 +160,18 @@ export class ColorManagerService {
         255, 17,24,39,
         255, 17,24,39
       ), // avatarGradientBackground
-      new ArgbColorModel(255, 31, 41, 55), // messageSenderBackground: #1f2937
-      new ArgbColorModel(255, 255, 255, 204), // messageAdresatorBackground: #ffffffcc (white/80)
+      new ArgbColorModel( 31, 41, 55 ,255), // messageSenderBackground: #1f2937
+      new ArgbColorModel(255, 255, 255, 255), // messageAdresatorBackground: #ffffffcc (white/80)
       new ArgbColorModel(0, 0, 0, 0), // messagePreviewBackground: transparent (používá bg-black v html)
-      new ArgbColorModel(255, 30, 58, 138), // messageFilePreviewBackground: #1e3a8a (blue-900)
-      new ArgbColorModel(255, 71, 85, 105), // messageAvatarBackground: #475569
-      new ArgbColorModel(255, 107, 114, 128), // reactionCounterBackground: #6b7280
-      new ArgbColorModel(255, 55, 65, 81), // reactionPopupBackground: #374151
-      new ArgbColorModel(255, 55, 65, 81), // reactionPopupItemBackground: #374151
-      new ArgbColorModel(255, 71, 85, 105), // reactionPopupItemHoverBackground: #475569
+      new ArgbColorModel(30, 58, 138,255), // messageFilePreviewBackground: #1e3a8a (blue-900)
+      new ArgbColorModel(71, 85, 105,255), // messageAvatarBackground: #475569
+      new ArgbColorModel(107, 114, 128,255), // reactionCounterBackground: #6b7280
+      new ArgbColorModel(55, 65, 81,255), // reactionPopupBackground: #374151
+      new ArgbColorModel(55, 65, 81,255), // reactionPopupItemBackground: #374151
+      new ArgbColorModel(71, 85, 105,255), // reactionPopupItemHoverBackground: #475569
 
       // BORDERS
-      new ArgbColorModel(255, 255, 0, 255), // popupBorder: #ff00ff (dummy, override in popup)
+      new ArgbColorModel(82,138,169, 255), // popupBorder: #ff00ff (dummy, override in popup)
       new GradientArgbColorModel(
         255, 70,243,255,
         255, 82,138,169,
@@ -188,42 +188,42 @@ export class ColorManagerService {
         255, 123,100,154,
         255, 255,115,227
       ), // mainBorder
-      new ArgbColorModel(255, 51, 65, 85), // inputBorder: #334155
-      new ArgbColorModel(255, 124, 58, 237), // inputBorderFocus: #7c3aed
-      new ArgbColorModel(255, 220, 38, 38), // errorBorder: #dc2626
-      new ArgbColorModel(255, 55, 65, 81), // listBorder: #374151
-      new ArgbColorModel(255, 100, 116, 139), // replyPreviewBarBorder: #64748b
-      new ArgbColorModel(255, 55, 65, 81), // listDivider: #374151
+      new ArgbColorModel( 51, 65, 85,255), // inputBorder: #334155
+      new ArgbColorModel( 124, 58, 237,255), // inputBorderFocus: #7c3aed
+      new ArgbColorModel( 220, 38, 38,255), // errorBorder: #dc2626
+      new ArgbColorModel( 55, 65, 81,255), // listBorder: #374151
+      new ArgbColorModel( 100, 116, 139,255), // replyPreviewBarBorder: #64748b
+      new ArgbColorModel( 55, 65, 81,255), // listDivider: #374151
 
       // TEXTS
-      new ArgbColorModel(255, 255, 255, 255), // primaryText: #fff
-      new ArgbColorModel(255, 203, 213, 225), // secondaryText: #cbd5e1
-      new ArgbColorModel(255, 156, 163, 175), // mutedText: #9ca3af
-      new ArgbColorModel(255, 156, 163, 175), // disabledText: #9ca3af
-      new ArgbColorModel(255, 248, 113, 113), // dangerText: #f87171
-      new ArgbColorModel(255, 34, 197, 94), // successText: #22c55e
-      new ArgbColorModel(255, 255, 255, 255), // buttonText: #fff
-      new ArgbColorModel(255, 255, 255, 255), // headingText: #fff
-      new ArgbColorModel(255, 255, 255, 255), // messageSenderText: #fff
-      new ArgbColorModel(255, 31, 41, 55), // messageAdresatorText: #1f2937
-      new ArgbColorModel(255, 229, 231, 235), // messagePreviewText: #e5e7eb
-      new ArgbColorModel(255, 219, 234, 254), // messageFilePreviewText: #dbeafe
-      new ArgbColorModel(255, 147, 197, 253), // messageFilePreviewIcon: #93c5fd
-      new ArgbColorModel(255, 255, 255, 255), // reactionCounterText: #fff
-      new ArgbColorModel(255, 255, 255, 255), // reactionPopupItemText: #fff
-      new ArgbColorModel(255, 255, 255, 255), // popupText: #fff
-      new ArgbColorModel(255, 255, 255, 255), // inputText: #fff
-      new ArgbColorModel(255, 100, 116, 139), // inputPlaceholder: #64748b
-      new ArgbColorModel(255, 255, 255, 255), // fileCountCircleText: #fff
-      new ArgbColorModel(255, 255, 255, 255), // menuActionText: #fff
-      new ArgbColorModel(255, 156, 163, 175), // menuActionDisabledText: #9ca3af
-      new ArgbColorModel(255, 248, 113, 113), // menuDeleteText: #f87171
-      new ArgbColorModel(255, 255, 255, 255), // avatarIconColor: #fff
+      new ArgbColorModel(255, 255, 255,255), // primaryText: #fff
+      new ArgbColorModel(203, 213, 225,255), // secondaryText: #cbd5e1
+      new ArgbColorModel(156, 163, 175,255), // mutedText: #9ca3af
+      new ArgbColorModel(156, 163, 175,255), // disabledText: #9ca3af
+      new ArgbColorModel(248, 113, 113,255), // dangerText: #f87171
+      new ArgbColorModel(34, 197, 94,255), // successText: #22c55e
+      new ArgbColorModel(255, 255, 255,255), // buttonText: #fff
+      new ArgbColorModel(255, 255, 255,255), // headingText: #fff
+      new ArgbColorModel(255, 255, 255,255), // messageSenderText: #fff
+      new ArgbColorModel(31, 41, 55,255), // messageAdresatorText: #1f2937
+      new ArgbColorModel(229, 231, 235,255), // messagePreviewText: #e5e7eb
+      new ArgbColorModel(219, 234, 254,255), // messageFilePreviewText: #dbeafe
+      new ArgbColorModel(147, 197, 253,255), // messageFilePreviewIcon: #93c5fd
+      new ArgbColorModel(255, 255, 255,255), // reactionCounterText: #fff
+      new ArgbColorModel(255, 255, 255,255), // reactionPopupItemText: #fff
+      new ArgbColorModel(255, 255, 255,255), // popupText: #fff
+      new ArgbColorModel(255, 255, 255,255), // inputText: #fff
+      new ArgbColorModel(100, 116, 139,255), // inputPlaceholder: #64748b
+      new ArgbColorModel(255, 255, 255,255), // fileCountCircleText: #fff
+      new ArgbColorModel(255, 255, 255,255), // menuActionText: #fff
+      new ArgbColorModel(156, 163, 175,255), // menuActionDisabledText: #9ca3af
+      new ArgbColorModel(248, 113, 113,255), // menuDeleteText: #f87171
+      new ArgbColorModel(255, 255, 255,255), // avatarIconColor: #fff
 
       // STATUS
-      new ArgbColorModel(255, 248, 113, 113), // errorBackground: #f87171
-      new ArgbColorModel(255, 34, 197, 94), // successBackground: #22c55e
-      new ArgbColorModel(255, 251, 191, 36), // warningBackground: #fbbf24
+      new ArgbColorModel( 248, 113, 113, 255), // errorBackground: #f87171
+      new ArgbColorModel( 34, 197, 94, 255), // successBackground: #22c55e
+      new ArgbColorModel( 251, 191, 36, 255), // warningBackground: #fbbf24
 
       // SWITCHES & SLIDERS
       new GradientArgbColorModel(
@@ -247,7 +247,7 @@ export class ColorManagerService {
 
       // SCROLLBARS
       new ArgbColorModel(77, 179, 179, 179), // scrollbarThumb: #b3b3b3, opacity 0.3
-      new ArgbColorModel(255,179, 179, 179), // scrollbarThumbHover: #b3b3b3, opacity 1
+      new ArgbColorModel(179, 179, 179,255), // scrollbarThumbHover: #b3b3b3, opacity 1
       new ArgbColorModel(0, 0, 0, 0), // scrollbarTrack: transparent
       new ArgbColorModel(55, 65, 81, 0), // inputScrollbarTrack: #37415100
       new GradientArgbColorModel(
@@ -277,15 +277,15 @@ export class ColorManagerService {
       new ArgbColorModel(35, 41, 58, 68), // messageShadow: #23293a44
       new ArgbColorModel(255, 35, 41, 58), // profilePictureBackground: #23293a
       new ArgbColorModel(0, 0, 0, 0), // fileCountCircleBackground: transparent
-      new ArgbColorModel(255, 100, 116, 139), // replyPreviewBarCloseButton: #64748b
-      new ArgbColorModel(255, 255, 255, 255), // replyPreviewBarCloseButtonHover: #fff
-      new ArgbColorModel(255, 55, 65, 81), // messagePlaceholder: #374151
-      new ArgbColorModel(255, 107, 114, 128), // messageStatusIcon: #6b7280
-      new ArgbColorModel(255, 34, 211, 238), // messageStatusReadIcon: #22d3ee (cyan-400)
-      new ArgbColorModel(255, 255, 255, 128), // inputSpinnerDot: rgba(255,255,255,0.5)
-      new ArgbColorModel(255, 255, 255, 128), // inputSpinnerText: rgba(255,255,255,0.5)
-      new ArgbColorModel(255, 55, 65, 81), // popupProgressTrack: #374151
-      new ArgbColorModel(255, 124, 58, 237), // popupProgress: #7c3aed
+      new ArgbColorModel(100, 116, 139,255), // replyPreviewBarCloseButton: #64748b
+      new ArgbColorModel(255, 255, 255,255), // replyPreviewBarCloseButtonHover: #fff
+      new ArgbColorModel(55, 65, 81,255), // messagePlaceholder: #374151
+      new ArgbColorModel(107, 114, 128,255), // messageStatusIcon: #6b7280
+      new ArgbColorModel(34, 211, 238,255), // messageStatusReadIcon: #22d3ee (cyan-400)
+      new ArgbColorModel(255, 255, 128,255), // inputSpinnerDot: rgba(255,255,255,0.5)
+      new ArgbColorModel(255, 255, 128,255), // inputSpinnerText: rgba(255,255,255,0.5)
+      new ArgbColorModel(55, 65, 81,255), // popupProgressTrack: #374151
+      new ArgbColorModel(124, 58, 237,255), // popupProgress: #7c3aed
       new ArgbColorModel(35, 41, 58, 68), // reactionPopupShadow: #23293a44
       new GradientArgbColorModel(
         255, 70,243,255,
@@ -304,22 +304,22 @@ export class ColorManagerService {
         255, 70,243,255
       ), // menuButtonGradientHover
       new ArgbColorModel(0, 0, 0, 77), // menuButtonBackground: #0000004d (bg-black/30)
-      new ArgbColorModel(255, 55, 65, 81), // menuButtonBackgroundHover: #374151
-      new ArgbColorModel(255, 59, 130, 246), // menuButtonIconHover: #3b82f6
-      new ArgbColorModel(255, 31, 41, 55), // menuActionBackground: #1f2937
-      new ArgbColorModel(255, 55, 65, 81), // menuActionBackgroundHover: #374151
-      new ArgbColorModel(255, 255, 255, 255), // menuActionIcon: #fff
-      new ArgbColorModel(255, 59, 130, 246), // menuActionIconHover: #3b82f6
-      new ArgbColorModel(255, 55, 65, 81), // menuActionDisabledBackground: #374151
-      new ArgbColorModel(255, 156, 163, 175), // menuActionDisabledIcon: #9ca3af
-      new ArgbColorModel(255, 220, 38, 38), // menuDeleteBackground: #dc2626
-      new ArgbColorModel(255, 190, 24, 93), // menuDeleteBackgroundHover: #be185d
-      new ArgbColorModel(255, 255, 255, 255), // menuDeleteIcon: #fff
-      new ArgbColorModel(255, 255, 255, 255), // menuDeleteIconHover: #fff
-      new ArgbColorModel(255, 31, 41, 55), // listBackground: #1f2937
-      new ArgbColorModel(255, 51, 65, 85), // listItemHover: #334155
-      new ArgbColorModel(255, 59, 130, 246), // listItemActive: #3b82f6
-      new ArgbColorModel(255, 59, 130, 246) // listItemRing: #3b82f6
+      new ArgbColorModel(55, 65, 81, 255), // menuButtonBackgroundHover: #374151
+      new ArgbColorModel(59, 130, 246 ,255), // menuButtonIconHover: #3b82f6
+      new ArgbColorModel(31, 41, 55,255), // menuActionBackground: #1f2937
+      new ArgbColorModel(55, 65, 81,255), // menuActionBackgroundHover: #374151
+      new ArgbColorModel(255, 255, 255,255), // menuActionIcon: #fff
+      new ArgbColorModel(59, 130, 246,255), // menuActionIconHover: #3b82f6
+      new ArgbColorModel(55, 65, 81,255), // menuActionDisabledBackground: #374151
+      new ArgbColorModel(156, 163, 175,255), // menuActionDisabledIcon: #9ca3af
+      new ArgbColorModel(220, 38, 38,255), // menuDeleteBackground: #dc2626
+      new ArgbColorModel(190, 24, 93,255), // menuDeleteBackgroundHover: #be185d
+      new ArgbColorModel(255, 255, 255,255), // menuDeleteIcon: #fff
+      new ArgbColorModel(255, 255, 255,255), // menuDeleteIconHover: #fff
+      new ArgbColorModel(31, 41, 55,255), // listBackground: #1f2937
+      new ArgbColorModel(51, 65, 85,255), // listItemHover: #334155
+      new ArgbColorModel(59, 130, 246,255), // listItemActive: #3b82f6
+      new ArgbColorModel(59, 130, 246, 255) // listItemRing: #3b82f6
     );
   }
 }
