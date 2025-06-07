@@ -5,6 +5,9 @@ import { CommonModule } from '@angular/common';
 import { ChatLoginPopupGroupListComponent } from '../chat-login-popup-group-list/chat-login-popup-group-list.component';
 import { ColorManagerService } from '../../services/color-manager.service';
 import { ColorSettingsModel } from '../../data_managements/models/color-settings-model';
+import { GroupService } from '../../data_managements/services/group-service.service';
+import { PopUpComponent } from '../pop-up/pop-up.component';
+import { PopUpService } from '../../services/pop-up.service';
 
 @Component({
   selector: 'app-chat-login',
@@ -27,7 +30,9 @@ export class ChatLoginComponent {
 
   constructor(
     private fb: FormBuilder,
-    private colorManager: ColorManagerService
+    private colorManager: ColorManagerService,
+    private groupService: GroupService,
+    private popup: PopUpService
   ) {
     this.loginForm = this.fb.group({
       groupName: ['', Validators.required],
@@ -78,7 +83,28 @@ export class ChatLoginComponent {
       this.errorMessage = 'Please fill in all fields correctly.';
       return;
     }
-    // ...implement chat login logic here...
+
+    const name : string = this.loginForm.value.groupName;
+    const id : number = this.loginForm.value.groupId;
+    const password : string | null = this.loginForm.value.password;
+
+    this.groupService.joinGroup(id, name, password ?? undefined).subscribe({
+      next: response => {
+        if (response.success) {
+          this.loginForm.reset();
+          this.popup.showMessage(`Vítejte ve skupině ${name}#${id}`);
+          
+        } else {
+          this.errorMessage = 'Cannot join group, login is not valid.';
+          console.error('Error joining group:', response.description);
+        }
+      },
+      error: (err) => {
+        this.errorMessage = 'Cannot join group, login is not valid.';
+        console.error('Error joining group:', err);
+      } 
+    })
+
     this.errorMessage = '';
   }
 

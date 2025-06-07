@@ -22,4 +22,6 @@ public interface IGroupService : IDisposable
 
     Task<RequestResultModel> SetGroupPictureAsync(uint groupId, uint fileId);
     Task<RequestResultModel> GetGroupPicture(uint groupId);
+    Task<RequestResultModel> JoinGroupAsync(GroupJoinModel model, Guid executor);
+    Task<IEnumerable<PublicGroupInfoModel>> GetPublicGroupsAsync(Guid executor);
 }

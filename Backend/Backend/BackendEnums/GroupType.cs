@@ -2,6 +2,7 @@
 
 public enum GroupType : byte
 {
-    General = 0,
-    TwoUser = 1
+    Private = 0,
+    Public = 1,
+    TwoUser = 2,
 }

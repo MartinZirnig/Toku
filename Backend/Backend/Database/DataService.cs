@@ -167,15 +167,26 @@ internal class DataService : DatabaseServisLifecycle, IDataService
 
     public async Task<IEnumerable<StoredMessageModel>> GetGroupMessagesAsync(Guid user, uint groupId, uint? messageCount)
     {
-        if (messageCount is null) messageCount = int.MaxValue;
+        if (groupId == 0) return [];
+        messageCount ??= int.MaxValue;
 
         var userData = await SupportService.GetUserDataAsync(user, Context);
         if (userData is null) return [];
 
+        var member = await SupportService
+            .GetGroupClientAsync(userData.UserId, groupId, Context)
+            .ConfigureAwait(false)
+            ?? throw new UnauthorizedAccessException();
+
         var messageIds = await Context.Messages
             .AsNoTracking()
+            .Include(m => m.MessageStatuses)
             .Where(m => m.GroupId == groupId)
             .Where(m => m.DeletedTime == null)
+            .Where(m => m.MessageStatuses
+                .All(ms =>
+                    ms.ClientId != member.ClientId
+                    || ms.HideTime == null))
             .OrderBy(m => m.CreatedTime)
             .Select(m => m.MessageId)
             .Take((int)messageCount)
@@ -465,5 +476,55 @@ internal class DataService : DatabaseServisLifecycle, IDataService
             .ConfigureAwait(false);
         await Context.SaveChangesAsync()
             .ConfigureAwait(false);
+    }
+
+    public async Task<RequestResultModel> HideMessageAsync(Guid executor, uint messageId)
+    {
+        await using var transaction = await Context.Database
+            .BeginTransactionAsync()
+            .ConfigureAwait(false);
+        try
+        {
+            var login = await SupportService
+                .GetUserDataAsync(executor, Context)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+            var message = await Context.Messages
+                .FirstOrDefaultAsync(m => m.MessageId == messageId)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+            var client = await Context.Clients
+                .Include(c => c.GroupRelations)
+                .FirstOrDefaultAsync(c =>
+                    c.UserId == login.UserId
+                    && c.GroupRelations
+                        .Any(gr => gr.GroupId == message.GroupId))
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+            await Context.MessageStatuses
+                .Where(ms => ms.MessageId == messageId
+                && ms.ClientId == client.ClientId)
+                .ExecuteUpdateAsync(s =>
+                    s.SetProperty(x => x.HideTime, DateTime.UtcNow))
+                .ConfigureAwait(false);
+
+            await Context.SaveChangesAsync()
+                .ConfigureAwait(false);
+
+            await transaction.CommitAsync()
+                .ConfigureAwait(false);
+
+            return new RequestResultModel(
+                true, string.Empty);
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            return new RequestResultModel(
+                false, ex.Message);
+        }
     }
 }

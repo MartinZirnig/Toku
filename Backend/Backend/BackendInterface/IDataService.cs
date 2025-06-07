@@ -12,6 +12,7 @@ public interface IDataService : IDisposable
         Guid user, uint groupId, uint? messageCount);
     Task<RequestResultModel> UpdateMessageAsync(MessageEditModel model);
     Task<RequestResultModel> RemoveMessageAsync(MessageRemoveModel model);
+    Task<RequestResultModel> HideMessageAsync(Guid executor, uint messageId);
 
     Task<StoredMessageModel> AskAiAsync(AiQueryModel query, Guid executor);
     Task<RequestResultModel> ClearAiAsync(Guid executor);

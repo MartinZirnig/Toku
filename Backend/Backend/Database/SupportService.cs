@@ -11,7 +11,7 @@ internal static class SupportService
         var user = await context.UserLogins
             .AsNoTracking()
             .Include(x => x.User)
-            .ThenInclude(x => x.Key)
+                .ThenInclude(x => x.Key)
             .FirstOrDefaultAsync(x => x.SessionId == identification)
             .ConfigureAwait(false);
 

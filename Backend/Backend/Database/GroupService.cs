@@ -63,7 +63,7 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
             Name = model.Name,
             PictureId = 1,
             Description = model.Description,
-            GroupType = GroupType.General,
+            GroupType = GroupType.Private,
             TwoUserIdentifier = null,
             Password = HashedValue.HashPassword(model.Password),
             CreatedTime = DateTime.UtcNow,
@@ -79,10 +79,10 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
 
     public async Task<RequestResultModel> AddUserToGroupAsync(GroupAddUserModel model)
     {
-        using var off = new ConstraintOff(Context);
         await using var transaction = await Context.Database
             .BeginTransactionAsync()
             .ConfigureAwait(false);
+        using var off = new ConstraintOff(Context);
         try
         {
             if (await ExistsClient(model))
@@ -115,7 +115,10 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
     }
     private async Task<uint> InsertNewClientAsync(GroupAddUserModel model)
     {
-        var user = (await SupportService.GetUserById(model.userId, Context))!;
+        var user = await SupportService
+            .GetUserById(model.userId, Context)!
+            .ConfigureAwait(false)
+            ?? throw new UnauthorizedAccessException();
 
         var client = new Client()
         {
@@ -640,7 +643,7 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
                 ?? [];
 
             var sb = new StringBuilder();
-            foreach(var record in records)
+            foreach (var record in records)
             {
                 sb.AppendLine(BuildLogLine(record));
             }
@@ -718,6 +721,88 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
         {
             return new RequestResultModel(
                 false, ex.Message);
+        }
+    }
+
+    public async Task<RequestResultModel> JoinGroupAsync(GroupJoinModel model, Guid executor)
+    {
+        await using var transaction = await Context.Database
+            .BeginTransactionAsync()
+            .ConfigureAwait(false);
+        using var off = new ConstraintOff(Context);
+
+        try
+        {
+            var login = await SupportService
+                .GetUserDataAsync(executor, Context)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException("User not found or unauthorized.");
+
+            var group = await Context.Groups
+                .FirstOrDefaultAsync(g => g.GroupId == model.GroupId)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException("Group not found.");
+
+            if (!group.Password?.VerifyPassword(model.Password ?? string.Empty) ?? false)
+                return new RequestResultModel(false, "Incorrect password.");
+
+            var newUserModel = new GroupAddUserModel(
+               login.UserId, model.GroupId, GroupClientPermission.IsAllowedToWrite);
+
+
+            if (await ExistsClient(newUserModel))
+                return new RequestResultModel(true, "Already a member of the group.");
+
+            var clientId = await InsertNewClientAsync(newUserModel)
+                .ConfigureAwait(false);
+
+            await InsertClientGroupRelation(newUserModel, clientId)
+                .ConfigureAwait(false);
+
+            await InsertGroupOperation(
+                login.UserId, model.GroupId,
+                login.Name, OperationCode.Join);
+
+            await Context.SaveChangesAsync()
+                .ConfigureAwait(false);
+
+            await transaction.CommitAsync()
+                .ConfigureAwait(false);
+
+            return new RequestResultModel(true, string.Empty);
+        }
+        catch (Exception ex)
+        {
+            return new RequestResultModel(
+                false, ex.Message);
+        }
+    }
+
+    public async Task<IEnumerable<PublicGroupInfoModel>> GetPublicGroupsAsync(Guid executor)
+    {
+        try
+        {
+            var login = await SupportService
+                .GetUserDataAsync(executor, Context)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException("User not found or unauthorized.");
+
+            return await Context.Groups
+                .AsNoTracking()
+                .Where(g => g.GroupType == GroupType.Public)
+                .Where(g => !g.GroupClients
+                    .Any(gc =>
+                        gc.Client.UserId == login.UserId))
+                .Select(g =>
+                    new PublicGroupInfoModel(
+                        g.Name, g.GroupId, g.PictureId)
+                    )
+                .ToListAsync()
+                .ConfigureAwait(false);
+        }
+        catch
+        {
+            return [];
         }
     }
 }

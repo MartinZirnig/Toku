@@ -1,10 +1,11 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ProfilePictureCircledComponent } from '../profile-picture-circled/profile-picture-circled.component';
 import { KnownUserDataModel } from '../../data_managements/models/known-user-data-model';
 import { NgFor, NgIf } from '@angular/common';
 import { ColorManagerService } from '../../services/color-manager.service';
 import { ColorSettingsModel } from '../../data_managements/models/color-settings-model';
+import { UserService } from '../../data_managements/services/user.service';
 
 @Component({
   selector: 'app-add-contact-popup',
@@ -13,7 +14,7 @@ import { ColorSettingsModel } from '../../data_managements/models/color-settings
   templateUrl: './add-contact-popup.component.html',
   styleUrl: './add-contact-popup.component.scss'
 })
-export class AddContactPopupComponent {
+export class AddContactPopupComponent implements OnInit {
   // Pokud nejsou předány, použij statické záznamy
   @Input() allUsers: KnownUserDataModel[] = [];
   @Input() existingContacts: KnownUserDataModel[] = [];
@@ -21,23 +22,29 @@ export class AddContactPopupComponent {
   @Output() addContact = new EventEmitter<KnownUserDataModel>();
 
   search: string = '';
+  usrs: KnownUserDataModel[] = [];
 
-  ngonInit() {
-  alert('AddContactPopupComponent initialized');
-  }
   // Statické záznamy pro fallback, pokud není předán žádný seznam
   staticUsers: KnownUserDataModel[] = [
+    /*
     { userId: 1, name: 'Alice Example' },
     { userId: 2, name: 'Bob Demo' },
     { userId: 3, name: 'Charlie Test' },
     { userId: 4, name: 'Diana Sample' },
     { userId: 5, name: 'Eve Static' }
-  ];
+    */
+    ];
 
   public csm: ColorSettingsModel;
 
-  constructor(private colorManager: ColorManagerService) {
+  constructor(
+    private colorManager: ColorManagerService,
+    private userService: UserService
+  ) {
     this.csm = colorManager.csm;
+  }
+  ngOnInit(): void {
+    this.seach();
   }
 
   ngAfterViewInit() {
@@ -90,14 +97,39 @@ export class AddContactPopupComponent {
   }
 
   get filteredStaticUsers(): KnownUserDataModel[] {
+    /*
     const q = (this.search || '').trim().toLowerCase();
     return this.staticUsers.filter(u =>
       (!q || (u.name && u.name.toLowerCase().includes(q))) &&
       !this.existingContacts.some(c => c.userId === u.userId)
     );
+    */
+   return this.allUsers;
   }
 
   onAdd(user: KnownUserDataModel) {
     this.addContact.emit(user);
+  }
+
+  seach() {
+    if (this.search.trim() === '') {
+      this.userService.getKnownUsers().subscribe({
+        next: users => {
+          this.usrs = users;
+        },
+        error: (err) => {
+          console.error('Error fetching known users:', err);
+        }
+      })
+    } else {
+      this.userService.searchUsers(this.search).subscribe({
+        next: users => {
+          this.usrs = users;
+        },
+        error: (err) => {
+          console.error('Error searching users:', err);
+        }
+      });
+    }
   }
 }

@@ -119,5 +119,14 @@ public sealed class MessageController : ControllerBase
 
         return Ok(result);
     }
+    [HttpDelete("hide-message")]
+    public async Task<IActionResult> HideMessageAsync([FromQuery] uint messageId)
+    {
+        using var service = _serviceProvider.GetDataService();
+        var user = (Guid)AuthorizationAttribute.GetUID(HttpContext)!;
+        var result = await service.HideMessageAsync(user, messageId)
+            .ConfigureAwait(false);
+        return Ok(result);
+    }
 
 }

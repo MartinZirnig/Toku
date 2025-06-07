@@ -7,6 +7,7 @@ import { User } from '../user';
 import { Server } from '../server';
 import { KnownUserDataModel } from '../models/known-user-data-model';
 import { UserPermissionModel } from '../models/user-permission-model';
+import { ContactEditModel } from '../models/contact-edit-model';
 
 @Injectable({
   providedIn: 'root'
@@ -49,5 +50,19 @@ export class UserService {
     param = param.append("userId", userId.toString());
 
     return this.http.get<RequestResultModel>(path, {params: param});
+  }
+
+  public searchUsers(search: string): Observable<KnownUserDataModel[]> {
+    const path: string = this.url + "/search-user";  
+    let param = new HttpParams();
+    param = param.append("query", search);
+
+    return this.http.get<KnownUserDataModel[]>(path, {params: param})
+  }
+
+  public updateContact(model: ContactEditModel) : Observable<RequestResultModel> {
+    const path: string = this.url + "/update-contact";  
+
+    return this.http.patch<RequestResultModel>(path, model);
   }
 }

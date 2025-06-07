@@ -1,5 +1,5 @@
 import { NgClass, NgFor, NgIf } from '@angular/common';
-import { Component, HostListener, Input } from '@angular/core';
+import { Component, HostListener, Input, model } from '@angular/core';
 import { FormsModule, NgModel } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { User } from '../../data_managements/user';
@@ -15,6 +15,7 @@ import { ProfilePictureCircledComponent } from '../../Components/profile-picture
 import { AddContactPopupComponent } from '../../Components/add-contact-popup/add-contact-popup.component';
 import { UserService } from '../../data_managements/services/user.service';
 import { FileService } from '../../data_managements/services/file.service';
+import { ContactEditModel } from '../../data_managements/models/contact-edit-model';
 
 export type SwipeAction = 'reply' | 'react' | 'copy' | 'delete' | 'edit';
 
@@ -47,6 +48,7 @@ export class UserSettingsComponent {
 
   selectedTab: 'user' | 'general' | 'contacts' = 'user';
 
+  originalContacts: KnownUserDataModel[] = [];
   contacts: KnownUserDataModel[] = [];
   allKnownUsers: KnownUserDataModel[] = [];
   searchQuery: string = '';
@@ -104,6 +106,7 @@ export class UserSettingsComponent {
     this.usrCtrl.getKnownUsers().subscribe({
       next: (data: KnownUserDataModel[]) => {
         this.contacts = data;
+        this.originalContacts = data.map(c => c); 
       },
       error: (error: any) => {
         console.error('Error fetching contacts:', error);
@@ -186,7 +189,8 @@ export class UserSettingsComponent {
       this.userPhone !== this.originalPhone ||
       this.userEmail !== this.originalEmail ||
       this.showAiGroup !== this.originalShowAiGroup ||
-      this.userPicture !== this.originalUserPicture; // přidáno
+      this.userPicture !== this.originalUserPicture ||
+      !this.isSubsequence(this.contacts, this.originalContacts); // přidáno
 
     if (changed) {
       this.showAreYouSure = true;
@@ -369,10 +373,23 @@ export class UserSettingsComponent {
       this.closeAddContactInput();
       return;
     }
-    // TODO: Zde zavolejte API pro přidání kontaktu, pokud existuje
-    this.contacts = [...this.contacts, user];
-    this.closeAddContactInput();
-    // Pokud bude API, po úspěchu zavolejte this.loadContacts();
+    const model = new ContactEditModel(
+          user.userId,
+          true
+        );
+    this.userService.updateContact(model).subscribe({
+      next: response => {
+          if (response.success) {
+            this.contacts = [...this.contacts, user];
+            this.closeAddContactInput();
+          } else {
+            console.error(`Error in adding contact: `, response.description)
+          }
+      },
+      error: err => {
+        console.error(`Error in adding contact: `, err)
+      }
+    });
   }
 
   onRemoveContactClick(contact: KnownUserDataModel) {
@@ -393,9 +410,22 @@ export class UserSettingsComponent {
   }
 
   removeContact(contact: KnownUserDataModel) {
-    // TODO: Call backend to remove contact if needed
-    this.contacts = this.contacts.filter(c => c.userId !== contact.userId);
-    // Optionally reload contacts from backend here
+    const model = new ContactEditModel(
+      contact.userId,
+      false
+    );
+    this.userService.updateContact(model).subscribe({
+      next: response => {
+          if (response.success) {
+            this.contacts = this.contacts.filter(c => c.userId !== contact.userId);
+          } else {
+            console.error(`Error in removing contact: `, response.description)
+          }
+      },
+      error: err => {
+        console.error(`Error in removing contact: `, err)
+      }
+    })
   }
 
   onAiGroupToggle() {
@@ -491,5 +521,20 @@ export class UserSettingsComponent {
         console.error('Error loading user picture file:', error);
       }
     });
+  }
+  private isSubsequence(a: any[], b: any[]) : boolean {
+    if (a.length !== b.length)
+      return false;
+
+    for (let i = 0; i < a.length; i++){
+      if (!b.includes(a[i]))
+        return false;
+    }
+    for (let i = 0; i < a.length; i++){
+      if (!a.includes(b[i]))
+        return false;
+    }
+
+    return true;
   }
 }

@@ -20,4 +20,6 @@ public interface IUserService : IDisposable
     Task<RequestResultModel> SetProfileImageAsync(Guid executor, uint fileId);
     Task<RequestResultModel> GetProfileImageAsync(uint userId);
     Task<bool> IsExecutorUserAsync(Guid executor, uint user);
+    Task<IEnumerable<KnownUserDataModel>> SearchUserAsync(string part);
+    Task<RequestResultModel> UpdateContactAsync(ContactEditModel model, Guid executor);
 }

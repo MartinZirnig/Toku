@@ -1,9 +1,11 @@
 import { NgFor } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, EventEmitter, Inject, NgModule, Output } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Inject, NgModule, OnInit, Output } from '@angular/core';
 import { NgModel } from '@angular/forms';
 import { ProfilePictureCircledComponent } from '../profile-picture-circled/profile-picture-circled.component';
 import { ColorManagerService } from '../../services/color-manager.service';
 import { ColorSettingsModel } from '../../data_managements/models/color-settings-model';
+import { GroupService } from '../../data_managements/services/group-service.service';
+import { FileService } from '../../data_managements/services/file.service';
 
 @Component({
   selector: 'app-chat-login-popup-group-list',
@@ -12,11 +14,12 @@ import { ColorSettingsModel } from '../../data_managements/models/color-settings
   templateUrl: './chat-login-popup-group-list.component.html',
   styleUrl: './chat-login-popup-group-list.component.scss'
 })
-export class ChatLoginPopupGroupListComponent implements AfterViewInit {
+export class ChatLoginPopupGroupListComponent implements AfterViewInit, OnInit {
   @Output() selectGroup = new EventEmitter<{ name: string, id: number }>();
   @Output() close = new EventEmitter<void>();
 
-  groups = [
+  groups: GroupDefinition[] = [
+    /*
     {
       name: 'Public Group Alpha',
       id: 101,
@@ -57,16 +60,46 @@ export class ChatLoginPopupGroupListComponent implements AfterViewInit {
       id: 808,
       picture: 'https://randomuser.me/api/portraits/lego/8.jpg'
     }
+      */
   ];
 
   public csm: ColorSettingsModel;
 
   constructor(
     private colorManager: ColorManagerService,
-    private el: ElementRef
+    private el: ElementRef,
+    private groupService: GroupService,
+    private fileService: FileService
   ) {
     // Oprav inicializaci, vždy nastav csm na platný model
     this.csm = this.colorManager.csm ?? this.colorManager['GetDefault']?.() ?? ({} as ColorSettingsModel);
+  }
+  ngOnInit(): void {
+    this.groupService.getPublicGroups().subscribe({
+      next: (groups) => {
+        groups.forEach(group => {
+          this.fileService.getGroupFile(String(group.pictureId)).subscribe({
+            next: (file) => {
+              if (file) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                  const pictureUrl = reader.result as string;
+                  this.groups.push(new GroupDefinition(group.name, group.id, pictureUrl));
+                };
+                reader.readAsDataURL(file.body as Blob);
+              }
+            },
+            error: (err) => {
+              console.error(`Error loading picture for group ${group.name}:`, err);
+              this.groups.push(new GroupDefinition(group.name, group.id));
+            }
+          })
+        });
+      },
+      error: (err) => {
+        console.error('Error loading groups:', err);
+      }
+    })
   }
 
   ngAfterViewInit() {
@@ -100,4 +133,12 @@ export class ChatLoginPopupGroupListComponent implements AfterViewInit {
   select(group: any) {
     this.selectGroup.emit({ name: group.name, id: group.id });
   }
+}
+
+class GroupDefinition{
+  constructor(
+    public name: string,
+    public id: number,
+    public picture?: string
+  ) {}
 }

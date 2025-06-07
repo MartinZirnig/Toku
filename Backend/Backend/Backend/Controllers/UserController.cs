@@ -91,5 +91,24 @@ namespace Backend.Controllers
 
             return Ok(result);
         }
+        [HttpGet("search-user")]
+        public async Task<IActionResult> SearchProofileAsync([FromQuery] string query)
+        {
+            using var service = _serviceProvider.GetUserService();
+
+            var result = await service.SearchUserAsync(query);
+            return Ok(result);
+        }
+        [HttpPatch("update-contact")]
+        public async Task<IActionResult> UpdateContactAsync([FromBody] ContactEditModel model)
+        {
+            using var service = _serviceProvider.GetUserService();
+
+            var executor = (Guid)AuthorizationAttribute.GetUID(HttpContext)!;
+            var result = await service.UpdateContactAsync(model, executor)
+                .ConfigureAwait(false);
+
+            return Ok(result);
+        }
     }
 }

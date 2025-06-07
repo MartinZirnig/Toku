@@ -2,5 +2,6 @@
 
 public record KnownUserDataModel(
     string Name,
-    uint UserId
+    uint UserId,
+    string Mail
     );

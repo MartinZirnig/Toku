@@ -4,6 +4,9 @@ using BackendInterface.Models;
 using Crypto;
 using Microsoft.EntityFrameworkCore;
 using MysqlDatabase.Tables;
+using Mysqlx.Prepare;
+using System.Collections.Concurrent;
+using YamlDotNet.Serialization.ObjectFactories;
 
 namespace MysqlDatabase;
 internal class UserService : DatabaseServisLifecycle, IUserService
@@ -286,7 +289,7 @@ internal class UserService : DatabaseServisLifecycle, IUserService
             userData.Email = model.Email;
             userData.Phone = model.PhoneNumber;
             userData.PictureId = model.Picture is not null
-                ? uint.Parse(model.Picture): 1;
+                ? uint.Parse(model.Picture) : 1;
 
             await Context.SaveChangesAsync();
             await transaction.CommitAsync();
@@ -344,17 +347,50 @@ internal class UserService : DatabaseServisLifecycle, IUserService
                 .ToListAsync()
                 .ConfigureAwait(false);
 
+            var contacts = await Context.ExplicitContacts
+                .Where(ec => ec.AffectedUserId == login.UserId)
+                .ToListAsync()
+                .ConfigureAwait(false);
+
+
             var result = new List<KnownUserDataModel>();
             foreach (var group in groups)
             {
-                foreach(var client in group.GroupClients)
+                if (group?.GroupClients is null) continue;
+
+                foreach (var client in group.GroupClients)
                 {
                     var user = client.Client.User;
                     var userData = new KnownUserDataModel(
-                        user.Name, user.UserId);
+                        user.Name, user.UserId, user.Email);
 
                     if (!result.Contains(userData))
                         result.Add(userData);
+                }
+            }
+
+            foreach (var contact in contacts)
+            {
+                if (contact.Visible)
+                {
+                    if (result.Any(r => r.UserId == contact.TargetUserId))
+                        continue;
+
+                    var user = await Context.Users
+                        .FirstOrDefaultAsync(u =>
+                            u.UserId == contact.TargetUserId)
+                        .ConfigureAwait(false)
+                        ?? throw new UnauthorizedAccessException();
+
+                    result.Add(new KnownUserDataModel(
+                        user.Name, user.UserId, user.Email));
+                }
+                else
+                {
+                    var found = result.FirstOrDefault(u =>
+                        u.UserId == contact.TargetUserId);
+                    if (found is not null)
+                        result.Remove(found);
                 }
             }
 
@@ -451,6 +487,118 @@ internal class UserService : DatabaseServisLifecycle, IUserService
         catch
         {
             return false;
+        }
+    }
+
+    public async Task<IEnumerable<KnownUserDataModel>> SearchUserAsync(string part)
+    {
+        part = part.Trim().ToLower();
+        try
+        {
+            if (part.Contains('#'))
+            {
+                var parts = part.Split('#', 2);
+                var name = parts[0].Trim();
+                var userId = parts[1].Trim();
+
+                if (uint.TryParse(userId, out var integralId))
+                {
+                    if (string.IsNullOrWhiteSpace(name))
+                    {
+                        return await Context.Users
+                            .AsNoTracking()
+                            .Where(u => u.UserId == integralId)
+                            .Select(u => new KnownUserDataModel(
+                                u.Name, u.UserId, u.Email))
+                            .ToListAsync()
+                            .ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        var users = await Context.Users
+                            .AsNoTracking()
+                            .Where(u =>
+                                u.Name.ToLower()
+                                .Contains(name))
+                            .ToListAsync();
+
+
+                        return users
+                            .Where(u => u.UserId
+                                .ToString()
+                                .Contains(userId))
+                            .Select(u => new KnownUserDataModel(
+                                u.Name, u.UserId, u.Email))
+                            .ToArray();
+                    }
+                }
+            }
+
+            return await Context.Users
+                .AsNoTracking()
+                .Where(u => u.Name
+                    .ToLower()
+                    .Contains(part))
+                .Select(u => new KnownUserDataModel(
+                    u.Name, u.UserId, u.Email))
+                .ToListAsync()
+                .ConfigureAwait(false);
+        }
+        catch
+        {
+            return [];
+        }
+    }
+
+    public async Task<RequestResultModel> UpdateContactAsync(ContactEditModel model, Guid executor)
+    {
+        await using var transaction = await Context.Database
+            .BeginTransactionAsync()
+            .ConfigureAwait(false);
+
+        try
+        {
+            var login = await SupportService
+                .GetUserDataAsync(executor, Context)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+            var contact = await Context.ExplicitContacts
+                .FirstOrDefaultAsync(ec =>
+                    ec.AffectedUserId == login.UserId
+                    && ec.TargetUserId == model.TargetUserId)
+                .ConfigureAwait(false);
+
+            if (contact is null)
+            {
+                contact = new ExplicitContact()
+                {
+                    AffectedUserId = login.UserId,
+                    TargetUserId = model.TargetUserId,
+                    Visible = model.Visible
+                };
+
+                await Context.ExplicitContacts
+                    .AddAsync(contact)
+                    .ConfigureAwait(false);
+            }
+            else contact.Visible = model.Visible;
+
+            await Context.SaveChangesAsync()
+                .ConfigureAwait(false);
+            await transaction.CommitAsync()
+                .ConfigureAwait(false);
+
+            return new RequestResultModel(
+                true, string.Empty);
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync()
+                .ConfigureAwait(false);
+
+            return new RequestResultModel(
+                false, ex.Message);
         }
     }
 }

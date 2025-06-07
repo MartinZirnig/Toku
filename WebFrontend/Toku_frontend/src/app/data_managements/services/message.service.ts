@@ -50,4 +50,11 @@ export class MessageService {
 
     return this.http.delete<RequestResultModel>(`${this.baseUrl}/remove-message`, {params})
   }
+
+  hideMessage(mesageId: number) : Observable<RequestResultModel> {
+    const params = new HttpParams()
+      .set('messageId', mesageId.toString());
+
+    return this.http.delete<RequestResultModel>(`${this.baseUrl}/hide-message`, {params});
+  }
 }

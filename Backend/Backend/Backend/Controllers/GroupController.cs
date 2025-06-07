@@ -3,6 +3,7 @@ using BackendInterface;
 using BackendInterface.Models;
 using Microsoft.AspNetCore.Mvc;
 using BackendEnums;
+using Org.BouncyCastle.Bcpg.Sig;
 
 namespace Backend.Controllers;
 
@@ -165,6 +166,27 @@ public sealed class GroupController : ControllerBase
     {
         using var service = _serviceProvider.GetGroupService();
         var result = await service.GetGroupPicture(groupId)
+            .ConfigureAwait(false);
+
+        return Ok(result);
+    }
+    [HttpPost("join")]
+    public async Task<IActionResult> JoinGroupAsync([FromBody] GroupJoinModel model)
+    {
+        using var service = _serviceProvider.GetGroupService();
+        var executor = (Guid)AuthorizationAttribute.GetUID(HttpContext)!;
+        var result = await service.JoinGroupAsync(model, executor)
+            .ConfigureAwait(false);
+        return Ok(result);
+    }
+    [HttpGet("get-public-groups")]
+    public async Task<IActionResult> GetPublicGroupsAsync()
+    {
+        using var service = _serviceProvider.GetGroupService();
+        var executor = (Guid)AuthorizationAttribute.GetUID(HttpContext)!;
+
+
+        var result = await service.GetPublicGroupsAsync(executor)
             .ConfigureAwait(false);
 
         return Ok(result);

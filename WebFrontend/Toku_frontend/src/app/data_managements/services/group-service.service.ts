@@ -14,6 +14,8 @@ import { GroupUpdateModel } from '../models/group-update-model';
 import { GroupDataModel } from '../models/group-data-model';
 import { GroupRemoveUserModel } from '../models/group-remove-user-model';
 import { GroupPictureModel } from '../models/group-picture-model';
+import { GroupJoinModel } from '../models/group-join-model';
+import { PublicGroupInfoModel } from '../models/public-group-info-model';
 
 @Injectable({
   providedIn: 'root'
@@ -94,4 +96,12 @@ export class GroupService {
     return this.http.patch<RequestResultModel>(`${this.baseUrl}/set-picture`, model);
   }
 
+  joinGroup(groupId: number, groupName: string, password?: string): Observable<RequestResultModel> {
+    const model = new GroupJoinModel(groupId, groupName, password);
+
+    return this.http.post<RequestResultModel>(`${this.baseUrl}/join`, model);
+  }
+  getPublicGroups(): Observable<PublicGroupInfoModel[]> {
+    return this.http.get<PublicGroupInfoModel[]>(`${this.baseUrl}/get-public-groups`);
+  }
 }

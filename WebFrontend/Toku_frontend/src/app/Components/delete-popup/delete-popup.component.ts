@@ -17,10 +17,10 @@ export class DeletePopupComponent {
   }
 
   deleteForMe() {
-    this.deletePopupService.confirm('me');
+    this.deletePopupService.hide();
   }
 
   deleteForAll() {
-    this.deletePopupService.confirm('all');
+    this.deletePopupService.remove();
   }
 }

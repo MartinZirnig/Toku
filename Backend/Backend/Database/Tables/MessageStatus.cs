@@ -21,10 +21,11 @@ internal class MessageStatus
     public virtual Client Client { get; set; }
 
     [Required]
-    public MessageStatusCode StatusCode { get; set; } 
+    public MessageStatusCode StatusCode { get; set; }
 
     [Required]
     public DateTime UpdatedTime { get; set; }
+    public DateTime? HideTime { get; set; }
 
 
     public virtual List<MessageStatusHistory> MessageStatusHistories { get; set; } = new List<MessageStatusHistory>();

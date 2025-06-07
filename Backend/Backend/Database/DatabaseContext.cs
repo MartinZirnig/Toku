@@ -14,7 +14,6 @@ internal class DatabaseContext : DbContext
         "password=123456;" +
         "charset=utf8mb4";
     #region DbSets
-
     public DbSet<Client> Clients { get; set; }
     public DbSet<Group> Groups { get; set; }
     public DbSet<GroupClient> GroupClients { get; set; }
@@ -35,13 +34,14 @@ internal class DatabaseContext : DbContext
     public DbSet<MessageStoredFile> MessageStoredFiles { get; set; }
 
     public DbSet<GeminiContext> GeminiContext { get; set; }
+    public DbSet<ExplicitContact> ExplicitContacts { get; set; }
     #endregion
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseMySQL(ConnectionString);
-        //.EnableSensitiveDataLogging()
-        //.LogTo(Console.WriteLine, LogLevel.Information);
+        optionsBuilder.UseMySQL(ConnectionString)
+        .EnableSensitiveDataLogging()
+        .LogTo(Console.WriteLine, LogLevel.Information);
 
     }
 
@@ -109,6 +109,5 @@ internal class DatabaseContext : DbContext
 
             entity.ToTable("MessageStoredFiles");
         });
-
     }
 }

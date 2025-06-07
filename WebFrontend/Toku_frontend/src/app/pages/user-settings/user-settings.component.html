@@ -235,9 +235,11 @@
               ></app-profile-picture-circled>
               <!-- TODO: Nastavit profilovou fotografii kontaktu-->
               <div class="flex-1 min-w-0">
-                <div class="text-white font-medium truncate">{{ contact.name || contact.userId }}</div>
+                <div class="text-white font-medium truncate">{{ contact.name }} 
+                  <span class="text-sm text-gray-500 italic">#{{ contact.userId }}</span>
+                </div>
                 <div class="text-gray-400 text-xs truncate">
-                  {{contact.userId}}
+                  {{contact.mail}}
                 </div>
               </div>
               <button
