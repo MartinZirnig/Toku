@@ -9,6 +9,8 @@ import { ContextMenuMessagesService } from '../../services/context-menu-messages
 import { ProfilePictureCircledComponent } from '../profile-picture-circled/profile-picture-circled.component';
 import { ReplyService } from '../../services/reply.service';
 import { FormatedTextComponent } from "../formated-text/formated-text.component";
+import { ColorManagerService } from '../../services/color-manager.service';
+import { ColorSettingsModel } from '../../data_managements/models/color-settings-model';
 
 @Component({
   selector: 'app-message-adresator',
@@ -23,7 +25,7 @@ export class MessageAdresatorComponent implements OnInit {
   @Input() previewText!: string | null; // New input for preview text
   @Input() hasFile: boolean = false; // New input to indicate if the previous message has a file
   @Input() onDeleteMessage!: () => void; // Callback to notify parent component about deletion
-  @Input() reactionsData: string = 'j'; // Input for reaction data
+  @Input() reactionsData: string = ''; // Input for reaction data
   @Input() fileCount: number = 0;
   @Input() fileTotalSize: number = 0;
   @Input() adresatorPicture?: string; // <-- přidáno pro avatar obrázek
@@ -38,6 +40,9 @@ export class MessageAdresatorComponent implements OnInit {
   private hasAnimated = false;
   menuX: number = 0;
   menuY: number = 0;
+  public csm: ColorSettingsModel;
+  showFullText = false;
+  readonly MAX_TEXT_LENGTH = 600;
 
   constructor(
     private menuService: MenuService,
@@ -45,11 +50,27 @@ export class MessageAdresatorComponent implements OnInit {
     private emojiPopupService: EmojiPopupService,
     private fileDownloadPopupService: FileDownloadPopupService,
     private contextMenuMessagesService: ContextMenuMessagesService,
-    private replyService: ReplyService // Přidej reply service
-  ) {}
+    private replyService: ReplyService, // Přidej reply service
+    private colorManager: ColorManagerService,
+    private el: ElementRef
+  ) {
+    this.csm = this.colorManager.csm;
+  }
 
   ngOnInit(): void {
     this.isLongText = this.text.length > 50; // Adjust threshold as needed
+    this.showFullText = false;
+  }
+
+  get displayText(): string {
+    if (this.showFullText || this.text.length <= this.MAX_TEXT_LENGTH) {
+      return this.text;
+    }
+    return this.text.slice(0, this.MAX_TEXT_LENGTH) + '...';
+  }
+
+  showAllText() {
+    this.showFullText = true;
   }
 
   ngAfterViewInit(): void {
@@ -62,6 +83,22 @@ export class MessageAdresatorComponent implements OnInit {
         }
       }, 500);
     }
+    // Nastav CSS proměnné pro barvy
+    if (!this.csm) return;
+    const root = this.el.nativeElement ?? document.documentElement;
+    const setVar = (name: string, value: string) => root.style.setProperty(name, value);
+
+    setVar('--msg-card-bg', this.csm.cardBackground.toRgbaString());
+    setVar('--msg-adresator-bg', this.csm.messageAdresatorBackground.toRgbaString());
+    setVar('--msg-preview-bg', this.csm.messagePreviewBackground.toRgbaString());
+    setVar('--msg-adresator-text', this.csm.messageAdresatorText.toRgbaString());
+    setVar('--msg-preview-text', this.csm.messagePreviewText.toRgbaString());
+    setVar('--msg-status-icon', this.csm.messageStatusIcon.toRgbaString());
+    setVar('--msg-file-preview-bg', this.csm.messageFilePreviewBackground.toRgbaString());
+    setVar('--msg-file-preview-text', this.csm.messageFilePreviewText.toRgbaString());
+    setVar('--msg-file-preview-icon', this.csm.messageFilePreviewIcon.toRgbaString());
+    setVar('--msg-placeholder', this.csm.messagePlaceholder.toRgbaString());
+    // ...další barvy dle potřeby...
   }
 
   toggleMenu(event: MouseEvent): void {
@@ -153,6 +190,17 @@ export class MessageAdresatorComponent implements OnInit {
       hasFile: this.hasFile,
       image: this.image
     });
+  }
+
+  onReactionEmojiClicked(emoji: string) {
+    // NEPŘIDÁVEJ zde emoji do reactionsData!
+    // this.reactionsData += emoji;
+    // případně zde zavolejte update na serveru, pokud je potřeba
+  }
+
+  onReactionsDataChange(newValue: string) {
+    this.reactionsData = newValue;
+    // případně zde zavolejte update na serveru, pokud je potřeba
   }
 
   @HostListener('document:click', ['$event'])

@@ -1,6 +1,8 @@
 import { NgIf } from '@angular/common';
-import { Component, OnInit, Input, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy, OnChanges, SimpleChanges, AfterViewInit, ElementRef } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { ColorManagerService } from '../../services/color-manager.service';
+import { ColorSettingsModel } from '../../data_managements/models/color-settings-model';
 
 @Component({
   selector: 'app-pop-up',
@@ -8,43 +10,52 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
   templateUrl: './pop-up.component.html',
   styleUrl: './pop-up.component.scss'
 })
-export class PopUpComponent implements OnInit, OnDestroy, OnChanges {
-  @Input() id!: number; // Add the id property
+export class PopUpComponent implements OnInit, OnDestroy, OnChanges, AfterViewInit {
+  @Input() id!: number;
   @Input() message: string = '';
-  @Input() backgroundColor: string = '#3b82f6';
-  @Input() textColor: string = '#ffffff';
-  @Input() duration: number = 2000; // Duration in milliseconds
+  @Input() duration: number = 2000;
   progress: number = 100;
-  truncatedMessage: SafeHtml = ''; // Use SafeHtml for sanitized content
-  darkerBackgroundColor: string = '#1e40af';
-  progressColor: string = '#93c5fd';
-  isVisible: boolean = false; // Controls the "in" animation
+  truncatedMessage: SafeHtml = '';
+  isVisible: boolean = false;
   private intervalId: any;
 
-  constructor(private sanitizer: DomSanitizer) {}
+  public csm: ColorSettingsModel;
+
+  constructor(
+    private sanitizer: DomSanitizer,
+    private colorManager: ColorManagerService,
+    private el: ElementRef
+  ) {
+    this.csm = this.colorManager.csm;
+  }
 
   ngOnInit(): void {
     this.updatePopUp();
-    this.darkerBackgroundColor = this.adjustColorBrightness(this.backgroundColor, -20);
-    this.progressColor = this.adjustColorBrightness(this.backgroundColor, 40);
-
-    // Show the pop-up with "in" animation
     setTimeout(() => {
       this.isVisible = true;
     }, 0);
 
-    // Start the progress bar timer
-    const decrementAmount = 95 / (this.duration / 100); // Calculate decrement per 100ms
+    const decrementAmount = 95 / (this.duration / 100);
     this.intervalId = setInterval(() => {
       this.progress -= decrementAmount;
       if (this.progress <= 0) {
         this.progress = 0;
         clearInterval(this.intervalId);
-
-        // Remove the pop-up after its duration ends
         this.isVisible = false;
       }
     }, 100);
+  }
+
+  ngAfterViewInit(): void {
+    if (!this.csm) return;
+    const root = this.el.nativeElement ?? document.documentElement;
+    const setVar = (name: string, value: string) => root.style.setProperty(name, value);
+
+    setVar('--popup-bg', this.csm.popupBackground.toRgbaString());
+    setVar('--popup-text', this.csm.primaryText.toRgbaString());
+    setVar('--popup-progress-bg', this.csm.popupBorder.toRgbaString());
+    setVar('--popup-progress', this.csm.popupProgress.toRgbaString());
+    setVar('--popup-shadow', this.csm.popupShadow.toRgbaString());
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -64,7 +75,6 @@ export class PopUpComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnDestroy(): void {
-    // Clear the interval when the component is destroyed
     if (this.intervalId) {
       clearInterval(this.intervalId);
     }

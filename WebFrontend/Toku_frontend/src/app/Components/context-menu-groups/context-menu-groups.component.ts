@@ -81,6 +81,12 @@ export class ContextMenuGroupsComponent implements AfterViewInit {
     };
   }
 
+  onMenuItemClick(action: () => void, event: Event) {
+    this.menuService.close();
+    action();
+    event.stopPropagation();
+  }
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
     if (this.config.visible) {

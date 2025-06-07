@@ -85,7 +85,7 @@
   align-items: center;
   padding-left: 0;
   padding-right: 1.25rem;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
+  background: var(--menu-bar-bg, linear-gradient(to bottom, rgba(0,0,0,0.7), transparent));
   transition: left 0.4s cubic-bezier(.4,0,.2,1);
   will-change: left;
 }
@@ -94,7 +94,49 @@
   left: 0;
 }
 
+// Tlačítko menu barva pozadí
+.custom-menu-btn-bg {
+  background: var(--menu-btn-bg, none);
+  transition: background 0.18s;
+}
+.custom-menu-btn-bg:hover,
+.custom-menu-btn-bg:focus {
+  background: var(--menu-btn-bg-hover, none);
+  background-image: var(--menu-btn-gradient-hover, none);
+}
 
+// Ikona v tlačítku
+.custom-menu-btn-icon {
+  color: #fff;
+  transition: color 0.18s;
+}
+.custom-menu-btn-bg:hover .custom-menu-btn-icon,
+.custom-menu-btn-bg:focus .custom-menu-btn-icon {
+  color: var(--menu-btn-icon-hover, #fff);
+}
+
+// Nadpis
+.custom-menu-title {
+  color: #fff;
+}
+
+// Dropdown pozadí a stín
+.custom-menu-dropdown-bg {
+  background: var(--menu-dropdown-bg, #1f2937e6);
+}
+.custom-menu-dropdown-shadow {
+  box-shadow: 0 8px 32px 0 var(--menu-dropdown-shadow, #23293a44);
+}
+
+// Dropdown položka hover
+.custom-menu-dropdown-item {
+  background: transparent;
+  transition: background 0.18s;
+}
+.custom-menu-dropdown-item:hover,
+.custom-menu-dropdown-item:focus {
+  background: var(--menu-dropdown-item-hover-bg, #374151);
+}
 
 // Zajisti, že tlačítka jsou vždy relativní a neabsolutní
 

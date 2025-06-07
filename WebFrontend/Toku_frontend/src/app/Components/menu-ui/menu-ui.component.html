@@ -1,24 +1,24 @@
-<div class="menu-ui-fixed-right backdrop-blur-[1px]"
+<div class="menu-ui-fixed-right"
      [ngClass]="{
        'menu-full-width': !menuService.showDropdown,
        'animate-fade-in-right': menuService.isVisible,
        'animate-fade-out-left': !menuService.isVisible
      }">
     <!-- Levé tlačítko -->
-    <button class="menu-btn-gradient ml-2 w-11 h-11 rounded-full flex items-center justify-center bg-black/30 transition-all duration-300 cursor-pointer"
+    <button class="menu-btn-gradient ml-2 w-11 h-11 rounded-full flex items-center justify-center custom-menu-btn-bg transition-all duration-300 cursor-pointer"
             (click)="showMenu()">
-       <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M3 12H21M3 6H21M3 18H21" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+       <svg class="w-6 h-6 custom-menu-btn-icon transition-all duration-300" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M3 12H21M3 6H21M3 18H21" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
     </button>
 
     <!-- Ikona a text -->
     <div class="flex items-center ml-4 space-x-0 group">
       <app-icon class="filter grayscale group-hover:filter-none transition-all duration-300"></app-icon>
-      <span class="text-white text-lg text-custom-font group-hover:text-white transition-all duration-300 select-none">oku</span>
+      <span class="custom-menu-title text-lg text-custom-font transition-all duration-300 select-none">oku</span>
     </div>
 
     <!-- Pravé tlačítko s dropdown -->
     <div class="relative ml-auto ">
-      <button class="w-12 h-12 rounded-full flex items-center justify-center bg-black/30 transition-all duration-300 cursor-pointer"
+      <button class="w-12 h-12 rounded-full flex items-center justify-center custom-menu-btn-bg transition-all duration-300 cursor-pointer"
               (click)="toggleDropdown()">
         <app-profile-picture-circled [picture]="picture"></app-profile-picture-circled>
       </button>
@@ -29,9 +29,9 @@
              'animate-fade-in-down': isVisible_user,
              'animate-fade-out-up': !isVisible_user
            }"
-           class="absolute right-0 mt-2 w-56 bg-gray-800/90 rounded-lg shadow-lg py-1 transition-all duration-200 origin-top backdrop-blur-md">
-        <a class="block px-4 py-2 text-white hover:bg-gray-700/50 cursor-pointer" (click)="goToSettings()">Upravit profil</a>
-        <a class="block px-4 py-2 text-white hover:bg-gray-700/50 cursor-pointer" (click)="goToLogout() " >Odhlásit se</a>
+           class="absolute right-0 mt-2 w-56 custom-menu-dropdown-bg custom-menu-dropdown-shadow rounded-lg py-1 transition-all duration-200 origin-top backdrop-blur-md">
+        <a class="block px-4 py-2 custom-menu-dropdown-item text-white cursor-pointer transition-all duration-200" (click)="goToSettings()">Upravit profil</a>
+        <a class="block px-4 py-2 custom-menu-dropdown-item text-white cursor-pointer transition-all duration-200" (click)="goToLogout() " >Odhlásit se</a>
       </div>
     </div>
 </div>

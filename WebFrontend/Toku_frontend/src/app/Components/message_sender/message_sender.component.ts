@@ -9,6 +9,7 @@ import { FileDownloadPopupService } from '../../services/file-download-popup.ser
 import { ContextMenuMessagesService } from '../../services/context-menu-messages.service';
 import { ReplyService } from '../../services/reply.service'; // Přidej import
 import { DeletePopupService } from '../delete-popup/delete-popup.service';
+import { ColorManagerService } from '../../services/color-manager.service'; // Přidej import
 
 import { ReactionCounterComponent} from '../reaction-counter/reaction-counter.component'; 
 import { EmojisPopUpComponent } from '../emojis-pop-up/emojis-pop-up.component';
@@ -17,6 +18,7 @@ import { ContextMenuMessagesComponent } from '../../Components/context-menu-mess
 import { MessageControllService } from '../../data_managements/control-services/message-controll.service';
 import { StoredMessageModel } from '../../data_managements/models/stored-message-model';
 import { FormatedTextComponent } from "../formated-text/formated-text.component";
+import { ColorSettingsModel } from '../../data_managements/models/color-settings-model';
 
 
 @Component({
@@ -61,6 +63,11 @@ Message_senderComponent implements OnInit {
   menuX: number = 0;
   menuY: number = 0;
 
+  public csm: ColorSettingsModel;
+
+  showFullText = false; // Přidáno pro zobrazení celé zprávy
+  readonly MAX_TEXT_LENGTH = 600; // Nastav limit pro zkrácení
+
   constructor(
     private menuService: MenuService, 
     private sanitizer: DomSanitizer, 
@@ -71,8 +78,12 @@ Message_senderComponent implements OnInit {
     private fileDownloadPopupService: FileDownloadPopupService, // Inject new service
     private contextMenuMessagesService: ContextMenuMessagesService,
     private replyService: ReplyService, // Přidej reply service
-    private deletePopupService: DeletePopupService // <-- přidej službu pro delete popup
-  ) {} // Inject DomSanitizer
+    private deletePopupService: DeletePopupService, // <-- přidej službu pro delete popup
+    private colorManager: ColorManagerService, // Přidej ColorManagerService
+    private el: ElementRef // Přidej ElementRef pro nastavení CSS proměnných
+  ) {
+    this.csm = this.colorManager.csm;
+  } // Inject DomSanitizer
 
   private startX = 0; // Initial position
   private currentX = 0; // Current position
@@ -83,6 +94,7 @@ Message_senderComponent implements OnInit {
     const truncatedText = this.getTruncatedPreviewText(this.previewText, 10); // Limit preview to 10 words
     this.formattedPreviewText = this.sanitizer.bypassSecurityTrustHtml(this.applyGradientToLastCharacters(truncatedText, 10)); // Apply gradient to last 10 characters
     window.addEventListener('message-deleted', this.handleMessageDeleted);
+    this.showFullText = false; // Výchozí stav
   }
 
   ngOnDestroy(): void {
@@ -109,6 +121,24 @@ Message_senderComponent implements OnInit {
         }
       }, 500);
     }
+
+    // Nastav CSS proměnné pro barvy
+    if (!this.csm) return;
+    const root = this.el.nativeElement ?? document.documentElement;
+    const setVar = (name: string, value: string) => root.style.setProperty(name, value);
+
+    setVar('--msg-card-bg', this.csm.cardBackground.toRgbaString());
+    setVar('--msg-sender-bg', this.csm.messageSenderBackground.toRgbaString());
+    setVar('--msg-preview-bg', this.csm.messagePreviewBackground.toRgbaString());
+    setVar('--msg-sender-text', this.csm.messageSenderText.toRgbaString());
+    setVar('--msg-preview-text', this.csm.messagePreviewText.toRgbaString());
+    setVar('--msg-status-icon', this.csm.messageStatusIcon.toRgbaString());
+    setVar('--msg-status-read-icon', this.csm.messageStatusReadIcon.toRgbaString());
+    setVar('--msg-file-preview-bg', this.csm.messageFilePreviewBackground.toRgbaString());
+    setVar('--msg-file-preview-text', this.csm.messageFilePreviewText.toRgbaString());
+    setVar('--msg-file-preview-icon', this.csm.messageFilePreviewIcon.toRgbaString());
+    setVar('--msg-placeholder', this.csm.messagePlaceholder.toRgbaString());
+    // ...další barvy dle potřeby...
   }
 
   private getTruncatedPreviewText(text: string | null, wordLimit: number): string {
@@ -404,5 +434,27 @@ Message_senderComponent implements OnInit {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 
-  
+  get displayText(): string {
+    if (this.showFullText || this.text.length <= this.MAX_TEXT_LENGTH) {
+      return this.text;
+    }
+    return this.text.slice(0, this.MAX_TEXT_LENGTH) + '...';
+  }
+
+  showAllText() {
+    this.showFullText = true;
+  }
+
+  onReactionEmojiClicked(emoji: string) {
+    // NEPŘIDÁVEJ zde emoji do reactionsData!
+    // this.reactionsData += emoji;
+    // případně zde zavolejte update na serveru, pokud je potřeba
+    // např. this.msgCtrl.addReaction(this.raw.messageId, emoji).subscribe(...)
+  }
+
+  onReactionsDataChange(newValue: string) {
+    this.reactionsData = newValue;
+    // případně zde zavolejte update na serveru, pokud je potřeba
+    // např. this.msgCtrl.addReaction(this.raw.messageId, newValue).subscribe(...)
+  }
 }

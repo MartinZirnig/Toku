@@ -144,6 +144,12 @@ export class ContextMenuMessagesComponent implements AfterViewInit {
     };
   }
 
+  onMenuItemClick(action: (() => void) | undefined, event: Event) {
+    this.menuService.close();
+    if (action) action();
+    event.stopPropagation();
+  }
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
     // Pokud je menu otevřené a klikneš mimo menu, zavři ho

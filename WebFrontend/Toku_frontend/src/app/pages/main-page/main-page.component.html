@@ -20,6 +20,7 @@
       <app-dummy-message-adresator></app-dummy-message-adresator>
       <app-dummy-message-sender></app-dummy-message-sender>
     </div>
+    
 <!-- V REACTION DATA BUDE MUSET BÝT "message.reactionsData" ZATÍM TAM BUDE NULL -->
     <div *ngFor="let message of messages; let i = index" 
          [ngClass]="{'flex justify-end': message.isSender, 'flex justify-start': !message.isSender}">
@@ -46,6 +47,11 @@
           [adresatorPicture]="message.senderPicture">
         </app-message-adresator>
       </ng-template>
+      <!-- Přidejte tuto podmínku pro prázdný chat -->
+    
+    </div>
+    <div *ngIf="!dummyVisible && messages.length === 0" class="flex justify-center absolute items-center h-40 text-gray-400 text-lg font-medium">
+      Zatím zde nejsou žádné zprávy. Napište třeba "{{ suggestedMessage }}"
     </div>
   </div>
 </div>

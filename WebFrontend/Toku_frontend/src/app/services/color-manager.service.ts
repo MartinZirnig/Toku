@@ -135,11 +135,11 @@ export class ColorManagerService {
       new ArgbColorModel(31, 41, 55, 255), // menuDropdownBackground: #1f2937
       new ArgbColorModel(55, 65, 81, 255), // menuDropdownItemHoverBackground: #374151
       new GradientArgbColorModel(
-        0.7, 0,0,0,      // rgba(0,0,0,0.7)
-        0, 0,0,0,        // transparent
-        0, 0,0,0,
-        0, 0,0,0,
-        0, 0,0,0,
+        200, 0,0,0,      // rgba(0,0,0,0.7)
+        160, 0,0,0,        // transparent
+        120, 0,0,0,
+        80, 0,0,0,
+        40, 0,0,0,
         0, 0,0,0
       ), // menuBarBackground
       new ArgbColorModel(30, 41, 59,255), // inputBarBackground: #1e293b
@@ -165,10 +165,10 @@ export class ColorManagerService {
       new ArgbColorModel(0, 0, 0, 0), // messagePreviewBackground: transparent (používá bg-black v html)
       new ArgbColorModel(30, 58, 138,255), // messageFilePreviewBackground: #1e3a8a (blue-900)
       new ArgbColorModel(71, 85, 105,255), // messageAvatarBackground: #475569
-      new ArgbColorModel(107, 114, 128,255), // reactionCounterBackground: #6b7280
-      new ArgbColorModel(55, 65, 81,255), // reactionPopupBackground: #374151
-      new ArgbColorModel(55, 65, 81,255), // reactionPopupItemBackground: #374151
-      new ArgbColorModel(71, 85, 105,255), // reactionPopupItemHoverBackground: #475569
+      new ArgbColorModel(107, 114, 128,0), // reactionCounterBackground: #6b7280 (hlavní box) - původně
+      new ArgbColorModel(240, 240, 245,100), // reactionPopupBackground: #f0f0f5 (popup pozadí) - světlejší
+      new ArgbColorModel(229, 231, 235,255), // reactionPopupItemBackground: #e5e7eb (položka v popupu) - světlejší
+      new ArgbColorModel(203, 213, 225,255), // reactionPopupItemHoverBackground: #cbd5e1 (hover v popupu) - světlejší
 
       // BORDERS
       new ArgbColorModel(82,138,169, 255), // popupBorder: #ff00ff (dummy, override in popup)
@@ -246,7 +246,7 @@ export class ColorManagerService {
       new ArgbColorModel(0, 0, 0, 25), // switchThumbShadow: rgba(0,0,0,0.1)
 
       // SCROLLBARS
-      new ArgbColorModel(77, 179, 179, 179), // scrollbarThumb: #b3b3b3, opacity 0.3
+      new ArgbColorModel(179, 179, 179, 77), // scrollbarThumb: #b3b3b3, opacity 0.3
       new ArgbColorModel(179, 179, 179,255), // scrollbarThumbHover: #b3b3b3, opacity 1
       new ArgbColorModel(0, 0, 0, 0), // scrollbarTrack: transparent
       new ArgbColorModel(55, 65, 81, 0), // inputScrollbarTrack: #37415100
@@ -275,7 +275,7 @@ export class ColorManagerService {
       new ArgbColorModel(124, 58, 237, 85), // buttonShadow: #7c3aed55
       new ArgbColorModel(35, 41, 58, 68), // listShadow: #23293a44
       new ArgbColorModel(35, 41, 58, 68), // messageShadow: #23293a44
-      new ArgbColorModel(255, 35, 41, 58), // profilePictureBackground: #23293a
+      new ArgbColorModel( 35, 41, 58, 0), // profilePictureBackground: #23293a
       new ArgbColorModel(0, 0, 0, 0), // fileCountCircleBackground: transparent
       new ArgbColorModel(100, 116, 139,255), // replyPreviewBarCloseButton: #64748b
       new ArgbColorModel(255, 255, 255,255), // replyPreviewBarCloseButtonHover: #fff
@@ -303,10 +303,10 @@ export class ColorManagerService {
         255, 82,138,169,
         255, 70,243,255
       ), // menuButtonGradientHover
-      new ArgbColorModel(0, 0, 0, 77), // menuButtonBackground: #0000004d (bg-black/30)
+      new ArgbColorModel(0, 0, 0, 0), // menuButtonBackground: #0000004d (bg-black/30)
       new ArgbColorModel(55, 65, 81, 255), // menuButtonBackgroundHover: #374151
-      new ArgbColorModel(59, 130, 246 ,255), // menuButtonIconHover: #3b82f6
-      new ArgbColorModel(31, 41, 55,255), // menuActionBackground: #1f2937
+      new ArgbColorModel(115, 59, 245 ,255), // menuButtonIconHover: #3b82f6
+      new ArgbColorModel(31, 41, 55,100), // menuActionBackground: #1f2937
       new ArgbColorModel(55, 65, 81,255), // menuActionBackgroundHover: #374151
       new ArgbColorModel(255, 255, 255,255), // menuActionIcon: #fff
       new ArgbColorModel(59, 130, 246,255), // menuActionIconHover: #3b82f6

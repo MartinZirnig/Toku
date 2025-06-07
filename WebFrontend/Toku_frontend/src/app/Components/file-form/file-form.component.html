@@ -1,11 +1,11 @@
-<div class="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-  <div class="file-form-popup bg-gray-800 text-white p-8 rounded-lg shadow-lg w-full max-w-lg">
-    <h2 class="text-center text-2xl font-semibold mb-6">Upload Files</h2>
+<div class="fixed inset-0 flex items-center justify-center ff-popup-overlay z-50">
+  <div class="file-form-popup ff-popup p-8 rounded-lg shadow-lg w-full max-w-lg">
+    <h2 class="text-center text-2xl font-semibold mb-6 ff-text">Upload Files</h2>
     <div
-      class="relative border-2 rounded-lg flex flex-col overflow-y-auto max-h-64"
+      class="relative border-2 rounded-lg flex flex-col overflow-y-auto max-h-64 ff-list"
       [ngClass]="{
-        'border-dashed border-gray-600': !isDragging,
-        'border-solid border-purple-500 shadow-lg': isDragging
+        'ff-list-border': !isDragging,
+        'ff-list-border-drag': isDragging
       }"
       (drop)="onFileDrop($event)"
       (dragover)="onDragOver($event)"
@@ -16,7 +16,7 @@
         <!-- Centered button -->
         <label
           for="fileInput"
-          class="block mx-auto w-1/3 bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded-md transition-all cursor-pointer text-center"
+          class="block mx-auto w-1/3 ff-btn text-center"
         >
           Select File
         </label>
@@ -30,20 +30,20 @@
           (change)="onFileInputChange($event)"
         />
         <!-- Conditional text when no files are present -->
-        <p *ngIf="files.length === 0" class="text-gray-400 text-center mt-4">
+        <p *ngIf="files.length === 0" class="ff-secondary-text text-center mt-4">
           or drag and drop your files here
         </p>
         <!-- File list -->
         <ul class="w-full mt-4">
           <li
             *ngFor="let file of files; let i = index"
-            class="flex justify-between items-center bg-gray-700 text-white px-4 py-2 rounded-md mb-2 relative group overflow-hidden"
+            class="flex justify-between items-center ff-list-item px-4 py-2 rounded-md mb-2 relative group overflow-hidden"
           >
-            <span class="truncate">{{ file.name }}</span>
-            <span class="text-sm text-gray-400">{{ formatFileSize(file.size) }}</span>
+            <span class="truncate ff-text">{{ file.name }}</span>
+            <span class="text-sm ff-secondary-text">{{ formatFileSize(file.size) }}</span>
             <!-- Remove button with animation -->
             <button
-              class="absolute right-0 top-0 h-full w-12 bg-red-600 text-white font-bold text-lg flex items-center justify-center transform translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-in-out"
+              class="absolute right-0 top-0 h-full w-12 ff-remove-btn font-bold text-lg flex items-center justify-center transform translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-in-out"
               (click)="removeFile(i)"
             >
               ✕
@@ -53,7 +53,7 @@
       </div>
     </div>
     <button
-      class="confirm-btn w-full mt-6 py-2 text-white rounded-md transition-all duration-300 shadow-md"
+      class="confirm-btn ff-btn w-full mt-6 py-2 rounded-md transition-all duration-300 shadow-md"
       (click)="confirmUpload()"
     >
       Confirm

@@ -13,6 +13,9 @@ import { MessagerService } from '../../data_managements/messager.service';
 import { User } from '../../data_managements/user';
 import { ReplyService, ReplyPreview } from '../../services/reply.service'; // Přidej import
 import { AiService } from '../../data_managements/services/ai-service.service';
+import { ColorManagerService } from '../../services/color-manager.service';
+import { ColorSettingsModel } from '../../data_managements/models/color-settings-model';
+import { GradientArgbColorModel } from '../../data_managements/models/gradient-argb-color-model';
 
 
 @Component({
@@ -50,6 +53,13 @@ export class InputUiComponent implements OnInit {
   private lastGroupId: string | number | null = null;
   private groupCheckInterval: any;
 
+  public csm: ColorSettingsModel;
+
+  maxChars = 100000;
+  charCounterThreshold = 1000; // Show counter when within 1000 chars of max
+  currentCharCount = 0;
+  showCharCounter = false;
+
   constructor(
     private renderer: Renderer2, 
     private service: MainInputService,
@@ -57,7 +67,9 @@ export class InputUiComponent implements OnInit {
     public emojiPopupService: EmojiPopupService,
     private fileUploadService: FileUploadService,
     private messager: MessagerService,
-    private replyService: ReplyService // Přidej reply service
+    private replyService: ReplyService, // Přidej reply service
+    private colorManager: ColorManagerService, // Přidej color manager
+    private el: ElementRef // Přidej element ref pro root
   ) {
     // Close emoji popup when clicking outside
     this.renderer.listen('document', 'click', (event: Event) => {
@@ -91,6 +103,8 @@ export class InputUiComponent implements OnInit {
     this.replyService.replyPreview$.subscribe(preview => {
       this.replyPreview = preview;
     });
+
+    this.csm = this.colorManager.csm;
   }
 
   ngOnInit(): void {
@@ -104,9 +118,56 @@ export class InputUiComponent implements OnInit {
         this.replyService.clearReply();
       }
     }, 300);
+
+    this.inputControl.valueChanges.subscribe(val => {
+      this.currentCharCount = val ? val.length : 0;
+      this.showCharCounter = (this.maxChars - this.currentCharCount) <= this.charCounterThreshold;
+      // Prevent exceeding maxChars (in case of programmatic changes)
+      if (this.currentCharCount > this.maxChars) {
+        this.inputControl.setValue(val.slice(0, this.maxChars), { emitEvent: false });
+        this.currentCharCount = this.maxChars;
+      }
+    });
   }
 
   ngAfterViewInit(): void {
+    // Nastav CSS proměnné pro barvy z csm
+    if (!this.csm) return;
+    const root = this.el.nativeElement ?? document.querySelector('app-input-ui') ?? document.documentElement;
+    const setVar = (name: string, value: string) => root.style.setProperty(name, value);
+
+    const csm = this.csm;
+    setVar('--input-bar-bg', csm.inputBarBackground.toRgbaString());
+    setVar('--input-bar-shadow', csm.inputBarShadow.toRgbaString());
+    setVar('--textarea-background', csm.inputBackground.toRgbaString());
+    setVar('--textarea-background-focus', csm.inputBackgroundFocus.toRgbaString());
+    setVar('--input-border', csm.inputBorder.toRgbaString());
+    setVar('--input-border-focus', csm.inputBorderFocus.toRgbaString());
+    setVar('--text-color', csm.inputText.toRgbaString());
+    setVar('--placeholder-color', csm.inputPlaceholder.toRgbaString());
+    setVar('--file-count-circle-bg', csm.fileCountCircleBackground.toRgbaString());
+    setVar('--file-count-circle-text', csm.fileCountCircleText.toRgbaString());
+    setVar('--scrollbar-track', csm.inputScrollbarTrack.toRgbaString());
+    setVar('--scrollbar-thumb', csm.inputScrollbarThumb?.toLinearGradientString(135) ?? csm.scrollbarThumb.toRgbaString());
+    setVar('--scrollbar-thumb-hover', csm.inputScrollbarThumbHover?.toLinearGradientString(135) ?? csm.scrollbarThumbHover.toRgbaString());
+    setVar('--reply-preview-bar-border', csm.replyPreviewBarBorder.toRgbaString());
+    setVar('--reply-preview-bar-close-btn', csm.replyPreviewBarCloseButton.toRgbaString());
+    setVar('--reply-preview-bar-close-btn-hover', csm.replyPreviewBarCloseButtonHover.toRgbaString());
+    setVar('--spinner-dot', csm.inputSpinnerDot.toRgbaString());
+    setVar('--spinner-text', csm.inputSpinnerText.toRgbaString());
+
+    // Inverzní gradient pro pin-btn.has-files
+    if (csm.inputScrollbarThumb) {
+      setVar('--scrollbar-thumb-inverted', invertGradient(csm.inputScrollbarThumb, 135));
+    } else {
+      setVar('--scrollbar-thumb-inverted', csm.scrollbarThumb.toRgbaString());
+    }
+    if (csm.inputScrollbarThumbHover) {
+      setVar('--scrollbar-thumb-inverted-hover', invertGradient(csm.inputScrollbarThumbHover, 135));
+    } else {
+      setVar('--scrollbar-thumb-inverted-hover', csm.scrollbarThumbHover.toRgbaString());
+    }
+
     // Ověř, že textarea existuje (IsAllowedToWrite může být false)
     if (this.IsAllowedToWrite && this.textarea) {
       this.setupChatUI();
@@ -285,6 +346,11 @@ export class InputUiComponent implements OnInit {
     // Po odeslání zprávy zruš reply preview
     this.replyService.clearReply();
 
+    // Po odeslání zprávy resetuj hodnoty
+    this.inputControl.setValue('', { emitEvent: true });
+    this.currentCharCount = 0;
+    this.showCharCounter = false;
+
     setTimeout(() => {
       this.reloader.groupReload();
     }, 1000);
@@ -322,4 +388,39 @@ export class InputUiComponent implements OnInit {
     }
     return txt;
   }
+
+  onTextareaKeydown(event: KeyboardEvent) {
+    const val = this.inputControl.value || '';
+    if (val.length >= this.maxChars && 
+        // Allow navigation, backspace, delete, etc.
+        !['Backspace','Delete','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Tab'].includes(event.key)
+    ) {
+      event.preventDefault();
+    }
+  }
+}
+
+// --- Pomocná funkce pro inverzi gradientu ---
+function invertGradient(gradient: GradientArgbColorModel, degree: number): string {
+  // Inverze každé barvy v gradientu
+  function invert(a: number, r: number, g: number, b: number) {
+    return {
+      a,
+      r: 255 - r,
+      g: 255 - g,
+      b: 255 - b
+    };
+  }
+  const stops = [
+    invert(gradient.a1, gradient.r1, gradient.g1, gradient.b1),
+    invert(gradient.a2, gradient.r2, gradient.g2, gradient.b2),
+    invert(gradient.a3, gradient.r3, gradient.g3, gradient.b3),
+    invert(gradient.a4, gradient.r4, gradient.g4, gradient.b4),
+    invert(gradient.a5, gradient.r5, gradient.g5, gradient.b5),
+    invert(gradient.a6, gradient.r6, gradient.g6, gradient.b6)
+  ];
+  const positions = ['0%', '20%', '40%', '60%', '80%', '100%'];
+  const toRgba = (c: {a:number,r:number,g:number,b:number}) =>
+    `rgba(${c.r},${c.g},${c.b},${(c.a / 255).toFixed(3)})`;
+  return `linear-gradient(${degree}deg, ${stops.map((s, i) => `${toRgba(s)} ${positions[i]}`).join(', ')})`;
 }

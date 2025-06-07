@@ -26,6 +26,26 @@ div {
   animation: slideIn 0.3s ease-in-out forwards; // Apply the "in" animation
 }
 
+.popup-bg {
+  background: var(--popup-bg, #3b82f6);
+}
+
+.popup-text {
+  color: var(--popup-text, #ffffff);
+}
+
+.popup-shadow {
+  box-shadow: 0 4px 32px 0 var(--popup-shadow, rgba(0,0,0,0.15));
+}
+
+.popup-progress-bg {
+  background: var(--popup-progress-bg, #1e40af);
+}
+
+.popup-progress {
+  background: var(--popup-progress, #93c5fd);
+}
+
 .w-full {
   width: 100%;
 }

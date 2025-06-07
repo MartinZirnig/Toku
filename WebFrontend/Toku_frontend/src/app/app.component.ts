@@ -6,11 +6,10 @@ import { NgFor } from '@angular/common';
 
 @Component({
   selector: 'app-root',
+  standalone: true,
   imports: [RouterOutlet, PopUpComponent, NgFor],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
-  standalone: true
-  
 })
 
 export class AppComponent {

@@ -66,7 +66,7 @@
 /* Gradient border for chat menu */
 .chat-menu-gradient-border {
   
-  border-radius: 0 0 1.25rem 1.25rem; // pouze dolní rohy zaoblené
+  border-radius: 0 0 1.25rem 0; // změna: pouze pravý dolní roh zaoblený
   border: 2px solid transparent;
   background: var(--chat-menu-bg);
   box-shadow: 0 8px 40px 0 var(--chat-menu-shadow), 0 2px 8px 0 #ff73e344;
@@ -78,7 +78,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  border-radius: 0 0 1.25rem 1.25rem; // pouze dolní rohy zaoblené
+  border-radius: 0 0 1.25rem 0; // změna: pouze pravý dolní roh zaoblený
   padding: 2px;
   background: var(--chat-menu-gradient-border);
   -webkit-mask:
