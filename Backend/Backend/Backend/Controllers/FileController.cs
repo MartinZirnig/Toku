@@ -3,6 +3,7 @@ using BackendInterface;
 using BackendInterface.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
+using System.Diagnostics;
 
 namespace Backend.Controllers;
 

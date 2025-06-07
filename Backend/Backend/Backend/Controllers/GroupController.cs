@@ -191,4 +191,15 @@ public sealed class GroupController : ControllerBase
 
         return Ok(result);
     }
+    [HttpGet("get-permissions")]
+    public async Task<IActionResult> GetPermissionsAsync([FromQuery] uint groupId)
+    {
+        using var service = _serviceProvider.GetGroupService();
+        var executor = (Guid)AuthorizationAttribute.GetUID(HttpContext)!;
+
+        var result = await service
+            .GetUserPermissionsAsync(executor, groupId)
+            .ConfigureAwait(false);
+        return Ok(result);
+    }
 }

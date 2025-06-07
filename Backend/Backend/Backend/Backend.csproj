@@ -34,6 +34,9 @@
 		<None Update="Storage\public_files\group\profile.png">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<None Update="Storage\public_files\user\Gemini.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 		<None Update="Storage\public_files\user\profile.png">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>

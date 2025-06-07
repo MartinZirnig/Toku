@@ -211,25 +211,9 @@ internal class FileService : DatabaseServisLifecycle, IFileService
                 .ConfigureAwait(false)
                 ?? throw new FileNotFoundException();
 
-            //string strExeFilePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            var path = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)!, file.FilePath);
 
-            //string currentPath = @"C:\Users\Martin\Documents\Projects\RawCompiler\src";
-            //DirectoryInfo dir = new DirectoryInfo(currentPath);
-
-            //// Jdeme o 3 složky zpět
-            //for (int i = 0; i < 3; i++)
-            //{
-            //    dir = dir.Parent ?? dir;
-            //}
-
-            //string newPath = dir.FullName;
-            //Console.WriteLine(newPath);
-
-            //string strWorkPath = System.IO.Path.GetDirectoryName(strExeFilePath);
-            var path = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), file.FilePath);
-
-            Console.WriteLine(path);
-            var array = await File.ReadAllBytesAsync(path) //+ "/../../.." + file.FilePath )
+            var array = await File.ReadAllBytesAsync(path)
                 .ConfigureAwait(false);
             var type = identificator.GetIdentification(file.FilePath);
             return new FileResult(array, type);

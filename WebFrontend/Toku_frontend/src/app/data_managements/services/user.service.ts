@@ -8,6 +8,8 @@ import { Server } from '../server';
 import { KnownUserDataModel } from '../models/known-user-data-model';
 import { UserPermissionModel } from '../models/user-permission-model';
 import { ContactEditModel } from '../models/contact-edit-model';
+import { SwipeAction } from '../../pages/user-settings/user-settings.component';
+import { SwipeInfoModel } from '../models/swipe-info-model';
 
 @Injectable({
   providedIn: 'root'
@@ -64,5 +66,16 @@ export class UserService {
     const path: string = this.url + "/update-contact";  
 
     return this.http.patch<RequestResultModel>(path, model);
+  }
+
+  public setSwipes(model: SwipeInfoModel) : Observable<RequestResultModel> {
+    const path: string = this.url + "/set-swipes";  
+    
+    return this.http.patch<RequestResultModel>(path, model)
+  }
+  public getSwipes() : Observable<SwipeInfoModel> {
+    const path: string = this.url + "/get-swipes";  
+
+    return this.http.get<SwipeInfoModel>(path);
   }
 }

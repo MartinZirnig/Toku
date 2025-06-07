@@ -11,6 +11,7 @@ import { GoogleAuthenticationService } from '../../data_managements/services/goo
 import { Heart } from '../../data_managements/heart.service';
 import { IconComponent } from '../../Components/icon/icon.component';
 import { MessagerService } from '../../data_managements/messager.service';
+import { UserService } from '../../data_managements/services/user.service';
 
 @Component({
   selector: 'app-login',
@@ -29,7 +30,8 @@ export class LoginComponent implements OnInit{
     private usrCtrl: UserControlService,
     private googleAut: GoogleAuthenticationService,
     private heart: Heart,
-    private messager: MessagerService
+    private messager: MessagerService,
+    private userService: UserService
   ) {
     this.loginForm = this.fb.group({
       name: ['', Validators.required],
@@ -88,6 +90,16 @@ export class LoginComponent implements OnInit{
     request.subscribe({
       next: response => {
         User.Data = response;
+        this.userService.getSwipes().subscribe({
+          next: response => {
+            User.LeftSwipe = response.left;
+            User.RightSwipe = response.right;
+            console.log("swipes set: ", response);
+          },
+          error: err => {
+            console.log("Error in swipes loading: ", err)
+          }
+        })
       },
       error: err => {
         this.printError('cannot load user data');

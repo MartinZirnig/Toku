@@ -7,5 +7,7 @@ public record UserDataModel(
     string Email,
     string PhoneNumber,
     string Active,
+    string? Domain,
+    bool? HasControl,
     string? Picture
     );

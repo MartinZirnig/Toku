@@ -1,6 +1,6 @@
 ﻿namespace BackendInterface.Models;
 
 public record SwipeInfoModel(
-    uint Left,
-    uint Rights
+    string Left,
+    string Right
     );

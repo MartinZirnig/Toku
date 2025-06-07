@@ -1,3 +1,4 @@
+import { SwipeInfoModel } from "./models/swipe-info-model";
 import { UserDataModel } from "./models/user-data-model";
 
 export const User = {
@@ -83,5 +84,46 @@ export const User = {
     },
     clearActiveGroupId() : void {
         sessionStorage.removeItem("activeGroupId");
-    }
-}
+    },
+
+    get LeftSwipe() : string {
+        return sessionStorage.getItem("leftSwipe") ?? "";
+    },
+    set LeftSwipe(value: string) {
+        sessionStorage.setItem("leftSwipe", value);
+    },
+    clearLeftSwipe() : void {
+        sessionStorage.removeItem("leftSwipe");
+    },   
+     
+    get RightSwipe() : string {
+        return sessionStorage.getItem("rightSwipe") ?? "";
+    },
+    set RightSwipe(value: string) {
+        sessionStorage.setItem("rightSwipe", value);
+    },
+    clearRightSwipe() : void {
+        sessionStorage.removeItem("rightSwipe");
+    },
+
+    get DomainName() : string {
+        return sessionStorage.getItem("domainName") ?? "";
+    },
+    set DomainName(value: string) {
+        sessionStorage.setItem("domainName", value);
+    },
+    clearDomainName() : void {
+        sessionStorage.removeItem("domainName");
+    },
+
+
+    get HasControl() : boolean {
+        return (sessionStorage.getItem("hasControl") ?? "0") !== "0";
+    },
+    set HasControl(value: boolean) {
+        sessionStorage.setItem("hasControl", value ? "1" : "0");
+    },
+    clearHasControl() : void {
+        sessionStorage.removeItem("hasControl");
+    },
+};

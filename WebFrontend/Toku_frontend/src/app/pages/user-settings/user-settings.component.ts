@@ -16,6 +16,8 @@ import { AddContactPopupComponent } from '../../Components/add-contact-popup/add
 import { UserService } from '../../data_managements/services/user.service';
 import { FileService } from '../../data_managements/services/file.service';
 import { ContactEditModel } from '../../data_managements/models/contact-edit-model';
+import { SwipeInfoModel } from '../../data_managements/models/swipe-info-model';
+import { use } from 'marked';
 
 export type SwipeAction = 'reply' | 'react' | 'copy' | 'delete' | 'edit';
 
@@ -88,6 +90,8 @@ export class UserSettingsComponent {
   ) {}
 
   ngOnInit() {
+    this.canChangeInformations = User.HasControl; 
+    console.log(this.canChangeInformations);
     this.loadPicture();
     document.body.style.overflow = 'hidden';
     this.originalName = this.userName;
@@ -130,8 +134,8 @@ export class UserSettingsComponent {
 
   loadSwipeActions() {
     const allowed: SwipeAction[] = ['reply', 'react', 'copy', 'delete', 'edit'];
-    const right = localStorage.getItem('swipeRightAction');
-    const left = localStorage.getItem('swipeLeftAction');
+    const right = User.RightSwipe;
+    const left = User.LeftSwipe;
     this.swipeRightAction = allowed.includes(right as SwipeAction) ? (right as SwipeAction) : 'reply';
     this.swipeLeftAction = allowed.includes(left as SwipeAction) ? (left as SwipeAction) : 'react';
   }
@@ -169,6 +173,26 @@ export class UserSettingsComponent {
           if (response.success) {
             User.Data = new UserDataModel(
               this.userName, this.userEmail, this.userPhone, User.Active);
+
+              const model = new SwipeInfoModel(
+                this.swipeLeftAction, this.swipeRightAction
+              )
+              
+              this.userService.setSwipes(model).subscribe({
+                next: response => {
+                    if (response.success){
+                      User.LeftSwipe = this.swipeLeftAction;
+                      User.RightSwipe = this.swipeRightAction;
+                    } else {
+                      console.error("Cannot set swipes: ", response.description);
+                    }
+                },
+                error: err => {
+                  console.error("Cannot set swipes: ", err);
+                }
+              })
+
+
           } else {
             console.error('Failed to save changes!', response.description);
           }

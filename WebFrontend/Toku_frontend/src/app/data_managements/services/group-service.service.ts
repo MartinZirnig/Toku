@@ -104,4 +104,11 @@ export class GroupService {
   getPublicGroups(): Observable<PublicGroupInfoModel[]> {
     return this.http.get<PublicGroupInfoModel[]>(`${this.baseUrl}/get-public-groups`);
   }
+
+  getPermissions(groupId: number): Observable<number[]> {
+    let params = new HttpParams();
+    params = params.set("groupId", groupId);
+
+    return this.http.get<number[]>(`${this.baseUrl}/get-permissions`, {params: params});
+  }
 }

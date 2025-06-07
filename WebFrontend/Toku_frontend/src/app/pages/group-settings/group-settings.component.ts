@@ -69,6 +69,7 @@ export class GroupSettingsComponent {
   isUserFinderVisible: boolean = false;
   maxNameLength: number = 15;
 
+  userAccess: number[] = [];
   declare roomId: string;
   logContent: string = "Zde bude log";
 
@@ -127,6 +128,7 @@ export class GroupSettingsComponent {
       }
     });
     
+    this.loadAccess();
     this.loadMembers();
     this.loadData();
     this.loadPermissions();
@@ -685,5 +687,34 @@ private haveMembersChanged(): boolean {
       }
     });
   }
+  loadAccess() : void {
+    this.groupService.getPermissions(Number(this.roomId)).subscribe({
+      next: response =>  {
+        if (response){
+          this.userAccess = response;
+          this.applyAccess(response);
+        } else {
+          console.error("cannot load user access: No input received")
+        }
+      },
+      error: err => {
+        console.error("cannot load user access: ", err)
+      }
+    })
+  }
+  applyAccess(access: number[]) : void {
+    if (access.includes(255))
+      return; // admin -> all allowed
 
+    if (!access.includes(3))
+      this.canEditGroup = false;
+    if (!access.includes(4))
+      this.canEditGroupPicture = false;
+    if (!access.includes(5))
+      this.canAddMembers = false;
+    if (!access.includes(6))
+      this.canEditPermissions = false;
+    if (!access.includes(7))
+      this.canViewLog = false;
+  }
 }

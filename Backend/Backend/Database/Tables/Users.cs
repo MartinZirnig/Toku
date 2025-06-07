@@ -1,8 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Runtime.InteropServices;
 using BackendEnums;
-using BackendInterface;
 using Crypto;
 
 namespace MysqlDatabase.Tables;
@@ -41,10 +39,14 @@ internal class User
     public DateTime CreatedTime { get; set; }
     public DateTime? DeletedTime { get; set; }
     public string Phone { get; set; }
-
+    [Required]
     public MessageOperation LeftSweep { get; set; }
+    [Required]
     public MessageOperation RightSweep { get; set; }
-
+    [Required]
+    public uint DomainId { get; set; }
+    [ForeignKey("DomainId")]
+    public virtual RegisteredDomain Domain { get; set; }
 
     public virtual List<UserLogin> UserLogins { get; set; } = new List<UserLogin>();
     public virtual List<Notification> Notifications { get; set; } = new List<Notification>();

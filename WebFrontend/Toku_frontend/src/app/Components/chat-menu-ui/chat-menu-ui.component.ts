@@ -39,13 +39,17 @@ export class ChatMenuUiComponent {
   private scrollPosition = 0;
   showAiGroup = true;
   
-  aiGroup = {
+  aiGroup : AvailableGroupsModel = new AvailableGroupsModel(
+  0, 'AI bot', 'Talk to your AI assistant!', '', ''
+  );
+  
+  /*{
     groupId: 0,
     groupName: 'AI bot',
     lastDecryptedMessage: 'Talk to your AI assistant!',
     picturePath: '',
     lastOperation: "" // změna z čísla na string
-  }
+  }*/
   
 
   constructor(
@@ -220,7 +224,7 @@ public csm; // přidej csm
                     if (file){
                       const reader = new FileReader();
                       reader.onload = () => {    
-                        group.picture = reader.result as string;                          
+                        group.picture = reader.result as string;                       
                       };
                       reader.readAsDataURL(file.body as Blob);
                     }
@@ -243,7 +247,19 @@ public csm; // přidej csm
         });
 
         if (this.aiGroupVisibility.visible) {
-          this.filteredItems = [this.aiGroup, ...this.filteredItems];
+          this.fileService.getGroupFile("2").subscribe({
+            next: file => {
+              const reader = new FileReader();
+              reader.onload = () => {
+                this.aiGroup.picture = reader.result as string;
+                this.filteredItems = [this.aiGroup, ...this.filteredItems];
+              };
+              reader.readAsDataURL(file.body as Blob);
+            },
+            error: err => {
+              console.error("Cannot load ai chat requirements: ", err);
+            }
+          });
         }
       },
       error: err => {

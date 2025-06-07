@@ -805,5 +805,29 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
             return [];
         }
     }
+
+    public async Task<IEnumerable<GroupClientPermission>> GetUserPermissionsAsync(Guid executor, uint group)
+    {
+        try
+        {
+            var login = await SupportService
+                .GetUserDataAsync(executor, Context)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+
+            return await Context.GroupClients
+                .AsNoTracking()
+                .Where(gc => gc.Client.UserId == login.UserId)
+                .Where(gc => gc.GroupId == group)
+                .Select(gc => gc.Permission)
+                .ToArrayAsync()
+                .ConfigureAwait(false);
+        }
+        catch
+        {
+            return [];
+        }
+    }
 }
 

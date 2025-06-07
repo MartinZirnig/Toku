@@ -35,6 +35,8 @@ internal class DatabaseContext : DbContext
 
     public DbSet<GeminiContext> GeminiContext { get; set; }
     public DbSet<ExplicitContact> ExplicitContacts { get; set; }
+
+    public DbSet<RegisteredDomain> RegisteredDomains { get; set; }
     #endregion
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

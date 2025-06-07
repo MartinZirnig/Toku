@@ -4,11 +4,7 @@ using BackendInterface.DataObjects;
 using BackendInterface.Models;
 using Crypto;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using MysqlDatabase.Tables;
-using Mysqlx.Prepare;
-using System.Collections.Concurrent;
-using YamlDotNet.Serialization.ObjectFactories;
 
 namespace MysqlDatabase;
 internal class UserService : DatabaseServisLifecycle, IUserService
@@ -309,16 +305,28 @@ internal class UserService : DatabaseServisLifecycle, IUserService
     {
         try
         {
-            var user = await SupportService
+            var login = await SupportService
                 .GetUserDataAsync(identification, Context)
-                .ConfigureAwait(false);
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
 
-            if (user is null) return null;
+            var user = await Context.Users
+                .AsNoTracking()
+                .Include(u => u.Domain)
+                .FirstOrDefaultAsync(u =>
+                    u.UserId == login.UserId)
+                .ConfigureAwait (false)
+                ?? throw new UnauthorizedAccessException();
+
+
+            if (login is null) return null;
 
             var result = new UserDataModel(
-            user.Name, user.Email, user.Phone,
-            user.CreatedTime.ToString("dd.MMMM yyyy"),
-            user.PictureId.ToString()
+            login.Name, login.Email, login.Phone,
+            login.CreatedTime.ToString("dd.MMMM yyyy"),
+            user.Domain.DomainName,
+            user.Domain.LimitsUsers,
+            login.PictureId.ToString()
             );
             return result;
         }
@@ -621,7 +629,7 @@ internal class UserService : DatabaseServisLifecycle, IUserService
                 ?? throw new UnauthorizedAccessException();
 
             return new SwipeInfoModel(
-                (uint)user.LeftSweep, (uint)user.RightSweep);
+               user.LeftSweep.ToString(), user.RightSweep.ToString());
         }
         catch
         {
@@ -639,8 +647,8 @@ internal class UserService : DatabaseServisLifecycle, IUserService
         {
             await Context.Users
                 .ExecuteUpdateAsync(u =>
-                    u.SetProperty(x => x.LeftSweep, (MessageOperation)model.Left)
-                    .SetProperty(x => x.RightSweep, (MessageOperation)model.Rights))
+                    u.SetProperty(x => x.LeftSweep, Enum.Parse<MessageOperation>(model.Left))
+                    .SetProperty(x => x.RightSweep, Enum.Parse<MessageOperation>(model.Right)))
                 .ConfigureAwait(false);
 
             await Context.SaveChangesAsync()
