@@ -22,4 +22,8 @@ public interface IUserService : IDisposable
     Task<bool> IsExecutorUserAsync(Guid executor, uint user);
     Task<IEnumerable<KnownUserDataModel>> SearchUserAsync(string part);
     Task<RequestResultModel> UpdateContactAsync(ContactEditModel model, Guid executor);
+
+    Task<SwipeInfoModel> GetSwipesAsync(Guid executor);
+    Task<RequestResultModel> GetSwipesAsync(Guid executor, SwipeInfoModel model);
+
 }

@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using MysqlDatabase.Tables;
 using Org.BouncyCastle.Asn1;
+using System.Security;
 using System.Threading.Tasks;
 using System.Transactions;
 
@@ -41,7 +42,7 @@ internal class FileService : DatabaseServisLifecycle, IFileService
             await using var stream = File.OpenWrite(path);
             var task = model.SourceStream.CopyToAsync(stream);
 
-            var fileId = await StoreToDatabase(path, type, null)
+            var fileId = await StoreToDatabase(GetSubpathFromDirectory(path, "Storage"), type, null)
                 .ConfigureAwait(false);
 
             await task.ConfigureAwait(false);
@@ -77,7 +78,7 @@ internal class FileService : DatabaseServisLifecycle, IFileService
             var task = cryptoStream.CopyToAsync(stream);
 
 
-            var fileId = await StoreToDatabase(path, type, null)
+            var fileId = await StoreToDatabase(GetSubpathFromDirectory(path, "Storage"), type, null)
                 .ConfigureAwait(false);
             await CreateUserEncryption(executor, key, fileId)
                 .ConfigureAwait(false);
@@ -111,6 +112,20 @@ internal class FileService : DatabaseServisLifecycle, IFileService
         while (File.Exists(path));
 
         return path;
+    }
+    public static string GetSubpathFromDirectory(string fullPath, string startDirectoryName)
+    {
+        fullPath = Path.GetFullPath(fullPath).Replace('\\', '/');
+        startDirectoryName = startDirectoryName.Trim('/');
+
+        int index = fullPath.IndexOf("/" + startDirectoryName + "/", StringComparison.OrdinalIgnoreCase);
+
+        if (index == -1)
+        {
+            throw new ArgumentException($"Adresář '{startDirectoryName}' nebyl nalezen v cestě '{fullPath}'.");
+        }
+
+        return fullPath.Substring(index + 1);
     }
     private async Task<uint> StoreToDatabase(string filePath, FileType type, string? encryptionKey)
     {
@@ -196,7 +211,25 @@ internal class FileService : DatabaseServisLifecycle, IFileService
                 .ConfigureAwait(false)
                 ?? throw new FileNotFoundException();
 
-            var array = await File.ReadAllBytesAsync(file.FilePath)
+            //string strExeFilePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+
+            //string currentPath = @"C:\Users\Martin\Documents\Projects\RawCompiler\src";
+            //DirectoryInfo dir = new DirectoryInfo(currentPath);
+
+            //// Jdeme o 3 složky zpět
+            //for (int i = 0; i < 3; i++)
+            //{
+            //    dir = dir.Parent ?? dir;
+            //}
+
+            //string newPath = dir.FullName;
+            //Console.WriteLine(newPath);
+
+            //string strWorkPath = System.IO.Path.GetDirectoryName(strExeFilePath);
+            var path = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), file.FilePath);
+
+            Console.WriteLine(path);
+            var array = await File.ReadAllBytesAsync(path) //+ "/../../.." + file.FilePath )
                 .ConfigureAwait(false);
             var type = identificator.GetIdentification(file.FilePath);
             return new FileResult(array, type);

@@ -110,5 +110,11 @@ namespace Backend.Controllers
 
             return Ok(result);
         }
+        [HttpGet("get-swipes")]
+        public async Task<IAsyncResult> GetSwipeActionsAsync()
+        {
+
+        }
+        [HttpPatch("set-swipes")]
     }
 }
