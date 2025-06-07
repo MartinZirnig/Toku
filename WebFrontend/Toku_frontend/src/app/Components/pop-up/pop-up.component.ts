@@ -14,6 +14,8 @@ export class PopUpComponent implements OnInit, OnDestroy, OnChanges, AfterViewIn
   @Input() id!: number;
   @Input() message: string = '';
   @Input() duration: number = 2000;
+  @Input() backgroundColor?: string;
+  @Input() textColor?: string;
   progress: number = 100;
   truncatedMessage: SafeHtml = '';
   isVisible: boolean = false;

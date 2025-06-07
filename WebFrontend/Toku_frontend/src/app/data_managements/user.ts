@@ -118,10 +118,10 @@ export const User = {
 
 
     get HasControl() : boolean {
-        return (sessionStorage.getItem("hasControl") ?? "0") !== "0";
+        return (sessionStorage.getItem("hasControl") ?? "0") == "0";
     },
     set HasControl(value: boolean) {
-        sessionStorage.setItem("hasControl", value ? "1" : "0");
+        sessionStorage.setItem("hasControl", value ? "0" : "1");
     },
     clearHasControl() : void {
         sessionStorage.removeItem("hasControl");
