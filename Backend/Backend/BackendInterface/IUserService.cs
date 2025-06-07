@@ -23,7 +23,7 @@ public interface IUserService : IDisposable
     Task<IEnumerable<KnownUserDataModel>> SearchUserAsync(string part);
     Task<RequestResultModel> UpdateContactAsync(ContactEditModel model, Guid executor);
 
-    Task<SwipeInfoModel> GetSwipesAsync(Guid executor);
-    Task<RequestResultModel> GetSwipesAsync(Guid executor, SwipeInfoModel model);
+    Task<SwipeInfoModel?> GetSwipesAsync(Guid executor);
+    Task<RequestResultModel> SetSwipesAsync(Guid executor, SwipeInfoModel model);
 
 }

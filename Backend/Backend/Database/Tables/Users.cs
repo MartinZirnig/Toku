@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.InteropServices;
+using BackendEnums;
 using BackendInterface;
 using Crypto;
 
@@ -40,6 +41,9 @@ internal class User
     public DateTime CreatedTime { get; set; }
     public DateTime? DeletedTime { get; set; }
     public string Phone { get; set; }
+
+    public MessageOperation LeftSweep { get; set; }
+    public MessageOperation RightSweep { get; set; }
 
 
     public virtual List<UserLogin> UserLogins { get; set; } = new List<UserLogin>();

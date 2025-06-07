@@ -1,8 +1,10 @@
-﻿using BackendInterface;
+﻿using BackendEnums;
+using BackendInterface;
 using BackendInterface.DataObjects;
 using BackendInterface.Models;
 using Crypto;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using MysqlDatabase.Tables;
 using Mysqlx.Prepare;
 using System.Collections.Concurrent;
@@ -583,6 +585,63 @@ internal class UserService : DatabaseServisLifecycle, IUserService
                     .ConfigureAwait(false);
             }
             else contact.Visible = model.Visible;
+
+            await Context.SaveChangesAsync()
+                .ConfigureAwait(false);
+            await transaction.CommitAsync()
+                .ConfigureAwait(false);
+
+            return new RequestResultModel(
+                true, string.Empty);
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync()
+                .ConfigureAwait(false);
+
+            return new RequestResultModel(
+                false, ex.Message);
+        }
+    }
+
+    public async Task<SwipeInfoModel?> GetSwipesAsync(Guid executor)
+    {
+        try
+        {
+            var login = await SupportService
+                .GetUserDataAsync(executor, Context)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+            var user = await Context.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u =>
+                    u.UserId == login.UserId)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+            return new SwipeInfoModel(
+                (uint)user.LeftSweep, (uint)user.RightSweep);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public async Task<RequestResultModel> SetSwipesAsync(Guid executor, SwipeInfoModel model)
+    {
+        await using var transaction = await Context.Database
+            .BeginTransactionAsync()
+            .ConfigureAwait(false);
+
+        try
+        {
+            await Context.Users
+                .ExecuteUpdateAsync(u =>
+                    u.SetProperty(x => x.LeftSweep, (MessageOperation)model.Left)
+                    .SetProperty(x => x.RightSweep, (MessageOperation)model.Rights))
+                .ConfigureAwait(false);
 
             await Context.SaveChangesAsync()
                 .ConfigureAwait(false);

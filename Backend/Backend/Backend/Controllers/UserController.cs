@@ -111,10 +111,28 @@ namespace Backend.Controllers
             return Ok(result);
         }
         [HttpGet("get-swipes")]
-        public async Task<IAsyncResult> GetSwipeActionsAsync()
+        public async Task<IActionResult> GetSwipeActionsAsync()
         {
+            using var service = _serviceProvider.GetUserService();
+            var executor = (Guid)AuthorizationAttribute.GetUID(HttpContext)!;
 
+            var result = await service.GetSwipesAsync(executor)
+                .ConfigureAwait(false);
+            if (result is null)
+                return Unauthorized();
+
+            return Ok(result);
         }
         [HttpPatch("set-swipes")]
+        public async Task<IActionResult> SetSwipeActionsAsync([FromBody] SwipeInfoModel model)
+        {
+            using var service = _serviceProvider.GetUserService();
+            var executor = (Guid)AuthorizationAttribute.GetUID(HttpContext)!;
+
+            var result = await service.SetSwipesAsync(executor, model)
+                .ConfigureAwait(false);
+
+            return Ok(result);
+        }
     }
 }
