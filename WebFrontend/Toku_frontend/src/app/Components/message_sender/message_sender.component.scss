@@ -4,6 +4,50 @@
 
 
 
+.msg-bubble {
+  background: var(--msg-sender-bg);
+  color: var(--msg-sender-text);
+}
+
+.msg-bubble-text {
+  color: var(--msg-sender-text);
+}
+
+.msg-status {
+  color: var(--msg-status-icon);
+}
+.msg-status-icon {
+  color: var(--msg-status-icon);
+}
+.msg-status-read-icon {
+  color: var(--msg-status-read-icon);
+}
+
+.msg-preview {
+  background: var(--msg-preview-bg);
+  color: var(--msg-preview-text);
+}
+.msg-preview-text {
+  color: var(--msg-preview-text);
+}
+.msg-preview-icon {
+  color: var(--msg-preview-text);
+}
+
+.msg-file-preview {
+  background: var(--msg-file-preview-bg);
+}
+.msg-file-preview-text {
+  color: var(--msg-file-preview-text);
+}
+.msg-file-preview-icon {
+  color: var(--msg-file-preview-icon);
+}
+
+.msg-menu-icon {
+  color: var(--msg-status-icon);
+}
+
 .areabox {
   resize: none;
   overflow: hidden;
@@ -13,8 +57,8 @@
   border: 1px solid #ccc;
   border-radius: 4px;
   padding: 8px;
-  background-color: #1f2937; // Match the background color
-  color: #f9fafb; // Match the text color
+  background-color: var(--msg-sender-bg);
+  color: var(--msg-sender-text);
   min-width: 100px; // Minimum width
   max-width: 100%; // Prevent exceeding container width
 }
@@ -52,5 +96,14 @@ p {
 
 .message-appear {
   animation: message-slide-in-up 0.45s cubic-bezier(.4,0,.2,1) both;
+}
+
+.msg-edit-btn {
+  background: var(--msg-sender-bg);
+  color: var(--msg-sender-text);
+}
+
+.long-text {
+  // případně další úpravy pro dlouhý text
 }
 

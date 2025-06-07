@@ -46,6 +46,54 @@ export class MainPageComponent implements OnInit {
 
   showFileDownloadPopup = false;
 
+  // Přidejte pole možností a proměnnou pro vybranou zprávu
+  public suggestedMessages: string[] = [
+  // Klasické přátelské zprávy se smajlíky
+  'Ahoj! 👋',
+  'Dobrý den! ☀️',
+  'Hello! 🌍',
+  'Jak se máš? 😊',
+  'Můžeme si popovídat? 💬',
+  'Zdravím! 🙌',
+  'Co nového? 📰',
+  'Přeji hezký den! 🌞',
+  'Máš chvilku? ⏳',
+  'Rád tě poznávám! 🤝',
+  'Hi! 👋',
+  'Good morning! 🌅',
+  'How are you? 🙂',
+  'Can we chat? 💭',
+  'Greetings! 🙋',
+  "What's new? 🔍",
+  'Have a nice day! 🌼',
+  'Do you have a moment? 🕒',
+  'Nice to meet you! 😄',
+  "Let's start a conversation! 🗨️",
+
+  // Gen Z / Brainrot / Meme hlášky
+  'Am I cooked? 🤯',
+  'This chat bouta be mad lit 🔥',
+  'Rizz check? 😏',
+  'Who up tryna talk fr 💯',
+  'W spawner in here? 🌀',
+  'Just dropped in from Ohio 😭',
+  'Bro I\'m in my villain arc rn 😈',
+  'I\'m not him… or am I? 😶‍🌫️',
+  'Skibidi this convo? 💀',
+  'Caught in 4K texting an AI 📸',
+  'Let’s talk before my attention span resets ⏳',
+  'Bro’s got that main character aura 💫',
+  'Sigma mode: activated 🕶️',
+  'Need some rizz advice 😔',
+  'POV: You’re texting a mysterious sigma man 🧠',
+  'I just respawned in chatland 👻',
+  'Is this chat NPC or real one? 🤖',
+  'Fanum tax paid, now we talkin’ 💵',
+  'Lightskin stare loading… 👁️👄👁️',
+];
+
+  public suggestedMessage: string = '';
+
 constructor(
   private route: ActivatedRoute,
   private msgCtrl: MessageControllService,
@@ -95,6 +143,9 @@ ngOnInit(): void {
     });
 
     this.messager.appendCallback("new-message", data => this.onMessage(data));
+
+    // Vyberte náhodnou zprávu při inicializaci
+    this.suggestedMessage = this.suggestedMessages[Math.floor(Math.random() * this.suggestedMessages.length)];
   }
   
   invalidRoomId(): void {

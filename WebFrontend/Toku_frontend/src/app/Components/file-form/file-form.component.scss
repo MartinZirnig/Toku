@@ -1,33 +1,43 @@
-/* Custom scrollbar styles */
-::-webkit-scrollbar {
-  width: 8px; /* Width of the scrollbar */
+:host {
+  /* CSS proměnné pro barvy */
+  --ff-popup-overlay-bg: rgba(0,0,0,0.5);
+  --ff-popup-bg: #1e293b;
+  --ff-popup-border: #64748b;
+  --ff-popup-shadow: #23293a88;
+  --ff-primary-text: #fff;
+  --ff-secondary-text: #cbd5e1;
+  --ff-list-border: #64748b;
+  --ff-scrollbar-thumb: rgba(255,255,255,0.3);
+  --ff-scrollbar-thumb-hover: rgba(255,255,255,0.5);
+  --ff-scrollbar-track: transparent;
+  --ff-btn-gradient: linear-gradient(135deg,#46f3ff 0%,#528aa9 9.2%,#576086 45.4%,#576086 56.8%,#7b649a 79.2%,#9967ab 93.2%,#ff73e3 100%);
+  --ff-btn-gradient-hover: linear-gradient(135deg,#ff73e3 0%,#9967ab 20%,#7b649a 40%,
+  #576086 60%,
+  #528aa9 80%,
+  #46f3ff 100%
+  );
+  --ff-btn-text: #fff;
+  --ff-remove-btn-bg: linear-gradient(135deg,#dc2626 0%,#be185d 100%);
+  --ff-remove-btn-hover-bg: linear-gradient(135deg,#991b1b 0%,#831843 100%);
+  --ff-list-bg: #23293a;
+  --ff-list-item-bg: #23293a;
+  --ff-list-item-hover-bg: #1e293b;
+  --ff-list-item-remove-bg: linear-gradient(135deg,#dc2626 0%,#be185d 100%);
+  --ff-list-item-remove-hover-bg: linear-gradient(135deg,#991b1b 0%,#831843 100%);
 }
 
-::-webkit-scrollbar-track {
-  background: transparent; /* Make the track invisible */
+/* Overlay */
+.ff-popup-overlay {
+  background: var(--ff-popup-overlay-bg);
 }
 
-::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.3); /* Light tone matching the design */
-  border-radius: 4px; /* Rounded edges for the thumb */
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(255, 255, 255, 0.5); /* Slightly brighter on hover */
-}
-
-/* For Firefox */
-* {
-  scrollbar-width: thin; /* Thin scrollbar */
-  scrollbar-color: rgba(255, 255, 255, 0.3) transparent; /* Thumb and track colors */
-}
-
-.file-form-popup {
-  position: relative;
+/* Popup */
+.ff-popup {
+  background: var(--ff-popup-bg);
+  box-shadow: 0 8px 40px 0 var(--ff-popup-shadow), 0 2px 8px 0 #ff73e344;
   border-radius: 1.25rem;
   border: 2px solid transparent;
-  background: rgba(30, 41, 59, 0.98);
-  box-shadow: 0 8px 40px 0 #23293a88, 0 2px 8px 0 #ff73e344;
+  position: relative;
   overflow: hidden;
   &::before {
     content: '';
@@ -35,15 +45,7 @@
     inset: 0;
     border-radius: 1.25rem;
     padding: 2px;
-    background: linear-gradient(135deg,
-      #46f3ff 0%,
-      #528aa9 9.2%,
-      #576086 45.4%,
-      #576086 56.8%,
-      #7b649a 79.2%,
-      #9967ab 93.2%,
-      #ff73e3 100%
-    );
+    background: var(--ff-btn-gradient);
     -webkit-mask:
       linear-gradient(#fff 0 0) content-box, 
       linear-gradient(#fff 0 0);
@@ -53,38 +55,85 @@
     z-index: 1;
   }
 }
-
-.file-form-popup > * {
+.ff-popup > * {
   position: relative;
   z-index: 2;
 }
 
-.confirm-btn {
-  background: linear-gradient(135deg,
-    #46f3ff 0%,
-    #528aa9 9.2%,
-    #576086 45.4%,
-    #576086 56.8%,
-    #7b649a 79.2%,
-    #9967ab 93.2%,
-    #ff73e3 100%
-  );
-  color: #fff;
+/* Text */
+.ff-text {
+  color: var(--ff-primary-text);
+}
+.ff-secondary-text {
+  color: var(--ff-secondary-text);
+}
+
+/* List & Border */
+.ff-list {
+  background: var(--ff-list-bg);
+}
+.ff-list-border {
+  border: 2px dashed var(--ff-list-border) !important;
+}
+.ff-list-border-drag {
+  border: 2px solid var(--ff-btn-gradient) !important;
+  box-shadow: 0 0 0 2px var(--ff-btn-gradient);
+}
+
+/* List item */
+.ff-list-item {
+  background: var(--ff-list-item-bg);
+  color: var(--ff-primary-text);
+  border: none;
+  transition: background 0.18s;
+}
+.ff-list-item:hover {
+  background: var(--ff-list-item-hover-bg);
+}
+
+/* Remove button */
+.ff-remove-btn {
+  background: var(--ff-remove-btn-bg);
+  color: var(--ff-btn-text);
+  border: none;
+  border-radius: 0 0.75rem 0.75rem 0;
+  transition: background 0.18s;
+}
+.ff-remove-btn:hover {
+  background: var(--ff-remove-btn-hover-bg);
+}
+
+/* Confirm button */
+.ff-btn {
+  background: var(--ff-btn-gradient);
+  color: var(--ff-btn-text);
   font-weight: 600;
   border: none;
   border-radius: 0.75rem;
-  box-shadow: 0 2px 12px 0 #7c3aed33;
+  box-shadow: 0 2px 12px 0 var(--button-shadow, #7c3aed33);
   transition: background 0.18s, box-shadow 0.18s;
 }
+.ff-btn:hover {
+  background: var(--ff-btn-gradient-hover);
+  box-shadow: 0 4px 24px 0 var(--button-shadow, #7c3aed33);
+}
 
-.confirm-btn:hover {
-  background: linear-gradient(135deg,
-    #ff73e3 0%,
-    #9967ab 20%,
-    #7b649a 40%,
-    #576086 60%,
-    #528aa9 80%,
-    #46f3ff 100%
-  );
-  box-shadow: 0 4px 24px 0 #7c3aed33;
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--ff-scrollbar-track);
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--ff-scrollbar-thumb);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--ff-scrollbar-thumb-hover);
+}
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ff-scrollbar-thumb) var(--ff-scrollbar-track);
 }

@@ -25,3 +25,45 @@
 .message-appear {
   animation: message-slide-in-up 0.45s cubic-bezier(.4,0,.2,1) both;
 }
+
+.msg-bubble {
+  background: var(--msg-adresator-bg);
+  color: var(--msg-adresator-text);
+}
+
+.msg-bubble-text {
+  color: var(--msg-adresator-text);
+}
+
+.msg-status {
+  color: var(--msg-status-icon);
+}
+
+.msg-preview {
+  background: var(--msg-preview-bg);
+  color: var(--msg-preview-text);
+}
+.msg-preview-text {
+  color: var(--msg-preview-text);
+}
+.msg-preview-icon {
+  color: var(--msg-preview-text);
+}
+
+.msg-file-preview {
+  background: var(--msg-file-preview-bg);
+}
+.msg-file-preview-text {
+  color: var(--msg-file-preview-text);
+}
+.msg-file-preview-icon {
+  color: var(--msg-file-preview-icon);
+}
+
+.msg-menu-icon {
+  color: var(--msg-status-icon);
+}
+
+.msg-avatar-bg {
+  background: var(--msg-file-preview-bg);
+}

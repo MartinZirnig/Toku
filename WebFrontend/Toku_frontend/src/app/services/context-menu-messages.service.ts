@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { ContextMenuCoordinatorService } from './context-menu-coordinator.service';
 
 export interface ContextMenuMessagesConfig {
   visible: boolean;
@@ -33,7 +34,10 @@ export class ContextMenuMessagesService {
 
   config$ = this.configSubject.asObservable();
 
+  constructor(private coordinator: ContextMenuCoordinatorService) {}
+
   open(config: Omit<ContextMenuMessagesConfig, 'visible'>) {
+    this.coordinator.closeAll();
     this.configSubject.next({ ...config, visible: true });
   }
 

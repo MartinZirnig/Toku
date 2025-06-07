@@ -1,12 +1,12 @@
-<div class="fixed inset-0 flex items-center justify-center z-[99999] bg-black/40">
-  <div class="bg-gray-800 rounded-2xl shadow-xl p-8 max-w-xs w-full text-center border-2 border-pink-400 relative">
-    <button class="absolute top-2 right-2 text-gray-400 hover:text-white text-xl" (click)="close()">&times;</button>
-    <h3 class="text-lg font-bold text-white mb-4">Odstranit zprávu</h3>
-    <p class="text-gray-300 mb-6">Jak chcete zprávu odstranit?</p>
+<div class="popup-overlay fixed inset-0 flex items-center justify-center z-[99999]">
+  <div class="popup-content rounded-2xl shadow-xl p-8 max-w-xs w-full text-center border-2 relative">
+    <button class="popup-close absolute top-2 right-2 text-xl" (click)="close()">&times;</button>
+    <h3 class="popup-title text-lg font-bold mb-4">Odstranit zprávu</h3>
+    <p class="popup-desc mb-6">Jak chcete zprávu odstranit?</p>
     <div class="flex flex-col gap-4">
-      <button class="px-5 py-2 rounded-lg bg-gradient-to-r from-red-500 to-pink-500 text-white font-semibold shadow hover:from-red-600 hover:to-pink-600 transition"
+      <button class="popup-gradient-btn px-5 py-2 rounded-lg font-semibold shadow transition"
         (click)="deleteForMe()">Smazat u mě</button>
-      <button class="px-5 py-2 rounded-lg bg-gradient-to-r from-yellow-500 to-red-500 text-white font-semibold shadow hover:from-yellow-600 hover:to-red-600 transition"
+      <button class="popup-gradient-btn popup-delete-gradient-btn px-5 py-2 rounded-lg font-semibold shadow transition"
         (click)="deleteForAll()">Smazat u všech</button>
     </div>
   </div>

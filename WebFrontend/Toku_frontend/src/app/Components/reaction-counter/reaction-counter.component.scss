@@ -1,0 +1,168 @@
+.reaction-counter-container {
+  display: flex;
+  flex-wrap: nowrap; // změna z wrap na nowrap
+  align-items: center;
+  gap: 0rem; // zmenšeno z 0.25rem
+  background:  --reaction-bg;
+  border-radius: 9999px;
+  padding: 0.1rem 0.5rem;
+  position: relative;
+  user-select: none;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  cursor: pointer;
+  transition: box-shadow 0.18s, transform 0.18s, background 0.18s;
+  will-change: box-shadow, transform, background;
+  overflow-x: visible; // změna z auto na visible, odstraní scrollbar
+
+  &:hover, &.active {
+    box-shadow: 0 2px 12px --reaction-popup-shadow;
+    background: --reaction-popup-bg;
+    transform: scale(1.03);
+  }
+}
+
+.reaction-emoji {
+  display: flex;
+  align-items: center;
+  font-size: 1.05rem;
+  
+  color: --reaction-text;
+  border-radius: 9999px;
+  margin-right: 0.3rem;
+    justify-content: center;
+  transition: background 0.18s, transform 0.18s;
+  cursor: pointer;
+  position: relative;
+  max-height: 20px;
+  min-width: 1.3rem;
+
+  &:hover {
+    background: --reaction-popup-item-hover-bg;
+    transform: scale(1.12) rotate(-4deg);
+    animation: bounce 0.35s;
+  }
+
+  &:active {
+    background: --reaction-popup-item-bg;
+    transform: scale(0.97) rotate(2deg);
+  }
+
+  &.new-reaction {
+    animation: pop-in 0.2s cubic-bezier(.68,-0.55,.27,1.55);
+    background: #fef9c3;
+    box-shadow: 0 2px 8px #fde68a55;
+  }
+}
+
+@keyframes bounce {
+  0%   { transform: scale(1) rotate(0deg);}
+  30%  { transform: scale(1.18) rotate(-8deg);}
+  60%  { transform: scale(0.97) rotate(3deg);}
+  100% { transform: scale(1.12) rotate(-4deg);}
+}
+
+@keyframes pop-in {
+  0%   { transform: scale(0.2) rotate(-30deg); opacity: 0;}
+  60%  { transform: scale(1.25) rotate(10deg); opacity: 1;}
+  100% { transform: scale(1) rotate(0deg); opacity: 1;}
+}
+
+.reaction-count {
+  margin-left: 0.18rem;
+  font-size: 0.78rem;
+  color: --reaction-text;
+  font-weight: 500;
+  text-shadow: none;
+}
+
+.all-reactions-popup {
+  position: absolute;
+  top: auto;
+  bottom: 110%; // místo top: 110%, otevře se nad hlavním boxem
+  left: 50%;
+  transform: translateX(-50%) scale(0.97);
+  background: var(--reaction-popup-bg, #fff);
+  box-shadow: 0 4px 24px var(--reaction-popup-shadow, rgba(0,0,0,0.13));
+  border-radius: 0.75rem;
+  padding: 0.5rem 1rem;
+  min-width: 150px;
+  z-index: 100000;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.08rem; // zmenšeno z 0.25rem
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s, transform 0.22s;
+  
+
+  &.show {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(-50%) scale(1);
+    animation: popupIn 0.22s;
+  }
+}
+
+@keyframes popupIn {
+  0%   { opacity: 0; transform: translateX(-50%) scale(0.92);}
+  100% { opacity: 1; transform: translateX(-50%) scale(1);}
+}
+
+.all-reaction-emoji {
+  font-size: 1.05rem; // stejné jako .reaction-emoji
+  background: var(--reaction-popup-item-bg, #e5e7eb);
+  color: var(--reaction-popup-item-text, #334155);
+  border-radius: 9999px;
+  padding: 0.07rem 0.35rem;
+  display: flex;
+  align-items: center;
+  transition: background 0.18s, transform 0.18s;
+  cursor: pointer;
+  position: relative;
+  margin-right: 0.02rem; // zmenšeno z 0.1rem
+
+  &:hover {
+    background: var(--reaction-popup-item-hover-bg, #e0e7ef);
+    transform: scale(1.12) rotate(-4deg);
+  }
+}
+
+// Odstraňte čísla v popupu
+.all-reaction-count {
+  display: none;
+}
+
+.reaction-placeholder {
+  position: absolute;
+  top: -2.1em;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #aaa1bb;
+  color: --reaction-text;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.18em 0.7em;
+  border-radius: 0.7em;
+  box-shadow: 0 2px 8px --reaction-popup-shadow;
+  pointer-events: none;
+  opacity: 0.97;
+  z-index: 10;
+  white-space: nowrap;
+  transition: opacity 0.15s, transform 0.15s;
+  animation: fadeInUp 0.18s;
+}
+
+.reaction-placeholder-absolute {
+  position: fixed;
+  pointer-events: none;
+  margin: 0;
+  left: 0;
+  top: 0;
+  transform: translateY(-100%) translateX(0); // dolní levý roh nad kurzorem vpravo
+  z-index: 1000001; // zvýšeno, aby bylo vždy nad popupem
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px);}
+  to   { opacity: 0.97; transform: translateX(-50%) translateY(0);}
+}

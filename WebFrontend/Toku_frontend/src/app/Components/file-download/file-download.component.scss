@@ -1,25 +1,23 @@
+.file-download-overlay {
+  background: var(--popup-overlay-bg);
+}
+
 .file-download-popup {
   position: relative;
   border-radius: 1.25rem;
   border: 2px solid transparent;
-  background: rgba(30, 41, 59, 0.98);
-  box-shadow: 0 8px 40px 0 #23293a88, 0 2px 8px 0 #ff73e344;
+  background: var(--popup-bg);
+  box-shadow: 0 8px 40px 0 var(--popup-shadow), 0 2px 8px 0 #ff73e344;
   overflow: hidden;
+  color: var(--primary-text);
+
   &::before {
     content: '';
     position: absolute;
     inset: 0;
     border-radius: 1.25rem;
     padding: 2px;
-    background: linear-gradient(135deg,
-      #46f3ff 0%,
-      #528aa9 9.2%,
-      #576086 45.4%,
-      #576086 56.8%,
-      #7b649a 79.2%,
-      #9967ab 93.2%,
-      #ff73e3 100%
-    );
+    background: var(--download-btn-bg);
     -webkit-mask:
       linear-gradient(#fff 0 0) content-box, 
       linear-gradient(#fff 0 0);
@@ -35,29 +33,49 @@
   z-index: 2;
 }
 
+.primary-text {
+  color: var(--primary-text);
+}
+.secondary-text {
+  color: var(--secondary-text);
+}
+
+.file-list-border {
+  border-color: var(--list-border) !important;
+}
+
+.file-list-bg {
+  background: var(--list-bg);
+}
+
+.file-list-item {
+  background: var(--list-item-bg);
+  color: var(--primary-text);
+  transition: background 0.18s;
+}
+.file-list-item:hover {
+  background: var(--list-item-hover-bg);
+}
+
 .download-btn {
-  background: linear-gradient(135deg,
-    #46f3ff 0%,
-    #528aa9 9.2%,
-    #576086 45.4%,
-    #576086 56.8%,
-    #7b649a 79.2%,
-    #9967ab 93.2%,
-    #ff73e3 100%
-  );
-  color: #fff;
+  background: var(--download-btn-bg);
+  color: var(--download-btn-text);
   border-radius: 0.75rem;
   border: none;
   transition: background 0.18s, box-shadow 0.18s;
 }
-
 .download-btn:hover {
-  background: linear-gradient(135deg,
-    #ff73e3 0%,
-    #9967ab 20%,
-    #7b649a 40%,
-    #576086 60%,
-    #528aa9 80%,
-    #46f3ff 100%
-  );
+  background: var(--download-btn-hover-bg);
+}
+
+.close-btn {
+  background: var(--close-btn-bg);
+  color: var(--close-btn-icon);
+  border-radius: 50%;
+  border: none;
+  transition: background 0.18s, color 0.18s;
+}
+.close-btn:hover {
+  background: var(--close-btn-hover-bg);
+  color: var(--close-btn-icon);
 }
