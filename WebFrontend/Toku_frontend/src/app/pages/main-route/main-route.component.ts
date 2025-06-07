@@ -18,6 +18,8 @@ import { FileService } from '../../data_managements/services/file.service';
 import { UserControlService } from '../../data_managements/control-services/user-control-service.service';
 import { UserService } from '../../data_managements/services/user.service';
 import { User } from '../../data_managements/user';
+import { ColorManagerService } from '../../services/color-manager.service';
+import { ColorSettingsModel } from '../../data_managements/models/color-settings-model';
 
 @Component({
   selector: 'app-main-route',
@@ -30,7 +32,7 @@ import { User } from '../../data_managements/user';
   templateUrl: './main-route.component.html',
   styleUrl: './main-route.component.scss'
 })
-export class MainRouteComponent {
+export class MainRouteComponent implements AfterViewInit {
   atTop = true;
   atBottom = false;
   isFileFormVisible = false; // správná výchozí hodnota
@@ -40,6 +42,7 @@ export class MainRouteComponent {
   showChatLogin = false;
 
   declare public picture?: string;
+  public csm: ColorSettingsModel;
 
   constructor(
     public menuService: OpenAndcloseMenuService,
@@ -47,7 +50,9 @@ export class MainRouteComponent {
     private fileUploadService: FileUploadService,
     public deletePopupService: DeletePopupService, // přidej tuto službu jako public
     private fileService: FileService,
-    private userService: UserService
+    private userService: UserService,
+    public colorManager: ColorManagerService,
+    private el: ElementRef
   )  {
     this.fileUploadService.files$.subscribe((files) => {
       this.hasFiles = files.length > 0;
@@ -67,6 +72,7 @@ export class MainRouteComponent {
     this.fileUploadService.isVisible$.subscribe(
       (isVisible) => (this.isFileFormVisible = isVisible)
     );
+    this.csm = this.colorManager.csm;
   }
 
   openChatLogin() {
@@ -105,6 +111,15 @@ export class MainRouteComponent {
             console.error('Error loading user picture:', error);
           }
         });
+  }
+
+  ngAfterViewInit() {
+    if (!this.csm || !this.csm.gradientButton) return;
+    const root = this.el.nativeElement ?? document.querySelector('app-main-route') ?? document.documentElement;
+    const setVar = (name: string, value: string) => root.style.setProperty(name, value);
+
+    setVar('--scroll-btn-gradient', this.csm.gradientButton.toLinearGradientString(135));
+    setVar('--scroll-btn-gradient-hover', this.csm.gradientButtonHover.toLinearGradientString(135));
   }
 
   attachScrollListener() {

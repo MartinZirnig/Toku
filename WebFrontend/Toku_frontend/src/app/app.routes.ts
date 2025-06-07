@@ -15,5 +15,6 @@ export const routes: Routes = [
     {path: 'main', component: MainRouteComponent},
     {path: 'user-settings', component: UserSettingsComponent},
     {path: 'group-settings', component: GroupSettingsComponent},
+    
     {path: '**', component: LoginComponent}
 ];

@@ -1,14 +1,13 @@
 import { formatPercent, NgClass, NgFor, NgIf } from '@angular/common';
-import { Component, HostListener, Input, NgModule, Pipe, PipeTransform } from '@angular/core';
+import { Component, ElementRef, HostListener, Input, NgModule, Pipe, PipeTransform } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { UserFinderComponent } from './user-finder/user-finder.component';
-import { GroupSettingsService } from './group-settings.service';
+import { UserFinderComponent } from '../../Components/user-finder/user-finder.component';
+import { GroupSettingsService } from '../../services/group-settings.service';
 import { Redirecter } from '../../data_managements/redirecter.service';
 import { ActivatedRoute } from '@angular/router';
 import { GroupEditService } from '../../data_managements/control-services/group-edit.service';
 import { GroupsLoaderService } from '../../data_managements/control-services/groups-loader.service';
 import { GroupUserAccessModel } from '../../data_managements/models/group-user-access-model';
-import { FormsModule } from '@angular/forms';
 import { AreYouSurePopUpService } from '../../Components/are-you-sure-pop-up/are-you-sure-pop-up.service';
 import { AreYouSurePopUpComponent } from '../../Components/are-you-sure-pop-up/are-you-sure-pop-up.component';
 import { UserPermissionModel } from '../../data_managements/models/user-permission-model';
@@ -16,6 +15,8 @@ import { UserControlService } from '../../data_managements/control-services/user
 import { ProfilePictureCircledComponent } from '../../Components/profile-picture-circled/profile-picture-circled.component';
 import { GroupService } from '../../data_managements/services/group-service.service';
 import { FileService } from '../../data_managements/services/file.service';
+import { NgModel, FormsModule } from '@angular/forms';
+
 
 
 
@@ -35,7 +36,10 @@ export class GroupMember {
   }
 }
 
-@Pipe({ name: 'stringify', standalone: true })
+@Pipe({
+  name: 'stringify',
+  standalone: true
+})
 export class StringifyPipe implements PipeTransform {
   transform(value: any): string {
     return JSON.stringify(value, null, 2);
@@ -44,7 +48,7 @@ export class StringifyPipe implements PipeTransform {
 
 @Component({
   selector: 'app-group-settings',
-  imports: [NgIf, NgClass, NgFor, UserFinderComponent, StringifyPipe, FormsModule, AreYouSurePopUpComponent, ProfilePictureCircledComponent],
+  imports: [NgIf, NgClass, NgFor, UserFinderComponent, StringifyPipe, AreYouSurePopUpComponent, ProfilePictureCircledComponent, FormsModule],
   standalone: true,
   templateUrl: './group-settings.component.html',
   styleUrls: ['./group-settings.component.scss']
@@ -102,6 +106,7 @@ export class GroupSettingsComponent {
   @Input() canAddMembers: boolean = true;
   @Input() canEditPermissions: boolean = true;
   @Input() canViewLog: boolean = true;
+  @Input() IsAllowedToSetGroupVisibility: boolean = false;
 
   constructor(
     private sanitizer: DomSanitizer,

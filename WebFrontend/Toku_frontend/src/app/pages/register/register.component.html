@@ -3,30 +3,30 @@
     <div class="logo-corner">
       <app-icon></app-icon>
     </div>
-    <h2>Register</h2>
+    <h2 class="register-card-title">Register</h2>
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
       <div>
-        <label for="name">Name</label>
-        <input id="name" formControlName="name" type="text" />
+        <label for="name" class="register-card-label">Name</label>
+        <input id="name" formControlName="name" type="text" class="register-card-input" />
       </div>
       <div>
-        <label for="email">Email</label>
-        <input id="email" formControlName="email" type="email" />
+        <label for="email" class="register-card-label">Email</label>
+        <input id="email" formControlName="email" type="email" class="register-card-input" />
       </div>
       <div>
-        <label for="password">Password</label>
-        <input id="password" formControlName="password" type="password" />
+        <label for="password" class="register-card-label">Password</label>
+        <input id="password" formControlName="password" type="password" class="register-card-input" />
       </div>
       <div>
-        <label for="confirmPassword">Confirm Password</label>
-        <input id="confirmPassword" formControlName="confirmPassword" type="password" />
+        <label for="confirmPassword" class="register-card-label">Confirm Password</label>
+        <input id="confirmPassword" formControlName="confirmPassword" type="password" class="register-card-input" />
       </div>
-      <button type="submit">Register</button>
+      <button type="submit" class="register-card-btn">Register</button>
     </form>
-    <p class="text-center">
-      Already registered? <a routerLink="/login">Login</a>
+    <p class="register-card-link text-center">
+      Already registered? <a routerLink="/login" class="register-card-link">Login</a>
     </p>
-    <div *ngIf="errorMessage" class="error-message">
+    <div *ngIf="errorMessage" class="register-card-error">
       {{ errorMessage }}
     </div>
   </div>

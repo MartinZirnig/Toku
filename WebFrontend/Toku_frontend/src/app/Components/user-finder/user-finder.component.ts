@@ -1,8 +1,8 @@
 import { NgFor, NgIf } from '@angular/common';
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { GroupSettingsService } from '../group-settings.service';
-import { KnownUserDataModel } from '../../../data_managements/models/known-user-data-model';
-import { UserControlService } from '../../../data_managements/control-services/user-control-service.service';
+import { GroupSettingsService } from '../../services/group-settings.service';
+import { KnownUserDataModel } from '../../data_managements/models/known-user-data-model';
+import { UserControlService } from '../../data_managements/control-services/user-control-service.service';
 
 @Component({
   selector: 'app-user-finder',

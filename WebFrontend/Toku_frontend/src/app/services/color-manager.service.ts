@@ -117,7 +117,7 @@ export class ColorManagerService {
 
       // BACKGROUNDS
       new ArgbColorModel( 0, 0, 0,102), // overlayBackground: rgba(0,0,0,0.4)
-      new ArgbColorModel(30, 41, 59,255), // popupBackground: #1e293b
+      new ArgbColorModel(20, 24, 31, 255), // popupBackground: #1e293b
       new GradientArgbColorModel(
         255, 50,50,50,    // #323232 0%
         255, 30,30,60,    // #1e1e3c 20%

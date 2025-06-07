@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { KnownUserDataModel } from '../../data_managements/models/known-user-data-model';
+import { KnownUserDataModel } from '../data_managements/models/known-user-data-model';
 
 @Injectable({
   providedIn: 'root',

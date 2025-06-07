@@ -183,3 +183,18 @@
   align-items: center;
   justify-content: center;
 }
+
+.delete-account-btn {
+  background: linear-gradient(135deg, #dc2626 0%, #be185d 100%);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 12px 0 #dc262633;
+  transition: background 0.18s, box-shadow 0.18s;
+  padding: 0 1.5rem;
+}
+.delete-account-btn:hover {
+  background: linear-gradient(135deg, #991b1b 0%, #831843 100%);
+  box-shadow: 0 4px 24px 0 #dc262655;
+}

@@ -6,7 +6,9 @@
     <div class="flex flex-col gap-4">
       <button class="popup-gradient-btn px-5 py-2 rounded-lg font-semibold shadow transition"
         (click)="deleteForMe()">Smazat u mě</button>
-      <button class="popup-gradient-btn popup-delete-gradient-btn px-5 py-2 rounded-lg font-semibold shadow transition"
+      <button
+        *ngIf="IsAllowedToDeleteMessage"
+        class="popup-gradient-btn popup-delete-gradient-btn px-5 py-2 rounded-lg font-semibold shadow transition"
         (click)="deleteForAll()">Smazat u všech</button>
     </div>
   </div>
