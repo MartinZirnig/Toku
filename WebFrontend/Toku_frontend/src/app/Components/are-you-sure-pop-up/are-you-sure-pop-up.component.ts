@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef } from '@angular/core';
 import { AreYouSurePopUpService } from './are-you-sure-pop-up.service';
 import { NgIf } from '@angular/common';
 import { ColorManagerService } from '../../services/color-manager.service';
@@ -22,38 +22,32 @@ export class AreYouSurePopUpComponent {
 
   constructor(
     public areYouSureService: AreYouSurePopUpService,
-    private colorManager: ColorManagerService
+    private colorManager: ColorManagerService,
+    private el: ElementRef
   ) {
     this.csm = colorManager.csm;
   }
 
   ngAfterViewInit() {
-    setTimeout(() => this.applyColors(), 0);
-  }
+    if (!this.csm || !this.csm.overlayBackground) return;
 
-  private applyColors() {
-    const overlay = document.querySelector('.popup-overlay') as HTMLElement;
-    const box = document.querySelector('.popup-box') as HTMLElement;
-    if (!box || !this.csm) return;
+    const root = this.el.nativeElement ?? document.querySelector('app-are-you-sure-pop-up') ?? document.documentElement;
+    const setVar = (name: string, value: string) => root.style.setProperty(name, value);
 
-    if (overlay) {
-      overlay.style.setProperty('--overlay-bg', this.csm.overlayBackground.toRgbaString());
-    }
-    box.style.setProperty('--popup-bg', this.csm.popupBackground.toRgbaString());
-    box.style.setProperty('--popup-border', this.csm.popupBorder.toRgbaString());
-    box.style.setProperty('--heading-text', this.csm.headingText.toRgbaString());
-    box.style.setProperty('--secondary-text', this.csm.secondaryText.toRgbaString());
-    box.style.setProperty('--button-text', this.csm.buttonText.toRgbaString());
+    const csm = this.csm;
 
-    // Yes button (gradient)
-    box.style.setProperty('--yes-btn-bg', this.csm.deleteGradientButton.toLinearGradientString(90));
-    box.style.setProperty('--yes-btn-bg-hover', this.csm.deleteGradientButtonHover.toLinearGradientString(90));
-    // No button (secondary)
-    box.style.setProperty('--no-btn-bg', this.csm.secondaryButton.toRgbaString());
-    box.style.setProperty('--no-btn-bg-hover', this.csm.secondaryButtonHover.toRgbaString());
-    // Update button (confirm gradient)
-    box.style.setProperty('--update-btn-bg', this.csm.confirmGradientButton.toLinearGradientString(90));
-    box.style.setProperty('--update-btn-bg-hover', this.csm.confirmGradientButtonHover.toLinearGradientString(90));
+    setVar('--overlay-bg', csm.overlayBackground.toRgbaString());
+    setVar('--popup-bg', csm.popupBackground.toRgbaString());
+    setVar('--popup-border', csm.popupBorder.toRgbaString());
+    setVar('--heading-text', csm.headingText.toRgbaString());
+    setVar('--secondary-text', csm.secondaryText.toRgbaString());
+    setVar('--button-text', csm.buttonText.toRgbaString());
+    setVar('--yes-btn-bg', csm.deleteGradientButton.toLinearGradientString(90));
+    setVar('--yes-btn-bg-hover', csm.deleteGradientButtonHover.toLinearGradientString(90));
+    setVar('--no-btn-bg', csm.secondaryButton.toRgbaString());
+    setVar('--no-btn-bg-hover', csm.secondaryButtonHover.toRgbaString());
+    setVar('--update-btn-bg', csm.confirmGradientButton.toLinearGradientString(90));
+    setVar('--update-btn-bg-hover', csm.confirmGradientButtonHover.toLinearGradientString(90));
   }
 
   onYes() {

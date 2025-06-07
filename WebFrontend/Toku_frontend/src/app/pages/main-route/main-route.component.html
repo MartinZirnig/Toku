@@ -13,12 +13,12 @@
     </div>
     <app-input-ui class="main-input-ui"></app-input-ui>
     <!-- Centered scroll buttons, only visible if not at top/bottom -->
-    <button *ngIf="!atTop" class="scroll-btn scroll-btn-up-center" (click)="scrollToTop()" aria-label="Scroll to top">
+    <button *ngIf="!atTop" class="scroll-btn scroll-btn-up-center gradient-scroll-btn" (click)="scrollToTop()" aria-label="Scroll to top">
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
         <path d="M12 6l-7 7h14l-7-7z" fill="currentColor"/>
       </svg>
     </button>
-    <button *ngIf="!atBottom" class="scroll-btn scroll-btn-down-center" (click)="scrollToBottom()" aria-label="Scroll to bottom">
+    <button *ngIf="!atBottom" class="scroll-btn scroll-btn-down-center gradient-scroll-btn" (click)="scrollToBottom()" aria-label="Scroll to bottom">
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
         <path d="M12 18l7-7H5l7 7z" fill="currentColor"/>
       </svg>

@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, ElementRef, HostListener, ViewChild, AfterViewInit, Input } from '@angular/core';
 import { ContextMenuGroupsService, ContextMenuGroupsConfig } from '../../services/context-menu-groups.service';
 import { NgIf, NgStyle } from '@angular/common';
 import { ColorManagerService } from '../../services/color-manager.service';
@@ -24,13 +24,17 @@ export class ContextMenuGroupsComponent implements AfterViewInit {
 
   @ViewChild('menu', { static: false }) menuRef!: ElementRef;
   public csm: ColorSettingsModel;
+  @Input() IsMuted: boolean = false; // nový input
 
   constructor(
     public menuService: ContextMenuGroupsService,
     private colorManager: ColorManagerService,
     private el: ElementRef
   ) {
-    this.menuService.config$.subscribe(cfg => this.config = cfg);
+    this.menuService.config$.subscribe(cfg => {
+      this.config = cfg;
+      this.IsMuted = !!cfg.IsMuted; // aktualizace hodnoty
+    });
     this.csm = this.colorManager.csm;
   }
 

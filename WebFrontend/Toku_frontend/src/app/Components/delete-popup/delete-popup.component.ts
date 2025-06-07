@@ -14,6 +14,8 @@ import { ColorSettingsModel } from '../../data_managements/models/color-settings
 export class DeletePopupComponent implements AfterViewInit {
   public csm: ColorSettingsModel;
 
+  @Input() IsAllowedToDeleteMessage: boolean = true;
+
   constructor(
     public deletePopupService: DeletePopupService,
     private colorManager: ColorManagerService,

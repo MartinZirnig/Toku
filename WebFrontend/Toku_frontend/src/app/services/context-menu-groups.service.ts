@@ -10,6 +10,7 @@ export interface ContextMenuGroupsConfig {
     settings: () => void;
     mute: () => void;
   };
+  IsMuted?: boolean; // nový parametr
 }
 
 @Injectable({ providedIn: 'root' })
@@ -21,7 +22,8 @@ export class ContextMenuGroupsService {
     actions: {
       settings: () => {},
       mute: () => {},
-    }
+    },
+    IsMuted: false // výchozí hodnota
   });
 
   config$ = this.configSubject.asObservable();

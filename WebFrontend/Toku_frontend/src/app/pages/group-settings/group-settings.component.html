@@ -119,10 +119,10 @@
           </div>
         </div>
         <!-- Public/Private Switch -->
-        <div class="flex items-center bg-gray-700 rounded-lg px-4 py-3" style="width:100%;">
+        <div  class="flex items-center bg-gray-700 rounded-lg px-4 py-3" style="width:100%;">
           <label class="block text-gray-300 text-sm mb-1 flex-1">Group visibility</label>
           <span class="text-white text-sm mr-2">{{ isPublicGroup ? 'Public' : 'Private' }}</span>
-          <label class="switch ml-2">
+          <label class="switch ml-2" *ngIf="IsAllowedToSetGroupVisibility">
             <input type="checkbox" [(ngModel)]="isPublicGroup" />
             <span class="slider"></span>
           </label>

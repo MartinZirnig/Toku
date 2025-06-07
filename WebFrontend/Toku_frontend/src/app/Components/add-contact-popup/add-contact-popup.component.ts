@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ElementRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ProfilePictureCircledComponent } from '../profile-picture-circled/profile-picture-circled.component';
 import { KnownUserDataModel } from '../../data_managements/models/known-user-data-model';
@@ -39,7 +39,8 @@ export class AddContactPopupComponent implements OnInit {
 
   constructor(
     private colorManager: ColorManagerService,
-    private userService: UserService
+    private userService: UserService,
+    private el: ElementRef
   ) {
     this.csm = colorManager.csm;
   }
@@ -48,41 +49,37 @@ export class AddContactPopupComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-    setTimeout(() => this.applyColors(), 0);
-  }
+    if (!this.csm || !this.csm.overlayBackground) return;
 
-  private applyColors() {
-    const popup = document.querySelector('.add-contact-popup') as HTMLElement;
-    const overlay = document.querySelector('.popup-overlay') as HTMLElement;
-    if (!popup || !this.csm) return;
+    const root = this.el.nativeElement ?? document.querySelector('app-add-contact-popup') ?? document.documentElement;
+    const setVar = (name: string, value: string) => root.style.setProperty(name, value);
 
-    if (overlay) {
-      overlay.style.setProperty('--overlay-bg', this.csm.overlayBackground.toRgbaString());
-    }
+    const csm = this.csm;
 
-    popup.style.setProperty('--popup-bg', this.csm.popupBackground.toRgbaString());
-    popup.style.setProperty('--popup-border', this.csm.popupBorder.toRgbaString());
-    popup.style.setProperty('--button-shadow', this.csm.buttonShadow.toRgbaString());
-    popup.style.setProperty('--heading-text', this.csm.headingText.toRgbaString());
-    popup.style.setProperty('--close-btn-bg', this.csm.closeButtonBackground.toRgbaString());
-    popup.style.setProperty('--close-btn-bg-hover', this.csm.closeButtonBackgroundHover.toRgbaString());
-    popup.style.setProperty('--close-btn-icon', this.csm.closeButtonIcon.toRgbaString());
-    popup.style.setProperty('--input-bg', this.csm.inputBackground.toRgbaString());
-    popup.style.setProperty('--input-bg-focus', this.csm.inputBackgroundFocus.toRgbaString());
-    popup.style.setProperty('--input-text', this.csm.inputText.toRgbaString());
-    popup.style.setProperty('--input-border', this.csm.inputBorder.toRgbaString());
-    popup.style.setProperty('--input-border-focus', this.csm.inputBorderFocus.toRgbaString());
-    popup.style.setProperty('--input-placeholder', this.csm.inputPlaceholder.toRgbaString());
-    popup.style.setProperty('--list-bg', this.csm.listBackground.toRgbaString());
-    popup.style.setProperty('--list-border', this.csm.listBorder.toRgbaString());
-    popup.style.setProperty('--list-divider', this.csm.listDivider.toRgbaString());
-    popup.style.setProperty('--highlight-bg', this.csm.highlightBackground.toRgbaString());
-    popup.style.setProperty('--primary-text', this.csm.primaryText.toRgbaString());
-    popup.style.setProperty('--secondary-text', this.csm.secondaryText.toRgbaString());
-    popup.style.setProperty('--muted-text', this.csm.mutedText.toRgbaString());
-    popup.style.setProperty('--gradient-btn-bg', this.csm.gradientButton.toLinearGradientString(135));
-    popup.style.setProperty('--gradient-btn-bg-hover', this.csm.gradientButtonHover.toLinearGradientString(135));
-    popup.style.setProperty('--button-text', this.csm.buttonText.toRgbaString());
+    setVar('--overlay-bg', csm.overlayBackground.toRgbaString());
+    setVar('--popup-bg', csm.popupBackground.toRgbaString());
+    setVar('--popup-border', csm.popupBorder.toRgbaString());
+    setVar('--button-shadow', csm.buttonShadow.toRgbaString());
+    setVar('--heading-text', csm.headingText.toRgbaString());
+    setVar('--close-btn-bg', csm.closeButtonBackground.toRgbaString());
+    setVar('--close-btn-bg-hover', csm.closeButtonBackgroundHover.toRgbaString());
+    setVar('--close-btn-icon', csm.closeButtonIcon.toRgbaString());
+    setVar('--input-bg', csm.inputBackground.toRgbaString());
+    setVar('--input-bg-focus', csm.inputBackgroundFocus.toRgbaString());
+    setVar('--input-text', csm.inputText.toRgbaString());
+    setVar('--input-border', csm.inputBorder.toRgbaString());
+    setVar('--input-border-focus', csm.inputBorderFocus.toRgbaString());
+    setVar('--input-placeholder', csm.inputPlaceholder.toRgbaString());
+    setVar('--list-bg', csm.listBackground.toRgbaString());
+    setVar('--list-border', csm.listBorder.toRgbaString());
+    setVar('--list-divider', csm.listDivider.toRgbaString());
+    setVar('--highlight-bg', csm.highlightBackground.toRgbaString());
+    setVar('--primary-text', csm.primaryText.toRgbaString());
+    setVar('--secondary-text', csm.secondaryText.toRgbaString());
+    setVar('--muted-text', csm.mutedText.toRgbaString());
+    setVar('--gradient-btn-bg', csm.gradientButton.toLinearGradientString(135));
+    setVar('--gradient-btn-bg-hover', csm.gradientButtonHover.toLinearGradientString(135));
+    setVar('--button-text', csm.buttonText.toRgbaString());
   }
 
   get filteredUsers(): KnownUserDataModel[] {

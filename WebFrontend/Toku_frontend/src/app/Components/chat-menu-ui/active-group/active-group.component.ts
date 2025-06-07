@@ -26,6 +26,7 @@ export class ActiveGroupComponent implements AfterViewInit {
   @Input() disableContextMenu: boolean = false;
   @Input() hideMenuDots: boolean = false;
   @Input() picture?: string;
+  @Input() IsMuted: boolean = false; // nový input
   public csm: ColorSettingsModel;
 
   ngOnChanges() {
@@ -119,8 +120,9 @@ export class ActiveGroupComponent implements AfterViewInit {
       actions: {
         settings: () => this.editClicked(),
         mute: () => this.muteGroup()
-      }
-    });
+      },
+      IsMuted: this.IsMuted // předání do context menu
+    } as any); // typová poznámka kvůli rozšíření configu
   }
 
   @HostListener('contextmenu', ['$event'])
@@ -138,15 +140,16 @@ export class ActiveGroupComponent implements AfterViewInit {
       actions: {
         settings: () => this.editClicked(),
         mute: () => this.muteGroup()
-      }
-    });
+      },
+      IsMuted: this.IsMuted // předání do context menu
+    } as any);
     return true;
   }
 
   muteGroup() {
     if (this.disableContextMenu) return;
-    // Implementace ztišení skupiny
-    alert('Skupina ztišena!');
+    this.IsMuted = !this.IsMuted; // přepnutí stavu
+    alert(this.IsMuted ? 'Skupina ztišena!' : 'Skupina odtišena!');
   }
 
   onGroupMenuClick(item: any, event: MouseEvent) {

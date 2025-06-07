@@ -156,6 +156,7 @@
               </svg>
             </button>
           </div>
+          
         </div>
         <!-- Account Info -->
         <div>
@@ -166,6 +167,31 @@
             </svg>
             <span class="flex-1 text-gray-300">{{ userAccountInfo }}</span>
           </div>
+        </div>
+        <!-- Změnit heslo tlačítko a Delete account tlačítko -->
+        <div class="flex gap-4 mt-12">
+          <button
+            class="delete-account-btn flex items-center justify-center gap-2 w-full"
+            style="min-width: 0; height: 48px;"
+            (click)="onDeleteAccountClick()"
+            type="button"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 7V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v2m5 4v6m4-6v6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Delete account
+          </button>
+          <button
+            class="update-btn flex items-center justify-center gap-2 w-full"
+            style="min-width: 0; height: 48px;"
+            (click)="redirectToChangePassword()"
+            type="button"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M12 17a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2 2 2 0 0 0-2 2v2a2 2 0 0 0 2 2zm6-6V7a6 6 0 0 0-12 0v4M5 11h14v10H5V11z" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Change password
+          </button>
         </div>
       </div>
 

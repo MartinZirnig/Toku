@@ -50,7 +50,7 @@
       <!-- Přidejte tuto podmínku pro prázdný chat -->
     
     </div>
-    <div *ngIf="!dummyVisible && messages.length === 0" class="flex justify-center absolute items-center h-40 text-gray-400 text-lg font-medium">
+    <div *ngIf="!dummyVisible && messages.length === 0 && showEmptyChatHint" class="flex justify-center absolute items-center h-40 text-gray-400 text-lg font-medium">
       Zatím zde nejsou žádné zprávy. Napište třeba "{{ suggestedMessage }}"
     </div>
   </div>

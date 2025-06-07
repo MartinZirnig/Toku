@@ -1,4 +1,4 @@
-import { Component, numberAttribute, OnInit } from '@angular/core';
+import { Component, numberAttribute, OnInit, OnDestroy } from '@angular/core';
 import { Message_senderComponent } from '../../Components/message_sender/message_sender.component';
 import { MessageAdresatorComponent } from '../../Components/message-adresator/message-adresator.component';
 import { ActivatedRoute, RouterOutlet } from '@angular/router';
@@ -38,7 +38,7 @@ import { concatMap, filter, observeOn } from 'rxjs/operators';
   templateUrl: './main-page.component.html',
   styleUrls: ['./main-page.component.scss']
 })
-export class MainPageComponent implements OnInit {
+export class MainPageComponent implements OnInit, OnDestroy {
   public messages: Array<MessageFormat> = [];
   public rawMessages: Array<StoredMessageModel> = []
   public roomId: number = 0;
@@ -93,6 +93,9 @@ export class MainPageComponent implements OnInit {
 ];
 
   public suggestedMessage: string = '';
+  public showEmptyChatHint: boolean = false; // Přidáno pro zpožděné zobrazení hlášky
+
+  private emptyHintTimeout: any = null;
 
 constructor(
   private route: ActivatedRoute,
@@ -108,12 +111,22 @@ constructor(
   private fileService: FileService
 ) {}
 
+  // Přidejte tuto metodu do třídy
+  private setRandomSuggestedMessage() {
+    if (this.suggestedMessages.length > 0) {
+      this.suggestedMessage = this.suggestedMessages[Math.floor(Math.random() * this.suggestedMessages.length)];
+    }
+  }
+
 ngOnInit(): void {
   this.filter.Load();
   this.dummyVisible = true;
   this.sendService.messageAdded = this.addMessage.bind(this);
   this.sendService.mainPage = this;
-  
+
+  // Nastavte náhodnou hlášku při prvním načtení
+  this.setRandomSuggestedMessage();
+
   this.route.fragment.subscribe(fragment => {
     const url = this.redirecter.GetUrl().split('#')[0];
     if (url === '/main') {
@@ -132,40 +145,121 @@ ngOnInit(): void {
       this.initializeMessages(id);
       this.readMessages(id);
     }
-    });
+    // Přidejte reset timeru při každé změně chatu (fragmentu)
+    this.resetEmptyHintTimerAfterDummy();
+    // Nastavte náhodnou hlášku při každé změně chatu
+    this.setRandomSuggestedMessage();
+  });
 
-    setTimeout(() => {
-      this.dummyVisible = false;
-    }, 5);
-  
-    this.fileDownloadPopupService.visible$.subscribe(visible => {
-      this.showFileDownloadPopup = visible;
-    });
+  setTimeout(() => {
+    console.log('setTimeout in ngOnInit fired');
+    this.dummyVisible = false;
+    this.setEmptyHintTimeout();
+  }, 5);
 
-    this.messager.appendCallback("new-message", data => this.onMessage(data));
+  this.fileDownloadPopupService.visible$.subscribe(visible => {
+    this.showFileDownloadPopup = visible;
+  });
 
-    // Vyberte náhodnou zprávu při inicializaci
-    this.suggestedMessage = this.suggestedMessages[Math.floor(Math.random() * this.suggestedMessages.length)];
+  this.messager.appendCallback("new-message", data => this.onMessage(data));
+
+  // Vyberte náhodnou zprávu při inicializaci
+  this.suggestedMessage = this.suggestedMessages[Math.floor(Math.random() * this.suggestedMessages.length)];
+
+  // Odstraňte toto volání z ngOnInit:
+  // this.setEmptyHintTimeout();
+}
+
+// Přidejte tuto novou metodu pro správné resetování timeru po změně chatu
+private resetEmptyHintTimerAfterDummy() {
+  // Po každé změně chatu nastavte dummyVisible na true a po 5ms na false + timer
+  this.dummyVisible = true;
+  if (this.emptyHintTimeout) {
+    clearTimeout(this.emptyHintTimeout);
   }
-  
-  invalidRoomId(): void {
+  setTimeout(() => {
+    this.dummyVisible = false;
+    this.setEmptyHintTimeout();
+  }, 5);
+}
 
-    if (Cache.peek('room') !== null) {
-      const room = Number(Cache.peek('room'));
-      if (!Number.isNaN(room)){
-        this.redirecter.Chat(room);
+// Přidejte metodu pro nastavení zpoždění
+private setEmptyHintTimeout() {
+  console.log('setEmptyHintTimeout called');
+  if (this.emptyHintTimeout) {
+    clearTimeout(this.emptyHintTimeout);
+  }
+  this.showEmptyChatHint = false;
+  console.log('dummyVisible:', this.dummyVisible, ', messages.length:', this.messages.length);
+
+  // ODEBERTE tento testovací setTimeout, už není potřeba:
+  // setTimeout(() => {
+  //   console.log('TEST: simple setTimeout fired');
+  // }, 500);
+
+  this.emptyHintTimeout = setTimeout(() => {
+    console.log('setTimeout in setEmptyHintTimeout fired');
+    console.log('500ms up');
+    this.ngZone.run(() => {
+      if (!this.dummyVisible && this.messages.length === 0) {
+        this.showEmptyChatHint = true;
       }
-      else {
-        this.redirecter.Login();
-      }
+    });
+  }, 500);
+}
+
+// Upravte místa, kde se mění messages nebo dummyVisible, aby se znovu nastavilo zpoždění
+private appendMessage(msg: StoredMessageModel, file?: string) {
+  const stat = StoredMessageModel.getStatus(msg.status);
+  const sender = StoredMessageModel.isSender(msg.status);
+  const message = new MessageFormat(
+    msg.messageContent, msg.time,
+    stat, msg.pinnedMessagePrewiev ?? null,
+    (msg.attachedFilesId?.length ?? 0) !== 0, msg.timeStamp ?? null, sender, msg, file ?? ""
+  );
+  this.messages.push(message);
+  this.setEmptyHintTimeout();
+}
+
+onDeleteMessage(index: number): void {
+  this.messages.splice(index, 1);
+  this.setEmptyHintTimeout();
+}
+
+ngOnChanges() {
+  this.setEmptyHintTimeout();
+}
+
+// Po vypnutí dummyVisible také nastavte timeout
+ngAfterViewChecked() {
+  // Volat pouze pokud se stav opravdu změnil
+  // Tato metoda je volána extrémně často, proto zde NEVOLAT setEmptyHintTimeout bez podmínky!
+  // Buď ji úplně odstraňte, nebo použijte např. nějakou podmínku, která zabrání opakovanému volání.
+  // Nejjednodušší je ji úplně odstranit, protože setEmptyHintTimeout už voláte při změně dat a dummyVisible.
+
+  // if (!this.dummyVisible) {
+  //   this.setEmptyHintTimeout();
+  // }
+}
+
+invalidRoomId(): void {
+
+  if (Cache.peek('room') !== null) {
+    const room = Number(Cache.peek('room'));
+    if (!Number.isNaN(room)){
+      this.redirecter.Chat(room);
+    }
+    else {
+      this.redirecter.Login();
     }
   }
-  redirectWhenAccessDenied(id: string): void {
-    if (!User.IsUserInGroup(id))
-      this.redirecter.LastGroup();
-  }
+}
+redirectWhenAccessDenied(id: string): void {
+  if (!User.IsUserInGroup(id))
+    this.redirecter.LastGroup();
+}
 
-  initializeMessages(group: number): void {
+initializeMessages(group: number): void {
   this.msgCtrl.loadMessages(group).subscribe({
     next: response => {
       this.rawMessages = response;
@@ -262,17 +356,7 @@ private addMessage(msg: StoredMessageModel): void {
     }
   });
 }
-  private appendMessage(msg: StoredMessageModel, file?: string) {
-    const stat = StoredMessageModel.getStatus(msg.status);
-    const sender = StoredMessageModel.isSender(msg.status);
-    
-    const message = new MessageFormat(
-        msg.messageContent, msg.time, 
-        stat, msg.pinnedMessagePrewiev ?? null, 
-        (msg.attachedFilesId?.length ?? 0) !== 0, msg.timeStamp ?? null, sender, msg, file ?? "");
 
-    this.messages.push(message);
-  }
 
 private scrollDown(){
   setTimeout(() => {
@@ -284,10 +368,6 @@ private scrollDown(){
     }
   }, 0);
 }
-
-  onDeleteMessage(index: number): void {
-    this.messages.splice(index, 1);
-  }
 
   private onMessage(data: string) {
     try{
@@ -319,9 +399,12 @@ catch (error)
 }
   }
 
-  
-
-
+  ngOnDestroy() {
+    console.log('MainPageComponent destroyed');
+    if (this.emptyHintTimeout) {
+      clearTimeout(this.emptyHintTimeout);
+    }
+  }
 }
 class MessageFormat {
   constructor(

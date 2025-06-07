@@ -17,6 +17,7 @@ import { UserService } from '../../data_managements/services/user.service';
 import { FileService } from '../../data_managements/services/file.service';
 import { ContactEditModel } from '../../data_managements/models/contact-edit-model';
 import { SwipeInfoModel } from '../../data_managements/models/swipe-info-model';
+import { Router } from '@angular/router';
 import { use } from 'marked';
 
 export type SwipeAction = 'reply' | 'react' | 'copy' | 'delete' | 'edit';
@@ -86,7 +87,8 @@ export class UserSettingsComponent {
     private areYouSureService: AreYouSurePopUpService,
     private aiGroupVisibility: AiGroupVisibilityService,
     private userService: UserService,
-    private fileService: FileService
+    private fileService: FileService,
+    private router: Router // <-- přidat Router
   ) {}
 
   ngOnInit() {
@@ -560,5 +562,25 @@ export class UserSettingsComponent {
     }
 
     return true;
+  }
+
+  redirectToChangePassword() {
+    this.router.navigate(['changepass']);
+  }
+
+  onDeleteAccountClick() {
+    this.showAreYouSure = true;
+    this.areYouSureService.open(
+      (result) => {
+        this.showAreYouSure = false;
+        if (result === 'yes') {
+          // TODO: Implement actual delete logic here
+          console.log('Account deletion confirmed');
+        }
+      },
+      `You want to delete your account? ALL YOUR DATA WILL BE LOST PERMANENTLY!`,
+      'Yes',
+      'No'
+    );
   }
 }
