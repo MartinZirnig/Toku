@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using MysqlDatabase.Tables;
 using Org.BouncyCastle.Asn1;
+using System.Reflection;
 using System.Security;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -252,7 +253,9 @@ internal class FileService : DatabaseServisLifecycle, IFileService
                 .FirstOrDefaultAsync(sf => sf.StoredFileId == fileId)
                 .ConfigureAwait(false)
                 ?? throw new FileNotFoundException();
-            var path = file.FilePath;
+
+            var basePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
+            var path = Path.Combine(basePath, file.FilePath);
 
             await using var stream = File.OpenRead(path);
             var decriptionStream = new DecryptedStream(stream, key);

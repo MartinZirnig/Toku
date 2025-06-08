@@ -19,7 +19,7 @@ public sealed class RegisterController : ControllerBase
     }
 
 
-    [HttpPost]
+    [HttpPost("register")]
     public async Task<IActionResult> RegisterAsync([FromBody] UserRegistrationModel userDat)
     {
         using var service = _serviceProvider.GetUserService();
@@ -30,7 +30,4 @@ public sealed class RegisterController : ControllerBase
 
         return Ok(loginData);
     }
-
-
-
 }

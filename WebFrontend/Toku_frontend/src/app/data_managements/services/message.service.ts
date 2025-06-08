@@ -8,6 +8,7 @@ import { HttpParams } from '@angular/common/http';
 import { RequestResultModel } from '../models/result-model';
 import { MessageEditModel } from '../models/message-edit-model';
 import { MessageRemoveModel } from '../models/message-remove-model';
+import { StoredDownloadableFileModel } from '../models/stored-downloadable-file-model';
 
 @Injectable({
   providedIn: 'root'
@@ -56,5 +57,11 @@ export class MessageService {
       .set('messageId', mesageId.toString());
 
     return this.http.delete<RequestResultModel>(`${this.baseUrl}/hide-message`, {params});
+  }
+  getDownloadableFiles(messageId: number) : Observable<StoredDownloadableFileModel[]> {
+    const params = new HttpParams()
+      .set("messageId", messageId);
+
+    return this.http.get<StoredDownloadableFileModel[]>(`${this.baseUrl}/get-message-files`, {params: params});
   }
 }

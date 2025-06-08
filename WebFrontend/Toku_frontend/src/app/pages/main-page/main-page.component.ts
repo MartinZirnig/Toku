@@ -1,4 +1,4 @@
-import { Component, numberAttribute, OnInit, OnDestroy } from '@angular/core';
+import { Component, numberAttribute, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Message_senderComponent } from '../../Components/message_sender/message_sender.component';
 import { MessageAdresatorComponent } from '../../Components/message-adresator/message-adresator.component';
 import { ActivatedRoute, RouterOutlet } from '@angular/router';
@@ -22,6 +22,8 @@ import { MessageFilterService } from '../../services/message-filter.service';
 import { FileService } from '../../data_managements/services/file.service';
 import { from, Observable } from 'rxjs';
 import { concatMap, filter, observeOn } from 'rxjs/operators';
+import { MessageService } from '../../data_managements/services/message.service';
+import { AiService } from '../../data_managements/services/ai-service.service';
 @Component({
   selector: 'app-main-page',
   imports: [
@@ -43,6 +45,8 @@ export class MainPageComponent implements OnInit, OnDestroy {
   public rawMessages: Array<StoredMessageModel> = []
   public roomId: number = 0;
   public dummyVisible: boolean = true;
+
+  fileMessageId?: number;
 
   showFileDownloadPopup = false;
 
@@ -108,7 +112,9 @@ constructor(
   private popup: PopUpService,
   private messager: MessagerService,
   private filter: MessageFilterService,
-  private fileService: FileService
+  private fileService: FileService,
+  private aiService: AiService,
+  private cdRef: ChangeDetectorRef
 ) {}
 
   // Přidejte tuto metodu do třídy
@@ -144,9 +150,8 @@ ngOnInit(): void {
       this.initializeMessages(id);
       this.readMessages(id);
     }
-    // Přidejte reset timeru při každé změně chatu (fragmentu)
+
     this.resetEmptyHintTimerAfterDummy();
-    // Nastavte náhodnou hlášku při každé změně chatu
     this.setRandomSuggestedMessage();
   });
 
@@ -156,16 +161,13 @@ ngOnInit(): void {
   }, 5);
 
   this.fileDownloadPopupService.visible$.subscribe(visible => {
+    this.fileMessageId = this.fileDownloadPopupService.messageId;
     this.showFileDownloadPopup = visible;
   });
 
   this.messager.appendCallback("new-message", data => this.onMessage(data));
 
-  // Vyberte náhodnou zprávu při inicializaci
   this.suggestedMessage = this.suggestedMessages[Math.floor(Math.random() * this.suggestedMessages.length)];
-
-  // Odstraňte toto volání z ngOnInit:
-  // this.setEmptyHintTimeout();
 }
 
 // Přidejte tuto novou metodu pro správné resetování timeru po změně chatu
@@ -204,11 +206,6 @@ private setEmptyHintTimeout() {
 
 // Upravte místa, kde se mění messages nebo dummyVisible, aby se znovu nastavilo zpoždění
 private appendMessage(msg: StoredMessageModel, file?: string) {
-  const pt: string | null  = msg.pinnedMessagePreview ?? null;
-  console.log(msg);
-  console.log(msg.pinnedMessagePreview);
-  console.log(pt);
-
   const stat = StoredMessageModel.getStatus(msg.status);
   const sender = StoredMessageModel.isSender(msg.status);
   const message = new MessageFormat(
@@ -217,6 +214,7 @@ private appendMessage(msg: StoredMessageModel, file?: string) {
     msg.attachedFilesId?.length ?? 0, msg.timeStamp ?? null, sender, msg, file ?? "",
     msg.hasPinnedFile, msg.filesSize
   );
+  message.picture = msg.prewiwePicture;
 
   this.messages.push(message);
   this.setEmptyHintTimeout();
@@ -261,6 +259,7 @@ redirectWhenAccessDenied(id: string): void {
 }
 
 initializeMessages(group: number): void {
+ if (group !== 0) {
   this.msgCtrl.loadMessages(group).subscribe({
     next: response => {
       this.rawMessages = response;
@@ -283,6 +282,23 @@ initializeMessages(group: number): void {
       console.error('Error while fetching messagesd:', err);
     }
   });
+ } else {
+  this.aiService.LoadChat().subscribe({
+    next: response => {
+      this.rawMessages = response;
+      this.messages = [];
+      console.log(response);
+      response.forEach(msg => {
+        this.rawMessages = response;
+        this.appendMessage(msg);
+      });
+    },
+    error: err => {
+      console.error("cannot load ai chat: ", err)
+    }
+  })
+
+ }
 }
 
   readMessages(group: number): void {
@@ -305,20 +321,24 @@ private addMessage(msg: StoredMessageModel): void {
         next: blob => {
           const reader = new FileReader();
           reader.onload = () => {
+            this.loadMessage(msg);
             this.appendMessage(msg, reader.result as string);
           };
           reader.onerror = () => {
             console.error('Chyba při čtení obrázku');
+            this.loadMessage(msg);
             this.appendMessage(msg);
           };
           reader.readAsDataURL(blob.body as Blob);
         },
         error: err => {
           console.error('Nepodařilo se načíst obrázek odesílatele:', err);
+          this.loadMessage(msg);
           this.appendMessage(msg);
         }
       });
     } else {
+      this.loadMessage(msg);
       this.appendMessage(msg);
     }
 }
@@ -331,12 +351,14 @@ private addMessage(msg: StoredMessageModel): void {
         next: blob => {
           const reader = new FileReader();
           reader.onload = () => {
+            this.loadMessage(msg);
             this.appendMessage(msg, reader.result as string);
             observer.next();
             observer.complete();
           };
           reader.onerror = () => {
-            console.error('Chyba při čtení obrázku');
+            console.error('cannot load sender profile: No response');
+            this.loadMessage(msg);
             this.appendMessage(msg);
             observer.next();
             observer.complete();
@@ -344,18 +366,42 @@ private addMessage(msg: StoredMessageModel): void {
           reader.readAsDataURL(blob.body as Blob);
         },
         error: err => {
-          console.error('Nepodařilo se načíst obrázek odesílatele:', err);
+          console.error('cannot load sender profile:', err);
+            this.loadMessage(msg);
           this.appendMessage(msg);
           observer.next();
           observer.complete();
         }
       });
     } else {
+      this.loadMessage(msg);
       this.appendMessage(msg);
       observer.next();
       observer.complete();
     }
   });
+}
+
+private loadMessage(msg: StoredMessageModel) : void {
+  if (msg.pngId){
+    console.log(msg);
+    this.fileService.getGroupSecret(String(msg.pngId)).subscribe({
+      next: response => {
+          if (response) {
+                      const reader = new FileReader();
+          reader.onload = () => {
+            msg.prewiwePicture = (reader.result as string);
+          };
+          reader.readAsDataURL(response.body as Blob);
+          } else {
+            console.error("cannot load picture prewiev: Not delivered");
+          }
+      },
+      error: err => {
+        console.error("cannot load picture prewiev: ", err);
+      }
+    })
+  }
 }
 
 
@@ -401,7 +447,6 @@ catch (error)
   }
 
   ngOnDestroy() {
-    console.log('MainPageComponent destroyed');
     if (this.emptyHintTimeout) {
       clearTimeout(this.emptyHintTimeout);
     }
@@ -421,4 +466,6 @@ class MessageFormat {
     public hasPinnedFile: boolean,
     public totalSize: number,
   ) { }
+
+  public picture?: string;
 }

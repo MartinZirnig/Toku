@@ -58,6 +58,9 @@ export class MessageAdresatorComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    if (this.image)
+      console.log(this.image);
+
     this.isLongText = this.text.length > 50; // Adjust threshold as needed
     this.showFullText = false;
 
@@ -174,6 +177,7 @@ export class MessageAdresatorComponent implements OnInit {
   }
 
   onFilesPreviewClick(): void {
+    this.fileDownloadPopupService.messageId = this.raw.raw.messageId;
     this.fileDownloadPopupService.open();
   }
 

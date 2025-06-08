@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { RequestResultModel } from '../models/result-model';
 import { User } from '../user';
 import { __param } from 'tslib';
+import { AnyCatcher } from 'rxjs/internal/AnyCatcher';
 
 @Injectable({
   providedIn: 'root'
@@ -49,8 +50,16 @@ export class FileService {
       observe: 'response',
     });
   }
-    getGroupFile(fileId: string): Observable<any> {
+  getGroupFile(fileId: string): Observable<any> {
     const path = this.baseUrl + "/get-file/" + fileId;
+
+    return this.http.get(path, {
+      responseType: 'blob', 
+      observe: 'response',
+    });
+  }
+  getGroupSecret(fileId: string) {
+    const path = this.baseUrl + "/get-secret-file/" + fileId;
 
     return this.http.get(path, {
       responseType: 'blob', 

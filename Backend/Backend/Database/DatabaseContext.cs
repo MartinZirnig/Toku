@@ -41,9 +41,9 @@ internal class DatabaseContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseMySQL(ConnectionString);
-        //.EnableSensitiveDataLogging()
-        //.LogTo(Console.WriteLine, LogLevel.Information);
+        optionsBuilder.UseMySQL(ConnectionString)
+        .EnableSensitiveDataLogging()
+        .LogTo(Console.WriteLine, LogLevel.Information);
 
     }
 

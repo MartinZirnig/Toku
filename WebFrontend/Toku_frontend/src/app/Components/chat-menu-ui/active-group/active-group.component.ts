@@ -79,6 +79,7 @@ export class ActiveGroupComponent implements AfterViewInit {
       next: response => {
         if (response.success){
 
+          /*
           if (this.data.groupId === 0) // AI skupina
             this.ai.RefreshAi().subscribe({
               next: aiResponse => {
@@ -90,7 +91,7 @@ export class ActiveGroupComponent implements AfterViewInit {
                 console.error('AI refresh failed: ', err);
               }
             });
-
+*/
           this.redirecter.Group(this.data.groupId);           
         }
         else

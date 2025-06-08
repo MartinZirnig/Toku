@@ -18,5 +18,6 @@ public interface IDataService : IDisposable
     Task<RequestResultModel> ClearAiAsync(Guid executor);
     Task<IEnumerable<StoredMessageModel>> GetAiHistoryAsync(Guid executor);
     Task ClearAllAiAsync();
+    Task<IEnumerable<StoredDownloadableFileModel>> GetMessageFiles(uint message);
 }
 

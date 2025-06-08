@@ -2,6 +2,10 @@ import { NgFor } from '@angular/common';
 import { Component, Input, Output, EventEmitter, HostListener, ElementRef, AfterViewInit, OnInit } from '@angular/core';
 import { ColorManagerService } from '../../services/color-manager.service';
 import { ColorSettingsModel } from '../../data_managements/models/color-settings-model';
+import { StoredDownloadableFileModel } from '../../data_managements/models/stored-downloadable-file-model';
+import { UserService } from '../../data_managements/services/user.service';
+import { MessageService } from '../../data_managements/services/message.service';
+import { FileService } from '../../data_managements/services/file.service';
 
 @Component({
   selector: 'app-file-download',
@@ -11,20 +15,38 @@ import { ColorSettingsModel } from '../../data_managements/models/color-settings
   imports: [NgFor]
 })
 export class FileDownloadComponent implements OnInit, AfterViewInit {
-  @Input() files: { name: string, size: number, url: string }[] = [];
+  @Input() MessageId?: number;
+  
+  files: StoredDownloadableFileModel[] = [];
   @Output() close = new EventEmitter<void>();
 
   public csm: ColorSettingsModel;
 
   constructor(
     private colorManager: ColorManagerService,
-    private el: ElementRef
+    private el: ElementRef,
+    private messageService: MessageService,
+    private fileService: FileService
   ) {
     this.csm = this.colorManager.csm;
   }
 
   ngOnInit() {
-    // případně další logika
+    if (!this.MessageId) return;
+
+    this.messageService.getDownloadableFiles(this.MessageId).subscribe({
+      next: response => {
+        if (response){
+          this.files = response; 
+        } else {
+          console.log("cannot fetch message files: No response");
+        }
+
+      },
+      error: err => {
+        console.error("cannot fetch message files: ", err);
+      }
+    })
   }
 
   ngAfterViewInit() {
@@ -58,11 +80,26 @@ export class FileDownloadComponent implements OnInit, AfterViewInit {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 
-  downloadFile(file: { name: string, url: string }) {
-    const link = document.createElement('a');
-    link.href = file.url;
-    link.download = file.name;
-    link.click();
+  downloadFile(file: StoredDownloadableFileModel) {
+    this.fileService.getGroupSecret(String(file.id)).subscribe({
+      next: response => {
+        if (response){
+            const url = URL.createObjectURL((response.body as Blob));
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = file.name;
+            
+            a.click();
+
+            URL.revokeObjectURL(url);
+        } else {
+          console.error("cannot download file: No response");
+        }
+      },
+      error: err => {
+        console.error("cannot download file: ", err);
+      }
+    });
   }
 
   onClose() {

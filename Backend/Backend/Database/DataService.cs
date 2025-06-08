@@ -3,11 +3,12 @@ using BackendInterface;
 using BackendInterface.DataObjects;
 using BackendInterface.Models;
 using Crypto;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using MysqlDatabase.Tables;
 using MysqlDatabaseControl;
+using System.Diagnostics;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace MysqlDatabase;
 internal class DataService : DatabaseServisLifecycle, IDataService
@@ -249,15 +250,23 @@ internal class DataService : DatabaseServisLifecycle, IDataService
             : null;
 
         var storedFiles = await context.MessageStoredFiles
+            .AsNoTracking()
+            .Include(sf => sf.StoredFile)
             .Where(msf => msf.MessageId == messageId)
-            .Select(msf => msf.StoredFileId)
             .ToArrayAsync()
             .ConfigureAwait(false);
+
+        uint? png = storedFiles?
+            .FirstOrDefault(sf =>
+                Path.GetExtension(sf.StoredFile.FilePath)
+                    .Equals(".png", StringComparison.OrdinalIgnoreCase))
+            ?.StoredFileId;
+
 
         var result = new StoredMessageModel(
             messageId,
             content,
-            storedFiles,
+            [.. storedFiles.Select(sf => sf.StoredFileId)],
             message.PinnedMessageId,
             message.GroupId,
             (byte)(status ?? MessageStatusCode.Sent),
@@ -267,7 +276,8 @@ internal class DataService : DatabaseServisLifecycle, IDataService
             pin?.MessageContent,
             sender.PictureId.ToString() ?? string.Empty,
             pin?.AttachedFilesId?.Any() ?? false,
-            await GetFilesSize(storedFiles, context)
+            await GetFilesSize(storedFiles.Select(msf => msf.StoredFileId), context),
+            png
         );
         if (disposeContext)
             await context.DisposeAsync();
@@ -284,8 +294,8 @@ internal class DataService : DatabaseServisLifecycle, IDataService
                  .FirstOrDefaultAsync(sf => sf.StoredFileId == file)
                  .ConfigureAwait(false);
             if (dbFile is null) continue;
-
-            var path = Path.Combine(Assembly.GetExecutingAssembly().Location, dbFile.FilePath);
+            var location = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
+            var path = Path.Combine(location, dbFile.FilePath);
             var info = new FileInfo(path);
             if (info.Exists)
                 size += (ulong)info.Length;
@@ -437,7 +447,7 @@ internal class DataService : DatabaseServisLifecycle, IDataService
                 0, 255,
                 GroupService.GetCorrectTimeFormat(DateTime.UtcNow
                 .AddMinutes(-login.TimeZoneOffset)),
-                null, null, "2", false, 0);
+                null, null, "2", false, 0, null);
         }
         catch (Exception ex)
         {
@@ -446,7 +456,7 @@ internal class DataService : DatabaseServisLifecycle, IDataService
                 null, null,
                 0, 255,
                 GroupService.GetCorrectTimeFormat(DateTime.UtcNow),
-                null, null, "2", false, 0);
+                null, null, "2", false, 0, null);
         }
     }
     private async Task AddGeminiRequestRecordAsync(string text, Guid executor, bool isQuery)
@@ -558,18 +568,82 @@ internal class DataService : DatabaseServisLifecycle, IDataService
                 .ConfigureAwait(false)
                 ?? throw new UnauthorizedAccessException();
 
-            return await Context.GeminiContext
+
+
+            var rawData = await Context.GeminiContext
                 .AsNoTracking()
                 .Where(gc => gc.SessionId == executor)
-                .Select(gc => new StoredMessageModel(
-                    gc.Id, gc.Content, null, null, 0,
-                    (byte)(gc.IsSender ? 2 : 255),
-                    GroupService.GetCorrectTimeFormat(gc.Time
-                        .AddMinutes(-login.TimeZoneOffset)),
-                    null, null, "2", false, 0
-                    ))
-                .ToArrayAsync()
+                .ToListAsync();
+
+            return rawData.Select(gc =>
+                new StoredMessageModel(
+                    gc.Id, gc.Content, null, null,
+                    0, gc.IsSender ? (byte)2 : (byte)255,
+                    GroupService.GetCorrectTimeFormat(
+                        gc.Time.AddMinutes(-login.TimeZoneOffset)),
+                    null, null, "2", false, 0, null
+                )
+            );
+
+        }
+        catch
+        {
+            return [];
+        }
+    }
+
+    public async Task<IEnumerable<StoredDownloadableFileModel>> GetMessageFiles(uint message)
+    {
+        try
+        {
+            var msg = await Context.Messages
+                .AsNoTracking()
+                .Include(m => m.MessageStoredFiles)
+                    .ThenInclude(msf => msf.StoredFile)
+                .FirstOrDefaultAsync(m => m.MessageId == message)
                 .ConfigureAwait(false);
+            if (msg is null) return [];
+
+            var result = new StoredDownloadableFileModel[msg.MessageStoredFiles.Count];
+            for (int index = 0; index < result.Length; index++)
+            {
+                var value = msg.MessageStoredFiles[index];
+
+                var basePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                var path = Path.Combine(basePath, value.StoredFile.FilePath);
+
+                var info = new FileInfo(path);
+                if (info.Exists)
+                {
+                    var file = new StoredDownloadableFileModel(
+                        info.Name, info.Length, value.StoredFileId
+                        );
+
+                    result[index] = file;
+                }
+            }
+
+            return result;
+            /*
+            var files = msg.MessageStoredFiles;
+            var file = msg.MessageStoredFiles[0].StoredFile;
+
+            return msg.MessageStoredFiles
+                .Where(msf => File.Exists(msf.StoredFile.FilePath))
+                .Select(msf =>
+                {
+
+
+                    var info = new FileInfo(msf.StoredFile.FilePath);
+                    Console.WriteLine();
+                    return new StoredDownloadableFileModel(
+                        info.Name,
+                        info.Length,
+                        msf.StoredFileId
+                    );
+                });
+
+            */
         }
         catch
         {

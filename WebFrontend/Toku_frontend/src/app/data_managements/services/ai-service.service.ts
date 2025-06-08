@@ -21,4 +21,7 @@ export class AiService {
   public RefreshAi() : Observable<RequestResultModel> {
     return this.http.delete<RequestResultModel>(`${this.baseUrl}/clean`);
   }
+  public LoadChat() : Observable<StoredMessageModel[]> {
+    return this.http.get<StoredMessageModel[]>(`${this.baseUrl}/get-history`);
+  }
 }

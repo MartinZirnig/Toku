@@ -45,7 +45,7 @@ export class FileUploadService {
     
     this.filesSubject.value.forEach(f => {
       var file = this.buildFile(f);
-      var operation = this.service.saveUserFile(file, uuidv4());
+      var operation = this.service.saveUserFile(file, f.name);
       observables.push(operation);
     });
     
@@ -57,7 +57,7 @@ export class FileUploadService {
     
     this.filesSubject.value.forEach(f => {
       var file = this.buildFile(f);
-      var operation = this.service.saveSecretUserFile(file, uuidv4());
+      var operation = this.service.saveSecretUserFile(file, f.name);
       observables.push(operation);
     });
     
@@ -69,7 +69,7 @@ export class FileUploadService {
     
     this.filesSubject.value.forEach(f => {
       var file = this.buildFile(f);
-      var operation = this.service.saveGroupFile(file, uuidv4());
+      var operation = this.service.saveGroupFile(file, f.name);
       observables.push(operation);
     });
     
@@ -81,7 +81,7 @@ export class FileUploadService {
     
     this.filesSubject.value.forEach(f => {
       var file = this.buildFile(f);
-      var operation = this.service.saveSecretGroupFile(file, uuidv4());
+      var operation = this.service.saveSecretGroupFile(file, f.name);
       observables.push(operation);
     });
     

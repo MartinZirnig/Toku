@@ -14,5 +14,6 @@ public record StoredMessageModel(
     string? PinnedMessagePreview,
     string? SenderPictureId,
     bool HasPinnedFile,
-    ulong FilesSize
+    ulong FilesSize,
+    uint? PngId
     );

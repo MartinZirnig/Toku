@@ -42,5 +42,15 @@ namespace Backend.Controllers
             return Ok(response);
         }
 
+        [HttpGet("get-history")]
+        public async Task<IActionResult> GetAiHistoryAsync()
+        {
+            using var service = _serviceProvider.GetDataService();
+            var executor = (Guid)AuthorizationAttribute.GetUID(HttpContext)!;
+
+            var data = await service.GetAiHistoryAsync(executor);
+            return Ok(data);
+        }
+
     }
 }

@@ -94,8 +94,6 @@ export class MainRouteComponent implements AfterViewInit {
   ngOnInit() {
     setTimeout(() => this.attachScrollListener(), 0);
 
-    console.log(User);
-
         this.userService.getPicture(Number(User.InnerId)).subscribe({
           next: (response) => {
             if (response.success) {

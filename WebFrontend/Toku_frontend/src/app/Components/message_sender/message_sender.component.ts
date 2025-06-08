@@ -91,6 +91,10 @@ Message_senderComponent implements OnInit {
   private isDragging = false; // Dragging state
 
   ngOnInit(): void {
+    if (this.image)
+      console.log(this.image);
+
+
     this.isLongText = this.text.length > 50; // Adjust threshold as needed
     const truncatedText = this.getTruncatedPreviewText(this.previewText, 10); // Limit preview to 10 words
     this.formattedPreviewText = this.sanitizer.bypassSecurityTrustHtml(this.applyGradientToLastCharacters(truncatedText, 10)); // Apply gradient to last 10 characters
@@ -428,6 +432,7 @@ Message_senderComponent implements OnInit {
   }
 
   onFilesPreviewClick(): void {
+    this.fileDownloadPopupService.messageId = this.raw.raw.messageId;
     this.fileDownloadPopupService.open();
   }
 

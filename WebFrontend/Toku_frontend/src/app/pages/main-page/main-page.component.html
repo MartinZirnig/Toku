@@ -36,7 +36,8 @@
           [reactionsData]="''"
           [raw]="message"
           [fileCount]="message.filesCount"
-          [fileTotalSize]="message.totalSize">
+          [fileTotalSize]="message.totalSize"
+          [image]="message.raw.prewiwePicture ?? null">
         </app-message>
       </ng-container>
       <ng-template #adresatorTemplate>
@@ -50,7 +51,9 @@
           [raw]="message"
           [adresatorPicture]="message.senderPicture"
           [fileCount]="message.filesCount"
-          [fileTotalSize]="message.totalSize">
+          [fileTotalSize]="message.totalSize"
+          [image]="message.raw.prewiwePicture ?? null"
+          >
         </app-message-adresator>
       </ng-template>
       <!-- Přidejte tuto podmínku pro prázdný chat -->
@@ -65,5 +68,5 @@
 
 <router-outlet></router-outlet>
 
-<app-file-download *ngIf="showFileDownloadPopup" (close)="fileDownloadPopupService.close()"></app-file-download>
+<app-file-download *ngIf="showFileDownloadPopup" (close)="fileDownloadPopupService.close()" [MessageId]="fileMessageId"></app-file-download>
 

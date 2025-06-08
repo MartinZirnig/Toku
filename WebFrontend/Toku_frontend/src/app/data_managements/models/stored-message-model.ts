@@ -1,5 +1,6 @@
 export class StoredMessageModel {
   declare public senderPicture?: string;
+  declare public prewiwePicture?: string; 
 
   constructor(
     public messageId: number,
@@ -13,7 +14,8 @@ export class StoredMessageModel {
     public pinnedMessageId?: number,
     public senderPictureId?: string,
     public hasPinnedFile: boolean = false,
-    public filesSize: number = 0
+    public filesSize: number = 0,
+    public pngId?: number
   ) {}
 
 

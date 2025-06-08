@@ -130,5 +130,12 @@ public sealed class MessageController : ControllerBase
             .ConfigureAwait(false);
         return Ok(result);
     }
+    [HttpGet("get-message-files")]
+    public async Task<IActionResult> GetMessageFiles([FromQuery] uint messageId)
+    {
+        using var service = _serviceProvider.GetDataService();
 
+        var result = await service.GetMessageFiles(messageId);
+        return Ok(result);
+    }
 }
