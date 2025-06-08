@@ -20,6 +20,7 @@ import { UserService } from '../../data_managements/services/user.service';
 import { User } from '../../data_managements/user';
 import { ColorManagerService } from '../../services/color-manager.service';
 import { ColorSettingsModel } from '../../data_managements/models/color-settings-model';
+import { ContextMenuPlusService } from '../../services/context-menu-plus.service';
 
 @Component({
   selector: 'app-main-route',
@@ -52,7 +53,8 @@ export class MainRouteComponent implements AfterViewInit {
     private fileService: FileService,
     private userService: UserService,
     public colorManager: ColorManagerService,
-    private el: ElementRef
+    private el: ElementRef,
+    private contextMenuPlusService: ContextMenuPlusService // add this
   )  {
     this.fileUploadService.files$.subscribe((files) => {
       this.hasFiles = files.length > 0;
@@ -73,7 +75,13 @@ export class MainRouteComponent implements AfterViewInit {
       (isVisible) => (this.isFileFormVisible = isVisible)
     );
     this.csm = this.colorManager.csm;
+
+    // Subscribe to chat login requests from the context menu plus
+    this.contextMenuPlusService.chatLoginRequested$.subscribe(() => {
+      this.openChatLogin();
+    });
   }
+
 
   openChatLogin() {
     this.showChatLogin = true;

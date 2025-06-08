@@ -28,7 +28,8 @@ export class ContextMenuPlusComponent implements AfterViewInit {
   constructor(
     public menuService: ContextMenuPlusService,
     private colorManager: ColorManagerService,
-    private el: ElementRef
+    private el: ElementRef,
+    private contextMenuPlusService: ContextMenuPlusService
   ) {
     this.menuService.config$.subscribe(cfg => this.config = cfg);
     this.csm = this.colorManager.csm;
@@ -77,10 +78,17 @@ export class ContextMenuPlusComponent implements AfterViewInit {
     };
   }
 
-  onMenuItemClick(action: () => void, event: Event) {
-    this.menuService.close();
-    action();
+  onMenuItemClick(action: () => void, event: MouseEvent) {
     event.stopPropagation();
+    if (action === this.config.actions.chatLogin) {
+      this.contextMenuPlusService.chatLoginRequested$.next();
+    }
+    action();
+    this.closeMenu();
+  }
+
+  closeMenu() {
+    this.menuService.close();
   }
 
   @HostListener('document:click', ['$event'])

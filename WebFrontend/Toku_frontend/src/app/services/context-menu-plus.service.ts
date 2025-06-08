@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { ContextMenuCoordinatorService } from './context-menu-coordinator.service';
 
 export interface ContextMenuPlusConfig {
@@ -25,6 +25,9 @@ export class ContextMenuPlusService {
   });
 
   config$ = this.configSubject.asObservable();
+
+  // Add this subject for chat login requests
+  public chatLoginRequested$ = new Subject<void>();
 
   constructor(private coordinator: ContextMenuCoordinatorService) {}
 
