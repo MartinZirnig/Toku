@@ -36,7 +36,7 @@ export class GroupMember {
   }
 }
 
-<<<<<<< Updated upstream
+
 @Pipe({
   name: 'stringify',
   standalone: true
@@ -49,12 +49,8 @@ export class StringifyPipe implements PipeTransform {
 
 @Component({
   selector: 'app-group-settings',
-  imports: [NgIf, NgClass, NgFor, UserFinderComponent, StringifyPipe, AreYouSurePopUpComponent, ProfilePictureCircledComponent, FormsModule],
-=======
-@Component({
-  selector: 'app-group-settings',
   imports: [NgIf, NgClass, NgFor, UserFinderComponent, FormsModule, AreYouSurePopUpComponent, ProfilePictureCircledComponent],
->>>>>>> Stashed changes
+
   standalone: true,
   templateUrl: './group-settings.component.html',
   styleUrls: ['./group-settings.component.scss']
