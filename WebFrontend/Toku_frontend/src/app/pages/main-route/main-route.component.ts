@@ -85,12 +85,10 @@ export class MainRouteComponent implements AfterViewInit {
 
   openChatLogin() {
     this.showChatLogin = true;
-    alert('Please log in to continue using the chat feature.');
   }
 
   closeChatLogin() {
     this.showChatLogin = false;
-    alert('Please log in to continue using the chat feature.');
   }
 
   ngOnInit() {
