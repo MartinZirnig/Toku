@@ -202,4 +202,14 @@ public sealed class GroupController : ControllerBase
             .ConfigureAwait(false);
         return Ok(result);
     }
+
+    [HttpGet("get-ai-history")]
+    public async Task<IActionResult> GetAiHistoryAsync()
+    {
+        using var service = _serviceProvider.GetDataService();
+        var executor = (Guid)AuthorizationAttribute.GetUID(HttpContext)!;
+
+        var data = await service.GetAiHistoryAsync(executor);
+        return Ok(data);
+    }
 }

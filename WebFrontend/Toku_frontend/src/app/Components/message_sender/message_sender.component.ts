@@ -19,6 +19,7 @@ import { MessageControllService } from '../../data_managements/control-services/
 import { StoredMessageModel } from '../../data_managements/models/stored-message-model';
 import { FormatedTextComponent } from "../formated-text/formated-text.component";
 import { ColorSettingsModel } from '../../data_managements/models/color-settings-model';
+import { User } from '../../data_managements/user';
 
 
 @Component({
@@ -344,12 +345,12 @@ Message_senderComponent implements OnInit {
   }
 
   private onSwipeRight(): void {
-    const action = localStorage.getItem('swipeRightAction') as 'reply' | 'react' | 'copy' | 'delete' | 'edit' | null;
+    const action = User.RightSwipe; //localStorage.getItem('swipeRightAction') as 'reply' | 'react' | 'copy' | 'delete' | 'edit' | null;
     this.handleSwipeAction(action);
   }
 
   private onSwipeLeft(): void {
-    const action = localStorage.getItem('swipeLeftAction') as 'reply' | 'react' | 'copy' | 'delete' | 'edit' | null;
+    const action = User.LeftSwipe; //localStorage.getItem('swipeLeftAction') as 'reply' | 'react' | 'copy' | 'delete' | 'edit' | null;
     this.handleSwipeAction(action);
   }
 

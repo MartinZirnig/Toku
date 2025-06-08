@@ -94,7 +94,6 @@ export class LoginComponent implements OnInit{
           next: response => {
             User.LeftSwipe = response.left;
             User.RightSwipe = response.right;
-            console.log("swipes set: ", response);
           },
           error: err => {
             console.log("Error in swipes loading: ", err)

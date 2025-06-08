@@ -132,8 +132,7 @@ ngOnInit(): void {
     if (url === '/main') {
           this.redirectWhenAccessDenied(fragment ?? '');
           const numeralFragment = Number(fragment); 
-          if (Number.isNaN(numeralFragment) 
-            || numeralFragment === 0)
+          if (Number.isNaN(numeralFragment))
             this.invalidRoomId();
           this.roomId = numeralFragment;
           User.ActiveGroupId = fragment ?? '';
@@ -152,7 +151,6 @@ ngOnInit(): void {
   });
 
   setTimeout(() => {
-    console.log('setTimeout in ngOnInit fired');
     this.dummyVisible = false;
     this.setEmptyHintTimeout();
   }, 5);

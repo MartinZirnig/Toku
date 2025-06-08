@@ -3,9 +3,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MysqlDatabase.Tables;
 
-[PrimaryKey(nameof(SessionId), nameof(Time), nameof(IsSender))]
 internal class GeminiContext
 {
+    [Key]
+    public uint Id { get; set; }
     [Required]
     public Guid SessionId {  get; set; }
     [Required]

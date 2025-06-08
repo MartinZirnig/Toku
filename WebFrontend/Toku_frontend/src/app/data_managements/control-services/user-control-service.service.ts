@@ -54,8 +54,9 @@ export class UserControlService {
   }
   public updateUserData(name: string, email: string, phone: string, picture?: string)
     : Observable<RequestResultModel> {
+
     const model = new UserDataModel(
-      name, email, phone, User.Active, picture);
+      name, email, phone, User.Active, undefined, undefined, picture);
 
     return this.userService.updateUserData(model);
   }

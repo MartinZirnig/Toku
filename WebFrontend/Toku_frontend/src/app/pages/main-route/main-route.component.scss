@@ -91,7 +91,7 @@
 .scroll-btn {
   position: absolute;
   right: 18px;
-  background: none; // odstraníme původní background
+  background: rgba(30, 41, 59,1);
   color: #fff;
   border: none;
   border-radius: 50%;
@@ -125,15 +125,4 @@
 .scroll-btn:hover, .scroll-btn:focus {
   opacity: 1;
   background: rgba(55, 75, 108, 0.916);
-}
-
-.gradient-scroll-btn {
-  background: var(--scroll-btn-gradient, linear-gradient(135deg, #46f3ff, #ff73e3));
-  color: #fff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-  transition: background 0.2s, opacity 0.25s cubic-bezier(.4,0,.2,1);
-}
-.gradient-scroll-btn:hover, .gradient-scroll-btn:focus {
-  background: var(--scroll-btn-gradient-hover, linear-gradient(135deg, #ff73e3, #46f3ff));
-  opacity: 1;
 }

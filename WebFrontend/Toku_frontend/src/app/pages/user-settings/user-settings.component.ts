@@ -484,7 +484,6 @@ export class UserSettingsComponent {
         if (response.success) {
           this.userPictureId = response.description;
           this.originalUserPictureId = response.description;
-          console.log("loading1");
           this.loadPictureFile(this.userPictureId);
           this.popupService.showMessage('Profile picture updated successfully!', 2000, '#4ade80', '#fff');
         } else {

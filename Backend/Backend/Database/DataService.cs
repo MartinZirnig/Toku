@@ -527,4 +527,32 @@ internal class DataService : DatabaseServisLifecycle, IDataService
                 false, ex.Message);
         }
     }
+
+    public async Task<IEnumerable<StoredMessageModel>> GetAiHistoryAsync(Guid executor)
+    {
+        try
+        {
+            var login = await SupportService
+                .GetUserDataAsync(executor, Context)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+            return await Context.GeminiContext
+                .AsNoTracking()
+                .Where(gc => gc.SessionId == executor)
+                .Select(gc => new StoredMessageModel(
+                    gc.Id, gc.Content, null, null, 0,
+                    (byte)(gc.IsSender ? 2 : 255),
+                    GroupService.GetCorrectTimeFormat(gc.Time
+                        .AddMinutes(-login.TimeZoneOffset)),
+                    null, null, "2"
+                    ))
+                .ToArrayAsync()
+                .ConfigureAwait(false);
+        }
+        catch
+        {
+            return [];
+        }
+    }
 }

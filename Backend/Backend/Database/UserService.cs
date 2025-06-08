@@ -326,7 +326,7 @@ internal class UserService : DatabaseServisLifecycle, IUserService
             login.CreatedTime.ToString("dd.MMMM yyyy"),
             user.Domain.DomainName,
             user.Domain.LimitsUsers,
-            login.PictureId.ToString()
+            user.PictureId.ToString()
             );
             return result;
         }

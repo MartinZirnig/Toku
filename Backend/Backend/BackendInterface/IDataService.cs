@@ -16,6 +16,7 @@ public interface IDataService : IDisposable
 
     Task<StoredMessageModel> AskAiAsync(AiQueryModel query, Guid executor);
     Task<RequestResultModel> ClearAiAsync(Guid executor);
+    Task<IEnumerable<StoredMessageModel>> GetAiHistoryAsync(Guid executor);
     Task ClearAllAiAsync();
 }
 

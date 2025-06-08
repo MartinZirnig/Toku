@@ -708,6 +708,8 @@ private haveMembersChanged(): boolean {
     })
   }
   applyAccess(access: number[]) : void {
+    if (this.roomId === 'new')
+      return;
     if (access.includes(255))
       return; // admin -> all allowed
 

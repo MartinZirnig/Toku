@@ -85,11 +85,13 @@ export class MainRouteComponent implements AfterViewInit {
 
   ngOnInit() {
     setTimeout(() => this.attachScrollListener(), 0);
-    (window as any).openChatLogin = this.openChatLogin.bind(this);
+
+    console.log(User);
 
         this.userService.getPicture(Number(User.InnerId)).subscribe({
           next: (response) => {
             if (response.success) {
+                      console.log(response.description);
 
               this.fileService.getUserFile(response.description).subscribe({
                 next: file => {
