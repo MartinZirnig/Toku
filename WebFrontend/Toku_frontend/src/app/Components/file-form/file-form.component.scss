@@ -1,11 +1,11 @@
 :host {
   /* CSS proměnné pro barvy */
-  --ff-popup-overlay-bg: rgba(0,0,0,0.5);
-  --ff-popup-bg: #1e293b;
-  --ff-popup-border: #64748b;
-  --ff-popup-shadow: #23293a88;
-  --ff-primary-text: #fff;
-  --ff-secondary-text: #cbd5e1;
+  --ff-popup-overlay-bg: var(--popup-overlay-bg, rgba(0,0,0,0.5));
+  --ff-popup-bg: var(--popup-bg, #1e293b);
+  --ff-popup-border: var(--popup-border, #64748b);
+  --ff-popup-shadow: var(--popup-shadow, #23293a88);
+  --ff-primary-text: var(--primary-text, #fff);
+  --ff-secondary-text: var(--secondary-text, #cbd5e1);
   --ff-list-border: #64748b;
   --ff-scrollbar-thumb: rgba(255,255,255,0.3);
   --ff-scrollbar-thumb-hover: rgba(255,255,255,0.5);
@@ -34,7 +34,7 @@
 /* Popup */
 .ff-popup {
   background: var(--ff-popup-bg);
-  box-shadow: 0 8px 40px 0 var(--ff-popup-shadow), 0 2px 8px 0 #ff73e344;
+  box-shadow: 0 8px 40px 0 var(--ff-popup-shadow);
   border-radius: 1.25rem;
   border: 2px solid transparent;
   position: relative;
@@ -45,7 +45,7 @@
     inset: 0;
     border-radius: 1.25rem;
     padding: 2px;
-    background: var(--ff-btn-gradient);
+    background: var(--popup-gradient-border, linear-gradient(135deg,#46f3ff 0%,#528aa9 9.2%,#576086 45.4%,#576086 56.8%,#7b649a 79.2%,#9967ab 93.2%,#ff73e3 100%));
     -webkit-mask:
       linear-gradient(#fff 0 0) content-box, 
       linear-gradient(#fff 0 0);
@@ -136,4 +136,25 @@
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--ff-scrollbar-thumb) var(--ff-scrollbar-track);
+}
+
+/* Close button */
+.close-btn {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  background: var(--close-btn-bg, transparent);
+  border: none;
+  color: var(--close-btn-icon, #fff);
+  font-size: 2rem;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 10;
+  line-height: 1;
+  padding: 0;
+  transition: color 0.2s, background 0.2s;
+}
+.close-btn:hover {
+  color: var(--close-btn-icon-hover, #ff73e3);
+  background: var(--close-btn-bg-hover, transparent);
 }

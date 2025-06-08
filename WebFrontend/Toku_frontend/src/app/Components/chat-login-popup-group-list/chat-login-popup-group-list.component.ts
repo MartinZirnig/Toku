@@ -133,6 +133,8 @@ export class ChatLoginPopupGroupListComponent implements AfterViewInit, OnInit {
   select(group: any) {
     this.selectGroup.emit({ name: group.name, id: group.id });
   }
+
+
 }
 
 class GroupDefinition{

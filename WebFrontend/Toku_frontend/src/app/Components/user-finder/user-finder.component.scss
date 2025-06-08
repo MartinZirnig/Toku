@@ -104,28 +104,102 @@ ul::-webkit-scrollbar-track {
 
 /* Gradient button only for main action */
 .gradient-btn {
-  background: linear-gradient(135deg,
-    #46f3ff 0%,
-    #528aa9 20%,
-    #576086 50%,
-    #7b649a 80%,
-    #ff73e3 100%
-  );
-  color: #fff;
+  background: var(--gradient-btn-bg, linear-gradient(135deg,#46f3ff 0%,#528aa9 20%,#576086 50%,#7b649a 80%,#ff73e3 100%));
+  color: var(--primary-text, #fff);
   font-weight: 600;
   border: none;
   border-radius: 0.75rem;
-  box-shadow: 0 2px 12px 0 #7c3aed33;
+  box-shadow: 0 2px 12px 0 var(--button-shadow, #7c3aed33);
   transition: background 0.18s, box-shadow 0.18s;
 }
 
 .gradient-btn:hover {
-  background: linear-gradient(135deg,
-    #ff73e3 0%,
-    #7b649a 20%,
-    #576086 50%,
-    #528aa9 80%,
-    #46f3ff 100%
-  );
-  box-shadow: 0 4px 24px 0 #7c3aed33;
+  background: var(--gradient-btn-hover-bg, linear-gradient(135deg,#ff73e3 0%,#7b649a 20%,#576086 50%,#528aa9 80%,#46f3ff 100%));
+  box-shadow: 0 4px 24px 0 var(--button-shadow, #7c3aed33);
+}
+
+.gradient-btn:disabled {
+  background: var(--gradient-btn-disabled-bg, #37415180);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.close-btn-bg {
+  background: var(--close-btn-bg, #334155);
+}
+
+.close-btn-bg:hover {
+  background: var(--close-btn-hover-bg, #475569);
+}
+
+.close-btn-icon svg {
+  color: var(--close-btn-icon, #fff);
+}
+
+.selected-user-bg {
+  background: var(--selected-user-bg, #e0e7ff);
+}
+
+.selected-user-text {
+  color: var(--selected-user-text, #1e293b);
+}
+
+.selected-user-remove-bg {
+  background: var(--selected-user-remove-bg, #dc2626);
+}
+
+.selected-user-remove-bg:hover {
+  background: var(--selected-user-remove-hover-bg, #be185d);
+}
+
+.selected-label {
+  color: var(--selected-label, #cbd5e1);
+}
+
+.no-selected-label {
+  color: var(--no-selected-label, #9ca3af);
+}
+
+.popup-overlay-bg {
+  background: var(--popup-overlay-bg, rgba(0,0,0,0.4));
+}
+
+.popup-bg {
+  background: var(--popup-bg, #1e293b);
+}
+
+.primary-text {
+  color: var(--primary-text, #fff);
+}
+
+.user-list-bg {
+  background: var(--user-list-bg, #1f2937);
+}
+
+.user-list-border {
+  border: 1px solid var(--user-list-border, #374151);
+}
+
+.user-list-divider > li + li {
+  border-top: 1px solid var(--user-list-divider, #374151);
+}
+
+.user-list-hover-bg:hover {
+  background: var(--user-list-hover-bg, #334155);
+}
+
+.input-bg {
+  background: var(--input-bg, #23293a);
+}
+
+.input-text {
+  color: var(--input-text, #fff);
+}
+
+.input-border {
+  border: 1px solid var(--input-border, #334155);
+}
+
+.focus\:input-focus-border:focus {
+  border-color: var(--input-focus-border, #7c3aed);
 }

@@ -54,8 +54,24 @@
         </app-message-adresator>
       </ng-template>
       <!-- Přidejte tuto podmínku pro prázdný chat -->
+    <!-- Tady je zkušební zpráva -->
     
+    <!--Tady končí zkušební zpráva-->
     </div>
+    <app-message
+      [text]="'Toto je statická testovací zpráva s obrázkem.'"
+      [image]="'https://picsum.photos/5000/5000'"
+      [time]="'13:37'"
+      [status]="'delivered'"
+      [previewText]="'Náhled testovací zprávy.'"
+      [hasFile]="true"
+      [timeStamp]="'2024-06-01T13:37:00'"
+      
+      [reactionsData]="'hh'"
+      
+      
+      
+    ></app-message>
     <div *ngIf="!dummyVisible && messages.length === 0 && showEmptyChatHint" class="flex justify-center absolute items-center h-40 text-gray-400 text-lg font-medium">
       Zatím zde nejsou žádné zprávy. Napište třeba "{{ suggestedMessage }}"
     </div>

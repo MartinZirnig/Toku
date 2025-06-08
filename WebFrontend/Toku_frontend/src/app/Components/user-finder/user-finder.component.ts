@@ -1,8 +1,10 @@
 import { NgFor, NgIf } from '@angular/common';
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, AfterViewInit, ElementRef } from '@angular/core';
 import { GroupSettingsService } from '../../services/group-settings.service';
 import { KnownUserDataModel } from '../../data_managements/models/known-user-data-model';
 import { UserControlService } from '../../data_managements/control-services/user-control-service.service';
+import { ColorManagerService } from '../../services/color-manager.service';
+import { ColorSettingsModel } from '../../data_managements/models/color-settings-model';
 
 @Component({
   selector: 'app-user-finder',
@@ -10,16 +12,21 @@ import { UserControlService } from '../../data_managements/control-services/user
   templateUrl: './user-finder.component.html',
   styleUrl: './user-finder.component.scss'
 })
-export class UserFinderComponent implements OnInit {
+export class UserFinderComponent implements OnInit, AfterViewInit {
   users: KnownUserDataModel[] = [];
   declare filteredUsers: string[];
   selectedUsers: KnownUserDataModel[] = [];
   @Output() closeFinder = new EventEmitter<void>();
+  public csm: ColorSettingsModel;
 
   constructor(
     private groupSettingsService: GroupSettingsService,
-    private usrCtrl: UserControlService
-  ) {}
+    private usrCtrl: UserControlService,
+    private colorManager: ColorManagerService,
+    private el: ElementRef
+  ) {
+    this.csm = this.colorManager.csm;
+  }
 
   search(query: Event): void {
     const input = query.target as HTMLInputElement;
@@ -39,6 +46,46 @@ export class UserFinderComponent implements OnInit {
         console.error('Error fetching known users:', error);
       }
     });
+  }
+
+  ngAfterViewInit(): void {
+    if (!this.csm) return;
+    const root = this.el.nativeElement ?? document.querySelector('app-user-finder') ?? document.documentElement;
+    const setVar = (name: string, value: string) => root.style.setProperty(name, value);
+
+    const csm = this.csm;
+    setVar('--popup-overlay-bg', csm.overlayBackground.toRgbaString());
+    setVar('--popup-bg', csm.popupBackground.toRgbaString());
+    setVar('--popup-border', csm.popupBorder.toRgbaString());
+    setVar('--primary-text', csm.primaryText.toRgbaString());
+    setVar('--card-bg', csm.cardBackground.toRgbaString());
+    setVar('--list-border', csm.listBorder.toRgbaString());
+    setVar('--list-divider', csm.listDivider.toRgbaString());
+    setVar('--popup-shadow', csm.popupShadow.toRgbaString());
+    setVar('--highlight-bg', csm.highlightBackground.toRgbaString());
+    setVar('--secondary-text', csm.secondaryText.toRgbaString());
+    setVar('--button-shadow', csm.buttonShadow.toRgbaString());
+    setVar('--gradient-btn-bg', csm.gradientButton?.toLinearGradientString(135) ?? '');
+    setVar('--gradient-btn-hover-bg', csm.gradientButtonHover?.toLinearGradientString(135) ?? '');
+    setVar('--gradient-btn-disabled-bg', csm.gradientButtonDisabled?.toLinearGradientString(135) ?? '');
+    setVar('--close-btn-bg', csm.closeButtonBackground.toRgbaString());
+    setVar('--close-btn-hover-bg', csm.closeButtonBackgroundHover.toRgbaString());
+    setVar('--close-btn-icon', csm.closeButtonIcon.toRgbaString());
+    setVar('--selected-user-bg', csm.cardBackground.toRgbaString());
+    setVar('--selected-user-text', csm.primaryText.toRgbaString());
+    setVar('--selected-user-remove-bg', csm.deleteGradientButton.toLinearGradientString(135));
+    setVar('--selected-user-remove-hover-bg', csm.deleteGradientButtonHover.toLinearGradientString(135));
+    setVar('--input-bg', csm.inputBackground.toRgbaString());
+    setVar('--input-border', csm.inputBorder.toRgbaString());
+    setVar('--input-focus-border', csm.inputBorderFocus.toRgbaString());
+    setVar('--input-text', csm.inputText.toRgbaString());
+    setVar('--input-placeholder', csm.inputPlaceholder.toRgbaString());
+    setVar('--user-list-bg', csm.cardBackground.toRgbaString());
+    setVar('--user-list-border', csm.listBorder.toRgbaString());
+    setVar('--user-list-divider', csm.listDivider.toRgbaString());
+    setVar('--user-list-hover-bg', csm.highlightBackground.toRgbaString());
+    setVar('--selected-label', csm.secondaryText.toRgbaString());
+    setVar('--no-selected-label', csm.mutedText.toRgbaString());
   }
 
   addUser(user: string): void {

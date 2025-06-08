@@ -1,4 +1,4 @@
-import { Component, ElementRef } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Output } from '@angular/core';
 import { AreYouSurePopUpService } from './are-you-sure-pop-up.service';
 import { NgIf } from '@angular/common';
 import { ColorManagerService } from '../../services/color-manager.service';
@@ -12,6 +12,7 @@ import { ColorSettingsModel } from '../../data_managements/models/color-settings
   styleUrl: './are-you-sure-pop-up.component.scss'
 })
 export class AreYouSurePopUpComponent {
+  @Output() close = new EventEmitter<void>();
   public csm: ColorSettingsModel;
 
   get message() { return this.areYouSureService.message; }

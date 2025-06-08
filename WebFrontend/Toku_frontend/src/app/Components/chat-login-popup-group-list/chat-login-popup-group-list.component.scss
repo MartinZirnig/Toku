@@ -14,8 +14,28 @@
   min-width: 340px;
   max-width: 96vw;
   box-shadow: 0 0 32px 0 var(--popup-shadow, #7c3aed55), 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-  border: 1.5px solid var(--popup-border, #334155);
+  border: 2px solid transparent;
   position: relative;
+  overflow: hidden;
+}
+.group-list-popup::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 1.25rem;
+  padding: 2px;
+  background: var(--popup-gradient-border, linear-gradient(135deg,#46f3ff 0%,#528aa9 9.2%,#576086 45.4%,#576086 56.8%,#7b649a 79.2%,#9967ab 93.2%,#ff73e3 100%));
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 1;
+}
+.group-list-popup > * {
+  position: relative;
+  z-index: 2;
 }
 
 .popup-title {
@@ -73,12 +93,23 @@
 }
 
 .close-btn {
-  background: var(--close-btn-bg, #334155);
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  background: var(--close-btn-bg, transparent);
+  border: none;
   color: var(--close-btn-icon, #fff);
-  transition: background 0.2s;
-  &:hover {
-    background: var(--close-btn-bg-hover, #475569);
-  }
+  font-size: 2rem;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 10;
+  line-height: 1;
+  padding: 0;
+  transition: color 0.2s, background 0.2s;
+}
+.close-btn:hover {
+  color: var(--close-btn-icon-hover, #ff73e3);
+  background: var(--close-btn-bg-hover, transparent);
 }
 
 .group-list-hint {

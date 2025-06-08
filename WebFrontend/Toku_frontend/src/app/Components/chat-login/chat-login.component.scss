@@ -39,7 +39,6 @@ body, :host {
 
 .login-card {
   background: var(--color-card-bg);
-  border: 2px solid var(--color-card-border);
   border-radius: 1.5rem;
   position: relative;
   display: flex;
@@ -49,7 +48,9 @@ body, :host {
   padding: 2.5rem 2.5rem;
   max-width: 440px;
   width: 100%;
-  box-shadow: 0 0 32px 0 #7c3aed55, 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  box-shadow: 0 0 32px 0 var(--popup-shadow, #7c3aed55), 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  border: 2px solid transparent;
+  overflow: hidden;
 }
 .login-card::after {
   display: none;
@@ -60,22 +61,18 @@ body, :host {
   inset: 0;
   border-radius: 1.5rem;
   padding: 2px;
-  background: linear-gradient(135deg,
-    #46f3ff 0%,
-    #528aa9 9.2%,
-    #576086 45.4%,
-    #576086 56.8%,
-    #7b649a 79.2%,
-    #9967ab 93.2%,
-    #ff73e3 100%
-  );
+  background: var(--popup-gradient-border, linear-gradient(135deg,#46f3ff 0%,#528aa9 9.2%,#576086 45.4%,#576086 56.8%,#7b649a 79.2%,#9967ab 93.2%,#ff73e3 100%));
   -webkit-mask:
     linear-gradient(#fff 0 0) content-box, 
     linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
-  z-index: -1;
+  z-index: 1;
+}
+.login-card > * {
+  position: relative;
+  z-index: 2;
 }
 
 .login-card h2 {
@@ -175,7 +172,7 @@ body, :host {
   position: absolute;
   top: 1.2rem;
   right: 1.2rem;
-  background: transparent;
+  background: var(--close-btn-bg, transparent);
   border: none;
   color: var(--color-close-btn);
   font-size: 2rem;
@@ -184,10 +181,11 @@ body, :host {
   z-index: 10;
   line-height: 1;
   padding: 0;
-  transition: color 0.2s;
+  transition: color 0.2s, background 0.2s;
 }
 .close-btn:hover {
   color: var(--color-close-btn-hover);
+  background: var(--close-btn-bg-hover, transparent);
 }
 
 .group-row {

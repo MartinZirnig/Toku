@@ -1,3 +1,15 @@
+:host {
+  --overlay-bg: var(--popup-overlay-bg, rgba(0,0,0,0.4));
+  --popup-bg: var(--popup-bg, #1e293b);
+  --popup-border: var(--popup-border, #fff);
+  --button-shadow: var(--button-shadow, #7c3aed55);
+  --heading-text: var(--heading-text, #fff);
+  --close-btn-bg: var(--close-btn-bg, transparent);
+  --close-btn-bg-hover: var(--close-btn-bg-hover, transparent);
+  --close-btn-icon: var(--close-btn-icon, #fff);
+  --close-btn-icon-hover: var(--close-btn-icon-hover, #ff73e3);
+}
+
 .add-contact-popup {
   position: relative;
   background: var(--popup-bg, #23293a);
@@ -6,7 +18,29 @@
   min-width: 340px;
   max-width: 96vw;
   box-shadow: 0 0 32px 0 var(--button-shadow, #7c3aed55), 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-  border: 1.5px solid var(--popup-border, #334155);
+  border: 2px solid transparent;
+  overflow: hidden;
+}
+
+.add-contact-popup::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 1.25rem;
+  padding: 2px;
+  background: var(--popup-gradient-border, linear-gradient(135deg,#46f3ff 0%,#528aa9 9.2%,#576086 45.4%,#576086 56.8%,#7b649a 79.2%,#9967ab 93.2%,#ff73e3 100%));
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.add-contact-popup > * {
+  position: relative;
+  z-index: 2;
 }
 
 .add-contact-popup h2 {
@@ -55,19 +89,35 @@
 }
 
 .popup-overlay {
-  background: var(--overlay-bg, rgba(0,0,0,0.4));
+  background: var(--overlay-bg);
+}
+
+.popup-box {
+  background: var(--popup-bg);
+  border: 2px solid var(--popup-border);
+  border-radius: 1.25rem;
+  box-shadow: 0 8px 40px 0 var(--button-shadow);
+  position: relative;
 }
 
 .close-btn {
-  background: var(--close-btn-bg, #334155);
-  color: var(--close-btn-icon, #fff);
-  &:hover {
-    background: var(--close-btn-bg-hover, #475569);
-  }
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  background: var(--close-btn-bg);
+  border: none;
+  color: var(--close-btn-icon);
+  font-size: 2rem;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 10;
+  line-height: 1;
+  padding: 0;
+  transition: color 0.2s, background 0.2s;
 }
-
-.close-btn-icon {
-  color: inherit;
+.close-btn:hover {
+  color: var(--close-btn-icon-hover);
+  background: var(--close-btn-bg-hover);
 }
 
 .search-input {
