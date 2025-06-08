@@ -25,7 +25,7 @@ import { ColorSettingsModel } from '../../data_managements/models/color-settings
   selector: 'app-message',
   templateUrl: './message_sender.component.html',
   styleUrls: ['./message_sender.component.scss'],
-  imports: [NgIf, NgClass, FormsModule, NgStyle, ReactionCounterComponent, ContextMenuMessagesComponent, FormatedTextComponent],
+  imports: [NgIf, NgClass, FormsModule, NgStyle, ReactionCounterComponent, FormatedTextComponent],
 })
 export class 
 Message_senderComponent implements OnInit {

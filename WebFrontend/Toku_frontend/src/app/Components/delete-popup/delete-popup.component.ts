@@ -1,5 +1,4 @@
 import { Component, Input, ElementRef, AfterViewInit } from '@angular/core';
-import { NgIf } from '@angular/common';
 import { DeletePopupService } from '../delete-popup/delete-popup.service';
 import { ColorManagerService } from '../../services/color-manager.service';
 import { ColorSettingsModel } from '../../data_managements/models/color-settings-model';
@@ -7,7 +6,6 @@ import { ColorSettingsModel } from '../../data_managements/models/color-settings
 @Component({
   selector: 'app-delete-popup',
   standalone: true,
-  imports: [NgIf],
   templateUrl: './delete-popup.component.html',
   styleUrl: './delete-popup.component.scss'
 })
