@@ -1,5 +1,5 @@
 import { Component, ElementRef, AfterViewInit } from '@angular/core';
-import { CommonModule, NgIf, NgStyle } from '@angular/common';
+import { CommonModule, NgIf } from '@angular/common';
 import { FileUploadService } from '../../services/file-upload.service';
 import { ColorManagerService } from '../../services/color-manager.service';
 import { ColorSettingsModel } from '../../data_managements/models/color-settings-model';
@@ -7,7 +7,7 @@ import { ColorSettingsModel } from '../../data_managements/models/color-settings
 @Component({
   selector: 'app-file-form',
   standalone: true,
-  imports: [CommonModule, NgStyle, NgIf],
+  imports: [CommonModule, NgIf],
   templateUrl: './file-form.component.html',
   styleUrl: './file-form.component.scss',
 })

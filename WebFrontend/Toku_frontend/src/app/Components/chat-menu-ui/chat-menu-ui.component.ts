@@ -1,6 +1,7 @@
 import { Component, HostListener, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { OpenAndcloseMenuService } from '../../services/open-andclose-menu.service';
-import { CommonModule, NgIf } from '@angular/common';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActiveGroupComponent } from './active-group/active-group.component';
 import { ActiveGroupMenuService } from '../../services/active-group-menu-service.service';
 import { GroupsLoaderService } from '../../data_managements/control-services/groups-loader.service';
@@ -9,7 +10,6 @@ import { GroupReloadService } from '../../services/group-reload.service';
 import { NavigationService } from '../../services/navigation.service';
 import { Redirecter } from '../../data_managements/redirecter.service';
 import { User } from '../../data_managements/user';
-import { FormsModule } from '@angular/forms';
 import { ContextMenuPlusService } from '../../services/context-menu-plus.service';
 import { Injectable } from '@angular/core';
 import { ColorManagerService } from '../../services/color-manager.service'; // přidej import
@@ -27,7 +27,7 @@ export class AiGroupVisibilityService {
 @Component({
   selector: 'app-chat-menu-ui',
   templateUrl: './chat-menu-ui.component.html',
-  imports: [CommonModule, NgIf, FormsModule, ActiveGroupComponent],
+  imports: [CommonModule, FormsModule, ActiveGroupComponent],
   styleUrl: './chat-menu-ui.component.scss'
 })
 export class ChatMenuUiComponent {

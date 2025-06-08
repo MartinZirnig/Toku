@@ -25,7 +25,7 @@ import { ColorSettingsModel } from '../../data_managements/models/color-settings
   selector: 'app-main-route',
   imports: [
     MainPageComponent, MenuUiComponent, InputUiComponent, FileFormComponent, ChatMenuUiComponent,
-    NgClass, InputUiComponent, NgIf, NgFor, AsyncPipe, PopUpComponent, ContextMenuMessagesComponent,
+    NgClass, InputUiComponent, NgIf, AsyncPipe, ContextMenuMessagesComponent,
     ContextMenuGroupsComponent, ChatLoginComponent, ContextMenuPlusComponent,
     DeletePopupComponent
   ],
@@ -77,10 +77,12 @@ export class MainRouteComponent implements AfterViewInit {
 
   openChatLogin() {
     this.showChatLogin = true;
+    alert('Please log in to continue using the chat feature.');
   }
 
   closeChatLogin() {
     this.showChatLogin = false;
+    alert('Please log in to continue using the chat feature.');
   }
 
   ngOnInit() {
