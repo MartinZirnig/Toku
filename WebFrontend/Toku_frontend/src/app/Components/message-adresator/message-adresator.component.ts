@@ -1,5 +1,5 @@
 import { NgClass, NgIf } from '@angular/common';
-import { Component, ElementRef, Input, OnInit, ViewChild, HostListener } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild, HostListener, OnChanges, SimpleChanges } from '@angular/core';
 import { MenuService } from '../../services/menu.service'; // Ensure the correct path to MenuService
 import { PopUpService } from '../../services/pop-up.service'; // Import the popup service
 import { ReactionCounterComponent } from '../reaction-counter/reaction-counter.component';
@@ -60,6 +60,9 @@ export class MessageAdresatorComponent implements OnInit {
   ngOnInit(): void {
     this.isLongText = this.text.length > 50; // Adjust threshold as needed
     this.showFullText = false;
+
+    if (this.hasFile && !this.previewText)
+      this.previewText = " ";
   }
 
   get displayText(): string {
@@ -188,7 +191,8 @@ export class MessageAdresatorComponent implements OnInit {
       text: this.text,
       previewText: this.previewText,
       hasFile: this.hasFile,
-      image: this.image
+      image: this.image,
+      Id: this.raw.raw.messageId
     });
   }
 

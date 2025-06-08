@@ -183,12 +183,10 @@ private resetEmptyHintTimerAfterDummy() {
 
 // Přidejte metodu pro nastavení zpoždění
 private setEmptyHintTimeout() {
-  console.log('setEmptyHintTimeout called');
   if (this.emptyHintTimeout) {
     clearTimeout(this.emptyHintTimeout);
   }
   this.showEmptyChatHint = false;
-  console.log('dummyVisible:', this.dummyVisible, ', messages.length:', this.messages.length);
 
   // ODEBERTE tento testovací setTimeout, už není potřeba:
   // setTimeout(() => {
@@ -196,8 +194,6 @@ private setEmptyHintTimeout() {
   // }, 500);
 
   this.emptyHintTimeout = setTimeout(() => {
-    console.log('setTimeout in setEmptyHintTimeout fired');
-    console.log('500ms up');
     this.ngZone.run(() => {
       if (!this.dummyVisible && this.messages.length === 0) {
         this.showEmptyChatHint = true;
@@ -208,13 +204,20 @@ private setEmptyHintTimeout() {
 
 // Upravte místa, kde se mění messages nebo dummyVisible, aby se znovu nastavilo zpoždění
 private appendMessage(msg: StoredMessageModel, file?: string) {
+  const pt: string | null  = msg.pinnedMessagePreview ?? null;
+  console.log(msg);
+  console.log(msg.pinnedMessagePreview);
+  console.log(pt);
+
   const stat = StoredMessageModel.getStatus(msg.status);
   const sender = StoredMessageModel.isSender(msg.status);
   const message = new MessageFormat(
     msg.messageContent, msg.time,
-    stat, msg.pinnedMessagePrewiev ?? null,
-    (msg.attachedFilesId?.length ?? 0) !== 0, msg.timeStamp ?? null, sender, msg, file ?? ""
+    stat, msg.pinnedMessagePreview ?? null,
+    msg.attachedFilesId?.length ?? 0, msg.timeStamp ?? null, sender, msg, file ?? "",
+    msg.hasPinnedFile, msg.filesSize
   );
+
   this.messages.push(message);
   this.setEmptyHintTimeout();
 }
@@ -410,10 +413,12 @@ class MessageFormat {
     public time: string,
     public status: 'undelivered' | 'delivered' | 'read',
     public previewText: string | null,
-    public hasFile: boolean,
+    public filesCount: number,
     public timeStamp: string | null,
     public isSender: boolean, 
     public raw: StoredMessageModel,
     public senderPicture: string,
+    public hasPinnedFile: boolean,
+    public totalSize: number,
   ) { }
 }

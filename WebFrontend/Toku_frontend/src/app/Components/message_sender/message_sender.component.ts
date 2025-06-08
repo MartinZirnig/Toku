@@ -42,7 +42,7 @@ Message_senderComponent implements OnInit {
 
   @Input() reactionsData: string = ''; // Input for reaction data
 
-  @Input() declare raw: StoredMessageModel;
+  @Input() declare raw: any;
 
   @Input() fileCount: number = 0; // Number of files
   @Input() fileTotalSize: number = 0; // Total size in bytes
@@ -96,6 +96,9 @@ Message_senderComponent implements OnInit {
     this.formattedPreviewText = this.sanitizer.bypassSecurityTrustHtml(this.applyGradientToLastCharacters(truncatedText, 10)); // Apply gradient to last 10 characters
     window.addEventListener('message-deleted', this.handleMessageDeleted);
     this.showFullText = false; // Výchozí stav
+
+    if (this.hasFile && !this.previewText)
+      this.previewText = " ";
   }
 
   ngOnDestroy(): void {
@@ -221,7 +224,8 @@ Message_senderComponent implements OnInit {
       text: this.text,
       previewText: this.previewText,
       hasFile: this.hasFile,
-      image: this.image
+      image: this.image,
+      Id: this.raw.raw.messageId
     });
   }
 

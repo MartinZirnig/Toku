@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using MysqlDatabase.Tables;
 using MysqlDatabaseControl;
+using System.Reflection;
 
 namespace MysqlDatabase;
 internal class DataService : DatabaseServisLifecycle, IDataService
@@ -244,7 +245,7 @@ internal class DataService : DatabaseServisLifecycle, IDataService
 
         var pin = message.PinnedMessageId is not null
             ? (await GetMessageAsyncStatic(userData,
-                (uint)message.PinnedMessageId, context))?.MessageContent
+                (uint)message.PinnedMessageId, context))
             : null;
 
         var storedFiles = await context.MessageStoredFiles
@@ -263,14 +264,34 @@ internal class DataService : DatabaseServisLifecycle, IDataService
             GroupService.GetCorrectTimeFormat(message.CreatedTime
                 .AddMinutes(-userData.TimeZoneOffset)),
             await GetLastStatusChange(messageId, context),
-            pin,
-            sender.PictureId.ToString() ?? string.Empty
+            pin?.MessageContent,
+            sender.PictureId.ToString() ?? string.Empty,
+            pin?.AttachedFilesId?.Any() ?? false,
+            await GetFilesSize(storedFiles, context)
         );
         if (disposeContext)
             await context.DisposeAsync();
         return result;
     }
 
+    private static async Task<ulong> GetFilesSize(IEnumerable<uint> files, DatabaseContext context)
+    {
+        ulong size = 0;
+        foreach (var file in files)
+        {
+            var dbFile = await context.StoredFiles
+                 .AsNoTracking()
+                 .FirstOrDefaultAsync(sf => sf.StoredFileId == file)
+                 .ConfigureAwait(false);
+            if (dbFile is null) continue;
+
+            var path = Path.Combine(Assembly.GetExecutingAssembly().Location, dbFile.FilePath);
+            var info = new FileInfo(path);
+            if (info.Exists)
+                size += (ulong)info.Length;
+        }
+        return size;
+    }
 
     private static async Task<MessageStatusCode?> GetMessageStatusAsync(uint messageId, DatabaseContext context)
     {
@@ -416,7 +437,7 @@ internal class DataService : DatabaseServisLifecycle, IDataService
                 0, 255,
                 GroupService.GetCorrectTimeFormat(DateTime.UtcNow
                 .AddMinutes(-login.TimeZoneOffset)),
-                null, null, "2");
+                null, null, "2", false, 0);
         }
         catch (Exception ex)
         {
@@ -425,7 +446,7 @@ internal class DataService : DatabaseServisLifecycle, IDataService
                 null, null,
                 0, 255,
                 GroupService.GetCorrectTimeFormat(DateTime.UtcNow),
-                null, null, "2");
+                null, null, "2", false, 0);
         }
     }
     private async Task AddGeminiRequestRecordAsync(string text, Guid executor, bool isQuery)
@@ -545,7 +566,7 @@ internal class DataService : DatabaseServisLifecycle, IDataService
                     (byte)(gc.IsSender ? 2 : 255),
                     GroupService.GetCorrectTimeFormat(gc.Time
                         .AddMinutes(-login.TimeZoneOffset)),
-                    null, null, "2"
+                    null, null, "2", false, 0
                     ))
                 .ToArrayAsync()
                 .ConfigureAwait(false);

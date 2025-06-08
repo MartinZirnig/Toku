@@ -1,4 +1,5 @@
 ﻿using BackendEnums;
+using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 
 namespace BackendInterface.Models;
 public record StoredMessageModel(
@@ -11,5 +12,7 @@ public record StoredMessageModel(
     string Time,
     string? TimeStamp,
     string? PinnedMessagePreview,
-    string? SenderPictureId
+    string? SenderPictureId,
+    bool HasPinnedFile,
+    ulong FilesSize
     );

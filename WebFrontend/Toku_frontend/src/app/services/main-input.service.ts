@@ -21,14 +21,14 @@ export class MainInputService {
     private ai: AiService
   ) {}
 
-  sendMessage(content: string, files: number[]) {
+  sendMessage(content: string, files: number[], pinnedId?: number) {
     if (this.mainPage.roomId === 0) {
       this.sendAi(content);
       return;
     }
 
     const model = new MessageModel(
-      content, User.Id??'', this.mainPage.roomId, files)
+      content, User.Id??'', this.mainPage.roomId, files, pinnedId)
     
       this.service.sendMessage(model).subscribe({
         next: response => {

@@ -7,11 +7,13 @@ export class StoredMessageModel {
     public groupId: number,
     public status: number,
     public time: string,
-    public pinnedMessagePrewiev?: string,
+    public pinnedMessagePreview?: string,
     public timeStamp?: string,
     public attachedFilesId?: number[],
     public pinnedMessageId?: number,
-    public senderPictureId?: string
+    public senderPictureId?: string,
+    public hasPinnedFile: boolean = false,
+    public filesSize: number = 0
   ) {}
 
 

@@ -38,8 +38,10 @@ public sealed class MessageController : ControllerBase
             return BadRequest("Message cannot be saved");
 
         var executor = (Guid)AuthorizationAttribute.GetUID(HttpContext)!;
-        var executorContext = await userService.GetUserDataAsync(executor);
-        var addresators = await groupService.GetActiveGroupUsersAsync(model.GroupId);
+        var executorContext = await userService.GetUserDataAsync(executor)
+            .ConfigureAwait(false);
+        var addresators = await groupService.GetActiveGroupUsersAsync(model.GroupId)
+            .ConfigureAwait(false);
 
         foreach (var addresator in addresators)
         {

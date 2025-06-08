@@ -6,6 +6,7 @@ export interface ReplyPreview {
   previewText?: string | null;
   hasFile?: boolean;
   image?: string | null;
+  Id: number
 }
 
 @Injectable({ providedIn: 'root' })

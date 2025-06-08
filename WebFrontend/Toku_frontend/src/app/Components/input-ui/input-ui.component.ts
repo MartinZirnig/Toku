@@ -326,7 +326,7 @@ export class InputUiComponent implements OnInit {
               .map(rrm => Number(rrm.description))
               .filter(id => !Number.isNaN(id));
 
-            this.service.sendMessage(text ?? '', values);
+            this.service.sendMessage(text ?? '', values, this.replyPreview?.Id);
             this.fileUploadService.clear();
         },
         error: err => {
@@ -335,7 +335,7 @@ export class InputUiComponent implements OnInit {
       })
     }
     else {
-            this.service.sendMessage(text ?? '', []);
+            this.service.sendMessage(text ?? '', [], this.replyPreview?.Id);
     }
 
 

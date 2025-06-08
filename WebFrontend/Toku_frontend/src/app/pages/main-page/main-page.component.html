@@ -30,21 +30,27 @@
           [time]="message.time"
           [status]="message.status"
           [previewText]="message.previewText"
-          [hasFile]="message.hasFile"
+          [hasFile]="message.hasPinnedFile"
           [timeStamp]="message.timeStamp"
           [onDeleteMessage]="onDeleteMessage.bind(this, i)"
           [reactionsData]="''"
-          [raw]="message.raw">
+          [raw]="message"
+          [fileCount]="message.filesCount"
+          [fileTotalSize]="message.totalSize">
         </app-message>
       </ng-container>
       <ng-template #adresatorTemplate>
         <app-message-adresator
           [text]="message.text"
           [time]="message.time"
+          [hasFile]="message.hasPinnedFile"
+          [previewText]="message.previewText"
           [onDeleteMessage]="onDeleteMessage.bind(this, i)"
           [reactionsData]="''"
-          [raw]="message.raw"
-          [adresatorPicture]="message.senderPicture">
+          [raw]="message"
+          [adresatorPicture]="message.senderPicture"
+          [fileCount]="message.filesCount"
+          [fileTotalSize]="message.totalSize">
         </app-message-adresator>
       </ng-template>
       <!-- Přidejte tuto podmínku pro prázdný chat -->
