@@ -3,7 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common'; // Import CommonModule for NgIf, NgClass, etc.
 import { AppComponent } from './app.component';
-import { Message_senderComponent } from './Components/message_sender/message_sender.component';
+import { Message_senderComponent } from './Components/messages/message_sender/message_sender.component';
 
 @NgModule({
   declarations: [

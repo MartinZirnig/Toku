@@ -8,23 +8,28 @@ import { UserControlService } from '../../data_managements/control-services/user
 import { UserDataModel } from '../../data_managements/models/user-data-model';
 import { PopUpService } from '../../services/pop-up.service';
 import { KnownUserDataModel } from '../../data_managements/models/known-user-data-model';
-import { AreYouSurePopUpService } from '../../Components/are-you-sure-pop-up/are-you-sure-pop-up.service';
-import { AreYouSurePopUpComponent } from '../../Components/are-you-sure-pop-up/are-you-sure-pop-up.component';
-import { AiGroupVisibilityService } from '../../Components/chat-menu-ui/chat-menu-ui.component';
+import { AreYouSurePopUpService } from '../../Components/popups/are-you-sure-pop-up/are-you-sure-pop-up.service';
+import { AreYouSurePopUpComponent } from '../../Components/popups/are-you-sure-pop-up/are-you-sure-pop-up.component';
+import { AiGroupVisibilityService } from '../../Components/menuUis/chat-menu-ui/chat-menu-ui.component';
 import { ProfilePictureCircledComponent } from '../../Components/profile-picture-circled/profile-picture-circled.component';
-import { AddContactPopupComponent } from '../../Components/add-contact-popup/add-contact-popup.component';
+import { AddContactPopupComponent } from '../../Components/popups/add-contact-popup/add-contact-popup.component';
 import { UserService } from '../../data_managements/services/user.service';
 import { FileService } from '../../data_managements/services/file.service';
 import { ContactEditModel } from '../../data_managements/models/contact-edit-model';
 import { SwipeInfoModel } from '../../data_managements/models/swipe-info-model';
 import { Router } from '@angular/router';
 import { use } from 'marked';
+import { ColorPickerComponent } from '../../Components/color-picker/color-picker.component';
+import { ColorManagerService } from '../../services/color-manager.service';
+import { InputUiComponent } from '../../Components/input-ui/input-ui.component';
+import { ArgbColorModel } from '../../data_managements/models/argb-color-model';
+import { GradientArgbColorModel } from '../../data_managements/models/gradient-argb-color-model';
 
 export type SwipeAction = 'reply' | 'react' | 'copy' | 'delete' | 'edit';
 
 @Component({
   selector: 'app-user-settings',
-  imports: [NgIf, FormsModule, NgClass, NgFor, AreYouSurePopUpComponent, ProfilePictureCircledComponent, AddContactPopupComponent],
+  imports: [NgIf, FormsModule, NgClass, NgFor, AreYouSurePopUpComponent, ProfilePictureCircledComponent, InputUiComponent ,AddContactPopupComponent, ColorPickerComponent],
   standalone: true,
   templateUrl: './user-settings.component.html',
   styleUrls: ['./user-settings.component.scss']
@@ -49,7 +54,7 @@ export class UserSettingsComponent {
     email: 30,
   };
 
-  selectedTab: 'user' | 'general' | 'contacts' = 'user';
+  selectedTab: 'user' | 'general' | 'contacts' | 'colors' = 'user'; // přidáno 'colors'
 
   originalContacts: KnownUserDataModel[] = [];
   contacts: KnownUserDataModel[] = [];
@@ -79,17 +84,58 @@ export class UserSettingsComponent {
 
   @Input() canChangeInformations: boolean = true;
 
+  // Přidejte pole s názvy a indexy pro každý typ
+  argbColorKeys = [
+    'inputBarBackground',
+    'inputBarShadow',
+    'inputBackground',
+    'inputBackgroundFocus',
+    'inputBorder',
+    'inputBorderFocus',
+    'inputText',
+    'inputPlaceholder',
+    'fileCountCircleBackground',
+    'fileCountCircleText',
+    'inputScrollbarTrack',
+    'replyPreviewBarBorder',
+    'replyPreviewBarCloseButton',
+    'replyPreviewBarCloseButtonHover',
+    'inputSpinnerDot',
+    'inputSpinnerText'
+  ];
+
+  gradientColorKeys = [
+    'inputScrollbarThumb',
+    'inputScrollbarThumbHover'
+  ];
+
   constructor(
     private redirecter: Redirecter,
     private sanitizer: DomSanitizer,
+    
     private usrCtrl: UserControlService,
     private popupService: PopUpService,
     private areYouSureService: AreYouSurePopUpService,
     private aiGroupVisibility: AiGroupVisibilityService,
     private userService: UserService,
     private fileService: FileService,
-    private router: Router // <-- přidat Router
-  ) {}
+    private router: Router, // <-- přidat Router
+    public colorManager: ColorManagerService // <-- změna na public
+  ) {
+    // Inicializace všech barev pokud nejsou nastavené
+    this.argbColorKeys.forEach(key => {
+      if (!(this.colorManager.csm as any)[key]) {
+        (this.colorManager.csm as any)[key] = new ArgbColorModel(0, 0, 0, 255);
+      }
+    });
+    this.gradientColorKeys.forEach(key => {
+      if (!(this.colorManager.csm as any)[key]) {
+        (this.colorManager.csm as any)[key] = new GradientArgbColorModel(
+          255, 0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0
+        );
+      }
+    });
+  }
 
   ngOnInit() {
     this.canChangeInformations = User.HasControl; 
@@ -581,5 +627,22 @@ export class UserSettingsComponent {
       'Yes',
       'No'
     );
+  }
+
+  get argbColorModels(): ArgbColorModel[] {
+    return this.argbColorKeys.map(key => (this.colorManager.csm as any)[key]);
+  }
+  get gradientColorModels(): GradientArgbColorModel[] {
+    return this.gradientColorKeys.map(key => (this.colorManager.csm as any)[key]);
+  }
+
+  // Handler pro změnu barvy
+  onArgbColorChange(index: number, value: ArgbColorModel) {
+    const key = this.argbColorKeys[index];
+    (this.colorManager.csm as any)[key] = value;
+  }
+  onGradientColorChange(index: number, value: GradientArgbColorModel) {
+    const key = this.gradientColorKeys[index];
+    (this.colorManager.csm as any)[key] = value;
   }
 }

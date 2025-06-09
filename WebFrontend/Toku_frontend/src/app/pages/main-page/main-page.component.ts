@@ -1,9 +1,9 @@
 import { Component, numberAttribute, OnInit, OnDestroy } from '@angular/core';
-import { Message_senderComponent } from '../../Components/message_sender/message_sender.component';
-import { MessageAdresatorComponent } from '../../Components/message-adresator/message-adresator.component';
+import { Message_senderComponent } from '../../Components/messages/message_sender/message_sender.component';
+import { MessageAdresatorComponent } from '../../Components/messages/message-adresator/message-adresator.component';
 import { ActivatedRoute, RouterOutlet } from '@angular/router';
-import { DummyMessageSenderComponent } from '../../Components/dummy-message-sender/dummy-message-sender.component';
-import { DummyMessageAdresatorComponent } from '../../Components/dummy-message-adresator/dummy-message-adresator.component';
+import { DummyMessageSenderComponent } from '../../Components/messages/dummy-message-sender/dummy-message-sender.component';
+import { DummyMessageAdresatorComponent } from '../../Components/messages/dummy-message-adresator/dummy-message-adresator.component';
 import { NgClass, NgFor, NgIf } from '@angular/common';
 import { MessageControllService } from '../../data_managements/control-services/message-controll.service';
 import { StoredMessageModel } from '../../data_managements/models/stored-message-model';
@@ -14,7 +14,7 @@ import { GroupsLoaderService } from '../../data_managements/control-services/gro
 import { Redirecter } from '../../data_managements/redirecter.service';
 import { Cache } from '../../data_managements/cache';
 import { User } from '../../data_managements/user';
-import { FileDownloadComponent } from '../../Components/file-download/file-download.component';
+import { FileDownloadComponent } from '../../Components/popups/file-download/file-download.component';
 import { FileDownloadPopupService } from '../../services/file-download-popup.service';
 import { PopUpService } from '../../services/pop-up.service';
 import { MessagerService } from '../../data_managements/messager.service';

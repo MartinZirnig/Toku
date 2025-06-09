@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnInit, ViewChild, HostListener, Renderer2, Input } from '@angular/core';
-import { EmojisPopUpComponent } from '../emojis-pop-up/emojis-pop-up.component';
+import { EmojisPopUpComponent } from '../popups/emojis-pop-up/emojis-pop-up.component';
 import { NgClass, NgIf, NgStyle } from '@angular/common';
 
 import { MainInputService } from '../../services/main-input.service';

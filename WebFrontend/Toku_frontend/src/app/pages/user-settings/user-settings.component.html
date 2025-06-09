@@ -54,6 +54,15 @@
             Contacts
           </button>
         </li>
+        <li>
+          <button type="button"
+            class="w-full text-left flex items-center px-3 py-2 rounded-lg transition font-semibold"
+            [ngClass]="selectedTab === 'colors' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white'"
+            (click)="selectedTab = 'colors'">
+            <span class="material-icons text-base mr-2 opacity-60">palette</span>
+            Colors
+          </button>
+        </li>
       </ul>
     </nav>
   </aside>
@@ -107,10 +116,10 @@
         <!-- Pro ostatní záložky -->
         <div *ngIf="selectedTab !== 'user'">
           <h2 class="text-2xl font-bold text-white mb-1">
-            {{ selectedTab === 'general' ? 'General settings' : 'Contacts' }}
+            {{ selectedTab === 'general' ? 'General settings' : (selectedTab === 'contacts' ? 'Contacts' : 'Colors') }}
           </h2>
           <p class="text-gray-400 text-sm">
-            {{ selectedTab === 'general' ? 'General application settings' : 'Manage your contacts' }}
+            {{ selectedTab === 'general' ? 'General application settings' : (selectedTab === 'contacts' ? 'Manage your contacts' : 'Customize your color theme') }}
           </p>
         </div>
       </div>
@@ -286,6 +295,78 @@
         </ng-template>
       </div>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      <!-- Colors tab -->
+      <div *ngIf="selectedTab === 'colors'" class="space-y-8">
+        <div>
+          <label class="block text-gray-300 text-lg font-bold mb-2">Color theme</label>
+          <div class="flex flex-col gap-4">
+            <app-input-ui></app-input-ui>
+            <!-- ARGB barvy -->
+            <app-color-picker [label]="'inputBarBackground'" [ArgbModel]="colorManager.csm.inputBarBackground" (argbChange)="onArgbColorChange(0, $event)"></app-color-picker>
+            <app-color-picker [label]="'inputBarShadow'" [ArgbModel]="colorManager.csm.inputBarShadow" (argbChange)="onArgbColorChange(1, $event)"></app-color-picker>
+            <app-color-picker [label]="'inputBackground'" [ArgbModel]="colorManager.csm.inputBackground" (argbChange)="onArgbColorChange(2, $event)"></app-color-picker>
+            <app-color-picker [label]="'inputBackgroundFocus'" [ArgbModel]="colorManager.csm.inputBackgroundFocus" (argbChange)="onArgbColorChange(3, $event)"></app-color-picker>
+            <app-color-picker [label]="'inputBorder'" [ArgbModel]="colorManager.csm.inputBorder" (argbChange)="onArgbColorChange(4, $event)"></app-color-picker>
+            <app-color-picker [label]="'inputBorderFocus'" [ArgbModel]="colorManager.csm.inputBorderFocus" (argbChange)="onArgbColorChange(5, $event)"></app-color-picker>
+            <app-color-picker [label]="'inputText'" [ArgbModel]="colorManager.csm.inputText" (argbChange)="onArgbColorChange(6, $event)"></app-color-picker>
+            <app-color-picker [label]="'inputPlaceholder'" [ArgbModel]="colorManager.csm.inputPlaceholder" (argbChange)="onArgbColorChange(7, $event)"></app-color-picker>
+            <app-color-picker [label]="'fileCountCircleBackground'" [ArgbModel]="colorManager.csm.fileCountCircleBackground" (argbChange)="onArgbColorChange(8, $event)"></app-color-picker>
+            <app-color-picker [label]="'fileCountCircleText'" [ArgbModel]="colorManager.csm.fileCountCircleText" (argbChange)="onArgbColorChange(9, $event)"></app-color-picker>
+            <app-color-picker [label]="'inputScrollbarTrack'" [ArgbModel]="colorManager.csm.inputScrollbarTrack" (argbChange)="onArgbColorChange(10, $event)"></app-color-picker>
+            <app-color-picker [label]="'replyPreviewBarBorder'" [ArgbModel]="colorManager.csm.replyPreviewBarBorder" (argbChange)="onArgbColorChange(11, $event)"></app-color-picker>
+            <app-color-picker [label]="'replyPreviewBarCloseButton'" [ArgbModel]="colorManager.csm.replyPreviewBarCloseButton" (argbChange)="onArgbColorChange(12, $event)"></app-color-picker>
+            <app-color-picker [label]="'replyPreviewBarCloseButtonHover'" [ArgbModel]="colorManager.csm.replyPreviewBarCloseButtonHover" (argbChange)="onArgbColorChange(13, $event)"></app-color-picker>
+            <app-color-picker [label]="'inputSpinnerDot'" [ArgbModel]="colorManager.csm.inputSpinnerDot" (argbChange)="onArgbColorChange(14, $event)"></app-color-picker>
+            <app-color-picker [label]="'inputSpinnerText'" [ArgbModel]="colorManager.csm.inputSpinnerText" (argbChange)="onArgbColorChange(15, $event)"></app-color-picker>
+            <!-- Gradient barvy -->
+            <app-color-picker [label]="'inputScrollbarThumb'" [GradientArgbModel]="colorManager.csm.inputScrollbarThumb" (gradientArgbChange)="onGradientColorChange(0, $event)"></app-color-picker>
+            <app-color-picker [label]="'inputScrollbarThumbHover'" [GradientArgbModel]="colorManager.csm.inputScrollbarThumbHover" (gradientArgbChange)="onGradientColorChange(1, $event)"></app-color-picker>
+          </div>
+        </div>
+      </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
       <div *ngIf="showAddContactPopup">
         <app-add-contact-popup
           [allUsers]="allKnownUsers"
