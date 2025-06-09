@@ -68,6 +68,7 @@ internal static class SupportService
         return await context.Users
             .AsNoTracking()
             .Include(u => u.Picture)
+            .Include(u => u.Key)
             .FirstOrDefaultAsync(u => u.UserId == userId)
             .ConfigureAwait(false);
     }
@@ -97,6 +98,19 @@ internal static class SupportService
             .Where(c => c.UserId == userId)
             .FirstOrDefaultAsync(c => c.GroupRelations.Any(gr => gr.GroupId == groupId))
             .ConfigureAwait(false);
+    }
+
+
+    public static async Task<IEnumerable<Group>> GetUserGroups(uint userId, DatabaseContext context)
+    {
+        return await context.Groups
+            .AsNoTracking()
+            .Include(g => g.GroupClients)
+                .ThenInclude(gc => gc.Client)
+                    .ThenInclude(c => c.User)
+            .Where(g => g.GroupClients
+                .Any(gc => gc.Client.UserId == userId))
+            .ToArrayAsync();
     }
 }
 

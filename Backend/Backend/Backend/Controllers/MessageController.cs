@@ -4,6 +4,7 @@ using Backend.Controllers.WebSockets.Management;
 using BackendInterface;
 using BackendInterface.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace Backend.Controllers;
 
@@ -136,6 +137,16 @@ public sealed class MessageController : ControllerBase
         using var service = _serviceProvider.GetDataService();
 
         var result = await service.GetMessageFiles(messageId);
+        return Ok(result);
+    }
+    [HttpGet("get-message-status/{messageId}")]
+    public async Task<IActionResult> GetMessageStatus([FromRoute] uint messageId)
+    {
+        using var service = _serviceProvider.GetDataService();
+        var result = await service.GetMessageStatus(messageId);
+
+        Console.WriteLine("return: " + result);
+
         return Ok(result);
     }
 }

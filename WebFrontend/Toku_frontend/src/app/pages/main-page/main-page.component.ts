@@ -402,7 +402,6 @@ private loadMessage(msg: StoredMessageModel) : void {
   }
 }
 
-
 private scrollDown(){
   setTimeout(() => {
     const container = document.querySelector('.main-page-inner');

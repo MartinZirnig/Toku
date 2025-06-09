@@ -9,6 +9,8 @@ import { ProfilePictureCircledComponent } from '../../profile-picture-circled/pr
 import { ColorManagerService } from '../../../services/color-manager.service';
 import { ColorSettingsModel } from '../../../data_managements/models/color-settings-model';
 import { AiService } from '../../../data_managements/services/ai-service.service';
+import { MessagerService } from '../../../data_managements/messager.service';
+import { User } from '../../../data_managements/user';
 
 @Component({
   selector: 'app-active-group',
@@ -20,6 +22,7 @@ export class ActiveGroupComponent implements AfterViewInit {
   declare public name: string;
   declare public lastMessage: string;
   declare public time: string;
+  declare public groupId: number;
   
   @Input() data: any;
   @Input() active: boolean = false;
@@ -42,9 +45,11 @@ export class ActiveGroupComponent implements AfterViewInit {
     private contextMenuGroupsService: ContextMenuGroupsService,
     private el: ElementRef,
     private colorManager: ColorManagerService,
-    private ai: AiService
+    private ai: AiService,
+    private messager: MessagerService
   ) { 
     this.csm = this.colorManager.csm;
+    this.messager.appendCallback("new-message", this.onMessage.bind(this));
   }
 
   ngAfterViewInit() {
@@ -70,28 +75,17 @@ export class ActiveGroupComponent implements AfterViewInit {
     this.name = model.groupName;
     this.lastMessage = model.lastDecryptedMessage;
     this.time = model.lastOperation;
+    this.groupId = model.groupId;
   }
 
   public onClick() {
+    this.messager.writeSocket(`typing-stop ${User.ActiveGroupId}&${User.Name}`);
+
     // Žádná podmínka, redirect funguje pro všechny skupiny včetně AI
     const request = this.loader.updateLastGroup(this.data.groupId)
     request.subscribe({
       next: response => {
         if (response.success){
-
-          /*
-          if (this.data.groupId === 0) // AI skupina
-            this.ai.RefreshAi().subscribe({
-              next: aiResponse => {
-                if (!aiResponse.success) {
-                  console.error('AI refresh failed: ' + aiResponse.description);
-                } 
-              },
-              error: err => {
-                console.error('AI refresh failed: ', err);
-              }
-            });
-*/
           this.redirecter.Group(this.data.groupId);           
         }
         else
@@ -170,5 +164,16 @@ export class ActiveGroupComponent implements AfterViewInit {
     }
     // ...další logika context menu pokud existuje...
     return true;
+  }
+  onMessage(data: string) {
+    const splited = data.split('#');
+    const groupId = splited[1];
+
+    if (Number(groupId) === this.groupId)
+    {
+      const splitedData = splited[2].split('&');
+      const content = splitedData[1];
+      this.lastMessage = content;
+    }
   }
 }

@@ -5,11 +5,13 @@ using BackendInterface.Models;
 using ConfigurationParsing;
 using Crypto;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using MysqlDatabase.Tables;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Configuration;
 using System.Runtime.CompilerServices;
+using System.Runtime.Intrinsics.X86;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -320,6 +322,7 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
             var statusesToUpdate = await Context.MessageStatuses
                 .Include(ms => ms.Message)
                 .Where(ms => ms.ClientId == client.ClientId
+                             && ms.Message.SenderId != login.UserId
                              && ms.Message.GroupId == model.GroupId
                              && ms.StatusCode != MessageStatusCode.Read)
                 .ToListAsync()
@@ -606,7 +609,7 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
 
     public async Task<IEnumerable<LoggedUserData>> GetActiveGroupUsersAsync(uint groupId)
     {
-        var bag = new ConcurrentBag<LoggedUserData>();
+        var list = new List<LoggedUserData>();
         try
         {
             var users = await SupportService
@@ -620,14 +623,14 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
                     .ConfigureAwait(false);
 
                 await foreach (var login in logins)
-                    bag.Add(login);
+                    list.Add(login);
             }
         }
         catch
         {
             return [];
         }
-        return bag;
+        return list;
     }
 
     public async Task<RequestResultModel> GetGroupLogAsync(uint groupId)
@@ -821,6 +824,160 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
                 .Where(gc => gc.Client.UserId == login.UserId)
                 .Where(gc => gc.GroupId == group)
                 .Select(gc => gc.Permission)
+                .ToArrayAsync()
+                .ConfigureAwait(false);
+        }
+        catch
+        {
+            return [];
+        }
+    }
+
+    public async Task<IEnumerable<LoggedUserData>> GetCurrentGroupUsersAsync(uint groupId)
+    {
+        var list = new List<LoggedUserData>();
+        try
+        {
+            var users = await SupportService
+                .GetGroupUsersAsync(groupId, Context)
+                .ConfigureAwait(false);
+
+            foreach (var user in users.Where(u => u.LastGroupId == groupId))
+            {
+                var logins = SupportService
+                    .GetUserLoginsAsync(user.UserId, Context)
+                    .ConfigureAwait(false);
+
+                await foreach (var login in logins)
+                    list.Add(login);
+            }
+        }
+        catch
+        {
+            return [];
+        }
+        return list;
+    }
+
+    public async Task<RequestResultModel> ReceiveMessagesAsync(Guid executor)
+    {
+        await using var transaction = await Context.Database
+            .BeginTransactionAsync()
+            .ConfigureAwait(false);
+        try
+        {
+            var login = await SupportService
+                 .GetUserDataAsync(executor, Context)
+                 .ConfigureAwait(false)
+                 ?? throw new UnauthorizedAccessException("User not found or unauthorized.");
+            var groups = await SupportService
+                .GetUserGroups(login.UserId, Context)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+            var now = DateTime.UtcNow;
+            foreach (var group in groups)
+            {
+                var client = await SupportService
+                    .GetGroupClientAsync(login.UserId, group.GroupId, Context)
+                    .ConfigureAwait(false)
+                    ?? throw new UnauthorizedAccessException("Client not a member of the specified group.");
+
+                var statusesToUpdate = await Context.MessageStatuses
+                    .Include(ms => ms.Message)
+                    .Where(ms => ms.ClientId == client.ClientId
+                                 && ms.Message.GroupId == group.GroupId
+                                 && ms.Message.SenderId != login.UserId
+                                 && ms.StatusCode == MessageStatusCode.Sent)
+                    .ToListAsync()
+                    .ConfigureAwait(false);
+
+                if (statusesToUpdate.Count > 0)
+                {
+                    foreach (var status in statusesToUpdate)
+                    {
+                        status.MessageStatusHistories.Add(new MessageStatusHistory
+                        {
+                            MessageStatuseId = status.MessageStatusId,
+                            StatusCode = MessageStatusCode.Delivered,
+                            Time = now
+                        });
+
+                        status.StatusCode = MessageStatusCode.Delivered;
+                    }
+
+                    await Context.SaveChangesAsync()
+                        .ConfigureAwait(false);
+                }
+            }
+
+            await Context.SaveChangesAsync()
+                .ConfigureAwait(false);
+
+            await transaction.CommitAsync()
+                .ConfigureAwait(false);
+
+            Console.WriteLine("receive done");
+            return new RequestResultModel(true, string.Empty);
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync()
+                .ConfigureAwait(false);
+
+            return new RequestResultModel(
+                false, ex.Message);
+        }
+    }
+
+    public async Task<IEnumerable<Guid>> GetConnectedCoGroupersAsync(Guid executor)
+    {
+        try
+        {
+            var login = await SupportService
+                .GetUserDataAsync(executor, Context)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+            var groups = await SupportService
+                .GetUserGroups(login.UserId, Context)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+            var clients = groups
+                .Select(g => g.GroupClients
+                    .Select(gc => gc.Client.UserId))
+                .SelectMany(c => c);
+
+            return await Context.UserLogins
+                .Where(ul =>
+                    clients.Contains(ul.UserId)
+                    && ul.LoggedOut == null
+                    && ul.SessionId != executor)
+                .Select(ul => ul.SessionId)
+                .ToArrayAsync()
+                .ConfigureAwait(false);
+        }
+        catch
+        {
+            return [];
+        }
+    }
+
+    public async Task<IEnumerable<Guid>> GetConnectedUsersInGroup(uint groupId)
+    {
+        try
+        {
+            var users = (await SupportService
+                .GetGroupUsersAsync(groupId, Context)
+                .ConfigureAwait(false))
+                .Select(u => u.UserId);
+
+            return await Context.UserLogins
+                .Where(ul =>
+                    users.Contains(ul.UserId)
+                    && ul.LoggedOut == null)
+                .Select(ul => ul.SessionId)
                 .ToArrayAsync()
                 .ConfigureAwait(false);
         }

@@ -22,7 +22,7 @@
     </div>
     
 <!-- V REACTION DATA BUDE MUSET BÝT "message.reactionsData" ZATÍM TAM BUDE NULL -->
-    <div *ngFor="let message of messages; let i = index" 
+    <div *ngFor="let message of messages; let i = index;" 
          [ngClass]="{'flex justify-end': message.isSender, 'flex justify-start': !message.isSender}">
       <ng-container *ngIf="message.isSender; else adresatorTemplate">
         <app-message

@@ -41,6 +41,7 @@ export class MainRouteComponent implements AfterViewInit {
   fileCount = 0; // přidáno
   hasFiles = false;
   showChatLogin = false;
+  canDelete: boolean = false;
 
   declare public picture?: string;
   public csm: ColorSettingsModel;
@@ -54,7 +55,8 @@ export class MainRouteComponent implements AfterViewInit {
     private userService: UserService,
     public colorManager: ColorManagerService,
     private el: ElementRef,
-    private contextMenuPlusService: ContextMenuPlusService // add this
+    private contextMenuPlusService: ContextMenuPlusService, // add this
+    private usrCtrl: UserControlService
   )  {
     this.fileUploadService.files$.subscribe((files) => {
       this.hasFiles = files.length > 0;
@@ -119,6 +121,8 @@ export class MainRouteComponent implements AfterViewInit {
             console.error('Error loading user picture:', error);
           }
         });
+        
+        this.loadPermissions();
   }
 
   ngAfterViewInit() {
@@ -163,5 +167,17 @@ export class MainRouteComponent implements AfterViewInit {
     if (container) {
       (container as HTMLElement).scrollTo({ top: (container as HTMLElement).scrollHeight, behavior: 'smooth' });
     }
+  }
+
+    loadPermissions(): void {
+    this.usrCtrl.getAvailablePermissions().subscribe({
+      next: response => {
+        this.canDelete == response.map(r => r.code).includes(3);
+      },
+      error: err =>{
+          console.error(`Error in permission loading: `, err)
+      }
+
+    });
   }
 }

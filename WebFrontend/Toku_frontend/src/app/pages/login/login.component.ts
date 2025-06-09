@@ -12,6 +12,7 @@ import { Heart } from '../../data_managements/heart.service';
 import { IconComponent } from '../../Components/icon/icon.component';
 import { MessagerService } from '../../data_managements/messager.service';
 import { UserService } from '../../data_managements/services/user.service';
+import { GroupService } from '../../data_managements/services/group-service.service';
 
 @Component({
   selector: 'app-login',
@@ -31,7 +32,8 @@ export class LoginComponent implements OnInit{
     private googleAut: GoogleAuthenticationService,
     private heart: Heart,
     private messager: MessagerService,
-    private userService: UserService
+    private userService: UserService,
+    private groupService: GroupService
   ) {
     this.loginForm = this.fb.group({
       name: ['', Validators.required],
@@ -74,6 +76,8 @@ export class LoginComponent implements OnInit{
             this.redirecter.Group(response.lastGroupId);
             this.heart.startBeat();
             this.messager.openSocket();
+
+            this.markAsReceived();
           }
           else 
             this.printError('cannot login user, user data is not valid');
@@ -109,5 +113,18 @@ export class LoginComponent implements OnInit{
   
   loginWithGoogle() {
     this.googleAut.login(this.manageLoginResponse);
+  }
+
+  markAsReceived() {
+    this.groupService.receiveMessages().subscribe({
+      next: response => {
+        if (!response.success){
+          console.error("error while receiving messages: ", response.description);
+        }
+      },
+      error: err => {
+        console.error("error while receiving messages: ", err);
+      }
+    })
   }
 }

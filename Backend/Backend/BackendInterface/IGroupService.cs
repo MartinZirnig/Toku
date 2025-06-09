@@ -25,4 +25,9 @@ public interface IGroupService : IDisposable
     Task<RequestResultModel> JoinGroupAsync(GroupJoinModel model, Guid executor);
     Task<IEnumerable<PublicGroupInfoModel>> GetPublicGroupsAsync(Guid executor);
     Task<IEnumerable<GroupClientPermission>> GetUserPermissionsAsync(Guid executor, uint group);
+    Task<IEnumerable<LoggedUserData>> GetCurrentGroupUsersAsync(uint groupId);
+    Task<RequestResultModel> ReceiveMessagesAsync(Guid executor);
+    Task<IEnumerable<Guid>> GetConnectedCoGroupersAsync(Guid executor);
+    Task<IEnumerable<Guid>> GetConnectedUsersInGroup(uint groupId);
+
 }

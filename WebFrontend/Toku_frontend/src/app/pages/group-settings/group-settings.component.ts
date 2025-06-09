@@ -722,15 +722,15 @@ private haveMembersChanged(): boolean {
     if (access.includes(255))
       return; // admin -> all allowed
 
-    if (!access.includes(3))
-      this.canEditGroup = false;
     if (!access.includes(4))
-      this.canEditGroupPicture = false;
+      this.canEditGroup = false;
     if (!access.includes(5))
-      this.canAddMembers = false;
+      this.canEditGroupPicture = false;
     if (!access.includes(6))
-      this.canEditPermissions = false;
+      this.canAddMembers = false;
     if (!access.includes(7))
+      this.canEditPermissions = false;
+    if (!access.includes(8))
       this.canViewLog = false;
   }
 }

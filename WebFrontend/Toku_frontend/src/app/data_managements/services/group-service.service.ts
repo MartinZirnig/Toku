@@ -111,4 +111,8 @@ export class GroupService {
 
     return this.http.get<number[]>(`${this.baseUrl}/get-permissions`, {params: params});
   }
+
+  receiveMessages() : Observable<RequestResultModel> {
+    return this.http.patch<RequestResultModel>(`${this.baseUrl}/receive-messages`, null);
+  }
 }

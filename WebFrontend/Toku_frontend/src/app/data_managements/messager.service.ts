@@ -8,7 +8,7 @@ import { User } from './user';
 export class MessagerService {
   private socket?: WebSocket;
   private path: string = Server.SocketUrl;
-  private callbackMap: Map<string, (data: string) => void> = new Map();
+  private callbackMap: Map<string, ((data: string) => void)[]> = new Map();
   private messageIntervalId?: any;
 
   constructor() {
@@ -47,7 +47,10 @@ export class MessagerService {
       const data = raw.slice(firstSpaceIndex + 1);
 
       if (this.callbackMap.has(request)) {
-        this.callbackMap.get(request)!(data);
+        const callbacks = this.callbackMap.get(request)!
+        callbacks.forEach(cb => {
+          cb(data);
+        });
       }
     };
 
@@ -81,7 +84,13 @@ export class MessagerService {
   }
 
   appendCallback(code: string, operation: (data: string) => void) {
-    this.callbackMap.set(code, operation);
+
+    console.log("adding: ", code);
+    if (this.callbackMap.has(code)){
+      this.callbackMap.get(code)?.push(operation);
+    } else {
+      this.callbackMap.set(code, [operation]);
+    }
   }
 
   writeSocket(content: string | ArrayBuffer) {

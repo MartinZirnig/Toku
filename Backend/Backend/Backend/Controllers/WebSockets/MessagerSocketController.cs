@@ -37,7 +37,7 @@ public class MessagerSocketController : SocketController
         var userName = splited[1];
 
         var logins = await service
-            .GetActiveGroupUsersAsync(groupId)
+            .GetCurrentGroupUsersAsync(groupId)
             .ConfigureAwait(false);
 
         if (logins is null) return;
@@ -68,7 +68,7 @@ public class MessagerSocketController : SocketController
         var userName = splited[1];
 
         var logins = await service
-            .GetActiveGroupUsersAsync(groupId)
+            .GetCurrentGroupUsersAsync(groupId)
             .ConfigureAwait(false);
 
         if (logins is null) return;

@@ -1,9 +1,10 @@
 ﻿using Backend.Attributes;
+using Backend.Controllers.WebSockets;
+using Backend.Controllers.WebSockets.Management;
 using BackendInterface;
 using BackendInterface.Models;
 using Microsoft.AspNetCore.Mvc;
-using BackendEnums;
-using Org.BouncyCastle.Bcpg.Sig;
+using Mysqlx.Prepare;
 
 namespace Backend.Controllers;
 
@@ -91,8 +92,27 @@ public sealed class GroupController : ControllerBase
     {
         using var service = _serviceProvider.GetGroupService();
 
+        var executor = (Guid)AuthorizationAttribute.GetUID(HttpContext)!;
         var result = await service.ReadGroupAsync(model)
             .ConfigureAwait(false);
+
+        var pings = await service
+           .GetConnectedUsersInGroup(model.GroupId)
+           .ConfigureAwait(false);
+
+        var sockets = pings
+            .Select(p =>
+            {
+                if (SocketController.TryGetController(p, out MessagerSocketController sock))
+                    return sock;
+                return null;
+            });
+
+        foreach (var socket in sockets)
+            if (socket is not null)
+                await socket.WriteTextAsync("refresh-statuses " + executor.ToString());
+
+
 
         return Ok(result);
     }
@@ -202,6 +222,36 @@ public sealed class GroupController : ControllerBase
             .ConfigureAwait(false);
         return Ok(result);
     }
+    [HttpPatch("receive-messages")]
+    public async Task<IActionResult> ReceiveMessagesAsync()
+    {
+        using var service = _serviceProvider.GetGroupService();
+        var executor = (Guid)AuthorizationAttribute.GetUID(HttpContext)!;
 
+        var result = await service
+            .ReceiveMessagesAsync(executor)
+            .ConfigureAwait(false);
+
+        var pings = await service
+            .GetConnectedCoGroupersAsync(executor)
+            .ConfigureAwait(false);
+
+        var sockets = pings
+            .Select(p =>
+            {
+                if (SocketController.TryGetController(p, out MessagerSocketController sock))
+                    return sock;
+                return null;
+            });
+
+        foreach (var socket in sockets)
+            if (socket is not null)
+                await socket.WriteTextAsync("refresh-statuses " + executor.ToString());
+
+
+
+
+        return Ok(result);
+    }
 
 }

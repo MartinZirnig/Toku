@@ -20,6 +20,8 @@ import { StoredMessageModel } from '../../data_managements/models/stored-message
 import { FormatedTextComponent } from "../formated-text/formated-text.component";
 import { ColorSettingsModel } from '../../data_managements/models/color-settings-model';
 import { User } from '../../data_managements/user';
+import { MessagerService } from '../../data_managements/messager.service';
+import { MessageService } from '../../data_managements/services/message.service';
 
 
 @Component({
@@ -81,7 +83,9 @@ Message_senderComponent implements OnInit {
     private replyService: ReplyService, // Přidej reply service
     private deletePopupService: DeletePopupService, // <-- přidej službu pro delete popup
     private colorManager: ColorManagerService, // Přidej ColorManagerService
-    private el: ElementRef // Přidej ElementRef pro nastavení CSS proměnných
+    private el: ElementRef, // Přidej ElementRef pro nastavení CSS proměnných
+    private messager: MessagerService,
+    private messageService: MessageService
   ) {
     this.csm = this.colorManager.csm;
   } // Inject DomSanitizer
@@ -91,9 +95,9 @@ Message_senderComponent implements OnInit {
   private isDragging = false; // Dragging state
 
   ngOnInit(): void {
-    if (this.image)
-      console.log(this.image);
 
+    console.log("init: ", this.text);
+    this.messager.appendCallback("refresh-statuses", data => this.refreshStatus(data));
 
     this.isLongText = this.text.length > 50; // Adjust threshold as needed
     const truncatedText = this.getTruncatedPreviewText(this.previewText, 10); // Limit preview to 10 words
@@ -466,5 +470,22 @@ Message_senderComponent implements OnInit {
     this.reactionsData = newValue;
     // případně zde zavolejte update na serveru, pokud je potřeba
     // např. this.msgCtrl.addReaction(this.raw.messageId, newValue).subscribe(...)
+  }
+
+  refreshStatus(data: string) {
+    this.messageService.getMessageStatus(Number(this.raw.raw.messageId)).subscribe({
+      next: response => {
+        if (response){
+          console.log(this.text ,response);
+          this.status = StoredMessageModel.getStatus(response);
+        } else {
+          console.warn("response: ", response);
+          console.error("cannot refresh status: No response");
+        }
+      },
+      error: err => {
+        console.error("cannot refresh status: ", err);
+      }
+    })
   }
 }

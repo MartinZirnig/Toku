@@ -3,7 +3,7 @@ import { Server } from '../server';
 import { HttpClient } from '@angular/common/http';
 import { MessageModel } from '../models/message-model';
 import { StoredMessageModel } from '../models/stored-message-model';
-import { Observable } from 'rxjs';
+import { InteropObservable, Observable } from 'rxjs';
 import { HttpParams } from '@angular/common/http';
 import { RequestResultModel } from '../models/result-model';
 import { MessageEditModel } from '../models/message-edit-model';
@@ -63,5 +63,8 @@ export class MessageService {
       .set("messageId", messageId);
 
     return this.http.get<StoredDownloadableFileModel[]>(`${this.baseUrl}/get-message-files`, {params: params});
+  }
+  getMessageStatus(messageId: number) : Observable<number> {
+      return this.http.get<number>(`${this.baseUrl}/get-message-status/${messageId}`);
   }
 }

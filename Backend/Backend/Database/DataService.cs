@@ -6,6 +6,7 @@ using Crypto;
 using Microsoft.EntityFrameworkCore;
 using MysqlDatabase.Tables;
 using MysqlDatabaseControl;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -39,12 +40,27 @@ internal class DataService : DatabaseServisLifecycle, IDataService
             var messageId = await StoreMessageAsync(encrypted, message);
             if (messageId == 0) return 0;
 
-            var users = await SupportService.GetGroupUsersAsync(
-                message.GroupId, Context);
+            var login = await SupportService
+                .GetUserDataAsync(message.SenderContext, Context)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+            var user = await SupportService
+                .GetUserById(login.UserId, Context)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+            await StoreUserMessageRelationAndHistoryAsync(
+                encrypted, user, messageId, message, true);
+
+            var users = (await SupportService
+                .GetGroupUsersAsync(message.GroupId, Context)
+                .ConfigureAwait(false))
+                .Where(u => u.UserId != login.UserId);
 
             var tasks = users.Select(user =>
                 StoreUserMessageRelationAndHistoryAsync(
-                    encrypted, user, messageId, message));
+                    encrypted, user, messageId, message, false));
             await Task.WhenAll(tasks);
 
             await UpdateGroupTimingAsync(message.GroupId);
@@ -59,14 +75,14 @@ internal class DataService : DatabaseServisLifecycle, IDataService
         }
     }
     private static async Task StoreUserMessageRelationAndHistoryAsync
-        (EncryptedMessage msg, User usr, uint msgId, MessageModel model)
+        (EncryptedMessage msg, User usr, uint msgId, MessageModel model, bool isSender)
     {
         await using var tempContext = new DatabaseContext();
         using var off = new ConstraintOff(tempContext);
 
         await StoreUserMessageRelationAsync(msg, usr, msgId, tempContext)
             .ConfigureAwait(false);
-        await BoundRelations(msgId, model.GroupId, usr, tempContext)
+        await BoundRelations(msgId, model.GroupId, usr, tempContext, isSender)
             .ConfigureAwait(false);
     }
 
@@ -87,8 +103,10 @@ internal class DataService : DatabaseServisLifecycle, IDataService
             CreatedTime = DateTime.UtcNow,
         };
 
-        Context.Messages.Add(dbMessage);
-        await Context.SaveChangesAsync();
+        await Context.Messages.AddAsync(dbMessage)
+            .ConfigureAwait(false);
+        await Context.SaveChangesAsync()
+            .ConfigureAwait(false);
 
         if (model.AttachedFilesId is not null)
         {
@@ -102,7 +120,8 @@ internal class DataService : DatabaseServisLifecycle, IDataService
             }
         }
 
-        await Context.SaveChangesAsync();
+        await Context.SaveChangesAsync()
+            .ConfigureAwait(false);
         return dbMessage.MessageId;
     }
     private static async Task StoreUserMessageRelationAsync(
@@ -120,7 +139,7 @@ internal class DataService : DatabaseServisLifecycle, IDataService
         await tempContext.SaveChangesAsync();
     }
     private static async Task BoundRelations
-        (uint msgId, uint groupId, User usr, DatabaseContext tempContext)
+        (uint msgId, uint groupId, User usr, DatabaseContext tempContext, bool isSender)
     {
         using var off = new ConstraintOff(tempContext);
         var now = DateTime.UtcNow;
@@ -130,11 +149,15 @@ internal class DataService : DatabaseServisLifecycle, IDataService
             .ConfigureAwait(false)
             ?? throw new UnauthorizedAccessException();
 
+        var statusCode = isSender
+            ? MessageStatusCode.receiver
+            : MessageStatusCode.Sent;
+
         var status = new MessageStatus()
         {
             MessageId = msgId,
             ClientId = client.ClientId,
-            StatusCode = MessageStatusCode.Sent,
+            StatusCode = statusCode,
             UpdatedTime = now,
         };
         await tempContext.MessageStatuses.AddAsync(status)
@@ -144,7 +167,7 @@ internal class DataService : DatabaseServisLifecycle, IDataService
         var statusHistory = new MessageStatusHistory()
         {
             MessageStatuseId = status.MessageStatusId,
-            StatusCode = MessageStatusCode.Sent,
+            StatusCode = statusCode,
             Time = now
         };
 
@@ -305,10 +328,12 @@ internal class DataService : DatabaseServisLifecycle, IDataService
 
     private static async Task<MessageStatusCode?> GetMessageStatusAsync(uint messageId, DatabaseContext context)
     {
-        var statuses = await context.MessageStatuses
+        Debug.Assert(messageId != 339);
+
+        var stat = await context.MessageStatuses
             .AsNoTracking()
             .Where(ms => ms.MessageId == messageId)
-            .Select(ms => ms.StatusCode)
+            //.Select(ms => ms.StatusCode)
             .ToListAsync()
             .ConfigureAwait(false);
 
@@ -317,8 +342,10 @@ internal class DataService : DatabaseServisLifecycle, IDataService
             .Where(ms => ms.MessageId == messageId)
             .Select(ms => ms.StatusCode);
 
+        var statuses = stat
+            .Select(ms => ms.StatusCode);
 
-        if (statuses.Count == 0) return null;
+        if (statuses.Count() == 0) return null;
 
         if (statuses.Contains(MessageStatusCode.Sent))
             return MessageStatusCode.Sent;
@@ -648,6 +675,61 @@ internal class DataService : DatabaseServisLifecycle, IDataService
         catch
         {
             return [];
+        }
+    }
+
+    public async Task ReceiveMessageAsync(uint messageId, uint userId)
+    {
+        await using var transaction = await Context.Database
+            .BeginTransactionAsync()
+            .ConfigureAwait(false);
+        try
+        {
+            var client = await Context.Clients
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c =>
+                    c.UserId == userId
+                    && c.GroupRelations[0].GroupId == messageId)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+
+            await this.Context.MessageStatuses
+                .Where(ms =>
+                    ms.ClientId == client.ClientId
+                    && ms.MessageId == messageId)
+                .ExecuteUpdateAsync(um =>
+                    um.SetProperty(ump =>
+                        ump.StatusCode, MessageStatusCode.receiver));
+
+            await Context.SaveChangesAsync()
+                .ConfigureAwait(false);
+            await transaction.CommitAsync()
+                .ConfigureAwait(false);
+        }
+        catch
+        {
+            await transaction.RollbackAsync()
+                .ConfigureAwait(false);
+        }
+    }
+
+    public async Task<uint> GetMessageStatus(uint messageId)
+    {
+        try
+        {
+            var message = await Context.Messages
+                .FirstOrDefaultAsync(m =>
+                    m.MessageId == messageId)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+            return (uint)await GetMessageStatusAsync(messageId, Context);
+
+        }
+        catch
+        {
+            return 0;
         }
     }
 }
