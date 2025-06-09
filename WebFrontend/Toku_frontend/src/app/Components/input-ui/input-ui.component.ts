@@ -110,6 +110,7 @@ export class InputUiComponent implements OnInit {
   ngOnInit(): void {
     // Ulož aktuální groupId
     this.lastGroupId = User.ActiveGroupId;
+    this.service.setIsTyping = this.setIsTyping.bind(this);
 
     // Polling na změnu chatu/skupiny
     this.groupCheckInterval = setInterval(() => {
@@ -129,6 +130,10 @@ export class InputUiComponent implements OnInit {
       }
     });
   }
+  private setIsTyping(typing: string) 
+  {
+    this.userTyping = typing;
+  } 
 
   ngAfterViewInit(): void {
     // Nastav CSS proměnné pro barvy z csm

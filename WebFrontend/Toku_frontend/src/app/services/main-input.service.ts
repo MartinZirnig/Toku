@@ -14,7 +14,8 @@ import { AiQueryModel } from '../data_managements/models/ai-query-model';
 })
 export class MainInputService {
   declare public messageAdded: (msg: StoredMessageModel) => void
-  declare public mainPage: MainPageComponent
+  declare public mainPage: MainPageComponent;
+  declare public setIsTyping: any;
 
   constructor(
     private service: MessageService,
@@ -48,7 +49,7 @@ export class MainInputService {
     })
   }
   private sendAi(query: string) {
-    console.log("Sending AI query: ", query);
+      this.setIsTyping("TokuAi");
 
       const now = new Date();
       const hours = now.getHours().toString().padStart(2, '0');
@@ -63,12 +64,15 @@ export class MainInputService {
 
         if (response.time.trim()) {
               this.messageAdded(response);
+              this.setIsTyping('');
         }
         else {
+          this.setIsTyping('');
           console.error("AI error: ", response);
         }
       },
       error: err => {
+        this.setIsTyping('');
         console.error("error in AI request: ", err);
       }
     });

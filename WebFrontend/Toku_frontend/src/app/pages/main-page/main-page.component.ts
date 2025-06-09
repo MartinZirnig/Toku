@@ -9,7 +9,6 @@ import { MessageControllService } from '../../data_managements/control-services/
 import { StoredMessageModel } from '../../data_managements/models/stored-message-model';
 import { MainInputService } from '../../services/main-input.service';
 import { NgZone } from '@angular/core';
-import { take } from 'rxjs';
 import { GroupsLoaderService } from '../../data_managements/control-services/groups-loader.service';
 import { Redirecter } from '../../data_managements/redirecter.service';
 import { Cache } from '../../data_managements/cache';
@@ -22,7 +21,6 @@ import { MessageFilterService } from '../../services/message-filter.service';
 import { FileService } from '../../data_managements/services/file.service';
 import { from, Observable } from 'rxjs';
 import { concatMap, filter, observeOn } from 'rxjs/operators';
-import { MessageService } from '../../data_managements/services/message.service';
 import { AiService } from '../../data_managements/services/ai-service.service';
 @Component({
   selector: 'app-main-page',
@@ -415,6 +413,7 @@ private scrollDown(){
     }
   }, 0);
 }
+
 
   private onMessage(data: string) {
     try{

@@ -380,8 +380,6 @@ private haveMembersChanged(): boolean {
     this.selectedMember = member;
   }
   getPermissionValue(member: GroupMember, permission: UserPermissionModel): boolean {
-    console.log(member.permissions);
-    console.log(permission.code);
     return member.permissions.includes(permission.code)      
   }
   /*
@@ -392,7 +390,16 @@ private haveMembersChanged(): boolean {
   }
     */
   updatePermissionSwitch(permission: UserPermissionModel, event: Event): void {
-    this.selectedMember?.permissions.push(permission.code);
+    const inputElement = event.target as HTMLInputElement;
+    
+    if (inputElement.checked){
+      this.selectedMember?.permissions.push(permission.code);
+    } else {
+      if (this.selectedMember){
+        this.selectedMember.permissions = this.selectedMember.permissions.filter(p => p != permission.code);
+      }
+    }
+
   }
 
     /*
@@ -425,7 +432,7 @@ private haveMembersChanged(): boolean {
 
   saveGroupSettings(): void {
     // Pokud je public, heslo se smaže
-    if (this.isPublicGroup) {
+    if (!this.isPublicGroup) {
       this.groupPassword = '';
     }
     this.StoreGroup();
@@ -541,7 +548,7 @@ private haveMembersChanged(): boolean {
       this.groupName,
       this.groupDescription,
       this.isPublicGroup ? 1 : 0, // nebo použijte správný parametr pro public/private
-      this.isPublicGroup ? '' : this.groupPassword,
+      this.isPublicGroup ? this.groupPassword : '',
       this.groupPictureId
     );
     response.subscribe({
