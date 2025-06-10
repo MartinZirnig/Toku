@@ -1,5 +1,6 @@
 ﻿using BackendInterface.Models;
 using MysqlDatabaseControl;
+using System.Reflection;
 
 namespace BackendInterface;
 public interface IDataService : IDisposable
@@ -21,5 +22,6 @@ public interface IDataService : IDisposable
     Task<IEnumerable<StoredDownloadableFileModel>> GetMessageFiles(uint message);
     Task ReceiveMessageAsync(uint messageId, uint userId);
     Task<uint> GetMessageStatus(uint messageId);
+    Task<RequestResultModel> UpdateMessageReactionsAsync(ReactionModel model);
 }
 

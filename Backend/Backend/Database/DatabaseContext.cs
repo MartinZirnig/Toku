@@ -11,7 +11,7 @@ internal class DatabaseContext : DbContext
         "server=mysqlstudenti.litv.sssvt.cz;" +
         "database=3b2_zirnigmartin_db2;" +
         "user=zirnigmartin;" +
-        "password=123456;" +
+        "password=SilneHeslo1;" +
         "charset=utf8mb4";
     #region DbSets
     public DbSet<Client> Clients { get; set; }
@@ -20,7 +20,6 @@ internal class DatabaseContext : DbContext
     public DbSet<GroupInvite> GroupInvites { get; set; }
     public DbSet<GroupOperation> GroupOperations { get; set; }
     public DbSet<Message> Messages { get; set; }
-    public DbSet<MessageReaction> MessageReactions { get; set; }
     public DbSet<MessageStatus> MessageStatuses { get; set; }
     public DbSet<MessageStatusHistory> MessageStatusHistories { get; set; }
     public DbSet<Notification> Notifications { get; set; }

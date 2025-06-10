@@ -149,4 +149,15 @@ public sealed class MessageController : ControllerBase
 
         return Ok(result);
     }
+    [HttpPatch("update-reaction")]
+    public async Task<IActionResult> UpdateMessageReactionAsync([FromBody] ReactionModel model)
+    {
+        using var service = _serviceProvider.GetDataService();
+
+        var result = await service.UpdateMessageReactionsAsync(model)
+            .ConfigureAwait(false);
+
+        return Ok(result);
+
+    }
 }

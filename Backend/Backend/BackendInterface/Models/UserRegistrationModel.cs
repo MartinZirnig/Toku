@@ -4,7 +4,8 @@ public record UserRegistrationModel(
     string Name,
     string Email,
     string Password,
-    int TimeZoneOffset
+    int TimeZoneOffset,
+    uint DomainId
     )
 {
     public UserLoginModel DeriveUserLogin()

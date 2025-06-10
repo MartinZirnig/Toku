@@ -9,6 +9,7 @@ import { RequestResultModel } from '../models/result-model';
 import { MessageEditModel } from '../models/message-edit-model';
 import { MessageRemoveModel } from '../models/message-remove-model';
 import { StoredDownloadableFileModel } from '../models/stored-downloadable-file-model';
+import { ReactionModel } from '../models/reaction-model';
 
 @Injectable({
   providedIn: 'root'
@@ -66,5 +67,13 @@ export class MessageService {
   }
   getMessageStatus(messageId: number) : Observable<number> {
       return this.http.get<number>(`${this.baseUrl}/get-message-status/${messageId}`);
+  }
+
+  updateMessageReactions(messageId: number, reaction: string): Observable<RequestResultModel> {
+    const model = new ReactionModel(
+      messageId, reaction
+    );
+    const url = `${this.baseUrl}/update-reaction`;
+    return this.http.patch<RequestResultModel>(url, model);
   }
 }

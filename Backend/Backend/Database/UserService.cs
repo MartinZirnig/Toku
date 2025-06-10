@@ -21,13 +21,19 @@ internal class UserService : DatabaseServisLifecycle, IUserService
         try
         {
             if (await ExistsUserAsync(model.Name))
-                return new RequestResultModel(false, "User already exists!");
+            {
+                var user = await Context.Users
+                    .FirstOrDefaultAsync(user => user.Name == model.Name);
+
+                return new RequestResultModel(true, user!.UserId.ToString());
+            }
 
             var KeyId = await InsertNewUserKeyAsync(model);
             var UserId = await InsertNewUserAsync(model, KeyId);
+            await CopyDomainColorSettingsAsync(UserId);
 
             await transaction.CommitAsync();
-            return new RequestResultModel(true, string.Empty);
+            return new RequestResultModel(true, UserId.ToString());
         }
         catch (Exception ex)
         {
@@ -71,12 +77,35 @@ internal class UserService : DatabaseServisLifecycle, IUserService
             CreatedTime = DateTime.Now,
             KeyId = keyId,
             PictureId = 1,
-            LastGroupId = 0
+            LastGroupId = 0,
+            DomainId = model.DomainId
         };
         await Context.Users.AddAsync(user);
         await Context.SaveChangesAsync();
 
         return user.UserId;
+    }
+    private async Task CopyDomainColorSettingsAsync(uint userId)
+    {
+        var user = await SupportService
+            .GetUserById(userId, Context)
+            .ConfigureAwait(false)
+            ?? throw new ArgumentException(nameof(userId));
+
+        var newColors = new ColorSetting()
+            { Colors = user.ColorSettings.Colors };
+
+        await Context.ColorSettings
+            .AddAsync(newColors)
+            .ConfigureAwait(false);
+
+        await Context.SaveChangesAsync()
+            .ConfigureAwait(false);
+
+        user.ColorSettingsId = newColors.Id;
+
+        await Context.SaveChangesAsync()
+            .ConfigureAwait(false);
     }
 
 
@@ -681,7 +710,7 @@ internal class UserService : DatabaseServisLifecycle, IUserService
                 .FirstOrDefaultAsync(u => u.UserId == user)
                 .ConfigureAwait(false)
                 ?? throw new UnauthorizedAccessException();
-            
+
             var setting = usrs.ColorSettings;
             if (setting is null)
             {
@@ -696,11 +725,11 @@ internal class UserService : DatabaseServisLifecycle, IUserService
                 setting.Colors = value;
             }
             */
-            await Context.SaveChangesAsync() 
+            await Context.SaveChangesAsync()
                 .ConfigureAwait(false);
             await transaction.CommitAsync()
                 .ConfigureAwait(false);
-            
+
             return new RequestResultModel(
                 true, string.Empty);
         }

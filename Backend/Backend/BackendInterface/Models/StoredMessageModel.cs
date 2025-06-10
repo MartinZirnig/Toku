@@ -15,5 +15,6 @@ public record StoredMessageModel(
     string? SenderPictureId,
     bool HasPinnedFile,
     ulong FilesSize,
-    uint? PngId
+    uint? PngId,
+    string Reactions
     );

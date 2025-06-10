@@ -19,3 +19,4 @@ using System.Runtime.InteropServices;
 
 [assembly: Guid("e52ab3e0-033b-4e7f-92d3-d79dabf5f97b")]
 [assembly: InternalsVisibleTo("Microsoft.EntityFrameworkCore")]
+[assembly: InternalsVisibleTo("Backend")]

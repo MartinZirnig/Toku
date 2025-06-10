@@ -25,9 +25,11 @@ internal class Message
     [Required]
     public uint GroupId { get; set; }
 
+    [Required]
+    public string Reactions { get; set; }
+
 
     public virtual List<MessageStoredFile> MessageStoredFiles { get; set; } = new List<MessageStoredFile>();
 
     public virtual List<MessageStatus> MessageStatuses { get; set; } = new List<MessageStatus>();
-    public virtual List<MessageReaction> MessageReactions { get; set; } = new List<MessageReaction>();
 }

@@ -101,6 +101,7 @@ internal class DataService : DatabaseServisLifecycle, IDataService
             SenderId = user.UserId,
             PinnedMessageId = model.PinnedMessageId,
             CreatedTime = DateTime.UtcNow,
+            Reactions = string.Empty
         };
 
         await Context.Messages.AddAsync(dbMessage)
@@ -300,7 +301,7 @@ internal class DataService : DatabaseServisLifecycle, IDataService
             sender.PictureId.ToString() ?? string.Empty,
             pin?.AttachedFilesId?.Any() ?? false,
             await GetFilesSize(storedFiles.Select(msf => msf.StoredFileId), context),
-            png
+            png, message.Reactions
         );
         if (disposeContext)
             await context.DisposeAsync();
@@ -474,7 +475,7 @@ internal class DataService : DatabaseServisLifecycle, IDataService
                 0, 255,
                 GroupService.GetCorrectTimeFormat(DateTime.UtcNow
                 .AddMinutes(-login.TimeZoneOffset)),
-                null, null, "2", false, 0, null);
+                null, null, "2", false, 0, null, string.Empty);
         }
         catch (Exception ex)
         {
@@ -483,7 +484,7 @@ internal class DataService : DatabaseServisLifecycle, IDataService
                 null, null,
                 0, 255,
                 GroupService.GetCorrectTimeFormat(DateTime.UtcNow),
-                null, null, "2", false, 0, null);
+                null, null, "2", false, 0, null, string.Empty);
         }
     }
     private async Task AddGeminiRequestRecordAsync(string text, Guid executor, bool isQuery)
@@ -608,7 +609,7 @@ internal class DataService : DatabaseServisLifecycle, IDataService
                     0, gc.IsSender ? (byte)2 : (byte)255,
                     GroupService.GetCorrectTimeFormat(
                         gc.Time.AddMinutes(-login.TimeZoneOffset)),
-                    null, null, "2", false, 0, null
+                    null, null, "2", false, 0, null, string.Empty
                 )
             );
 
@@ -730,6 +731,37 @@ internal class DataService : DatabaseServisLifecycle, IDataService
         catch
         {
             return 0;
+        }
+    }
+
+    public async Task<RequestResultModel> UpdateMessageReactionsAsync(ReactionModel model)
+    {
+        await using var transaction = await Context.Database
+            .BeginTransactionAsync()
+            .ConfigureAwait(false);
+
+        try
+        {
+            await Context.Messages
+                .Where(m =>
+                    m.MessageId == model.MessageId)
+                .ExecuteUpdateAsync(m =>
+                    m.SetProperty(x =>
+                        x.Reactions, model.Reaction))
+                .ConfigureAwait(false);
+
+            await Context.SaveChangesAsync()
+                .ConfigureAwait(false);
+            await transaction.CommitAsync()
+                .ConfigureAwait(false);
+
+            return new RequestResultModel(
+                true, string.Empty);
+        }
+        catch(Exception ex)
+        {
+            return new RequestResultModel(
+                false, ex.Message);
         }
     }
 }

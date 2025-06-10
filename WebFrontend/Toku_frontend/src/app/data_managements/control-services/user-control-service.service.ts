@@ -27,7 +27,7 @@ export class UserControlService {
   
   public register(name: string, email: string, password: string) : Observable<RequestResultModel> {
     const model = new UserRegistrationModel(
-      name, email, password, this.GetTimeZone()
+      name, email, password, this.GetTimeZone(), 1
     );
     return this.registerService.registerUser(model);
   }

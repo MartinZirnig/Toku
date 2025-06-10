@@ -11,6 +11,7 @@ import { ReplyService } from '../../services/reply.service';
 import { FormatedTextComponent } from "../formated-text/formated-text.component";
 import { ColorManagerService } from '../../services/color-manager.service';
 import { ColorSettingsModel } from '../../data_managements/models/color-settings-model';
+import { MessageService } from '../../data_managements/services/message.service';
 
 @Component({
   selector: 'app-message-adresator',
@@ -52,7 +53,8 @@ export class MessageAdresatorComponent implements OnInit {
     private contextMenuMessagesService: ContextMenuMessagesService,
     private replyService: ReplyService, // Přidej reply service
     private colorManager: ColorManagerService,
-    private el: ElementRef
+    private el: ElementRef,
+    private messageService: MessageService
   ) {
     this.csm = this.colorManager.csm;
   }
@@ -128,7 +130,7 @@ export class MessageAdresatorComponent implements OnInit {
         reply: () => this.onReply(),
         onDeleteMessage: this.onDeleteMessage // <-- přidej callback
       },
-      messageId: this.raw?.messageId // musí být číslo a nesmí být undefined!
+      messageId: this.raw?.raw.messageId // musí být číslo a nesmí být undefined!
     } as any);
   }
 
@@ -147,7 +149,7 @@ export class MessageAdresatorComponent implements OnInit {
         reply: () => this.onReply(),
         onDeleteMessage: this.onDeleteMessage // <-- přidej callback
       },
-      messageId: this.raw?.messageId // musí být číslo a nesmí být undefined!
+      messageId: this.raw?.raw.messageId // musí být číslo a nesmí být undefined!
     } as any);
   }
 
@@ -173,6 +175,16 @@ export class MessageAdresatorComponent implements OnInit {
   onReact(): void {
     this.emojiPopupService.openForReaction((emoji: string) => {
       this.reactionsData += emoji;
+
+      this.messageService.updateMessageReactions((this.raw?.raw.messageId ?? 0), this.reactionsData).subscribe({
+        next: response => {
+          if (!response.success)
+            console.error("cannot update reactions: ", response.description);
+        },
+        error: err => {
+          console.error("cannot update reactions: ", err);
+        }
+      })
     });
   }
 

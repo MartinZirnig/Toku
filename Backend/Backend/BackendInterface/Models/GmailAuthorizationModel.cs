@@ -22,7 +22,7 @@ public record GmailAuthorizationModel(
     public UserRegistrationModel DeriveRegistration()
     {
         return new UserRegistrationModel(
-            Name, Email, Token, TimeZoneOffset);
+            Name, Email, Token, TimeZoneOffset, 1);
     }
 
     private static Dictionary<string, string> ParseCredential(string credential)

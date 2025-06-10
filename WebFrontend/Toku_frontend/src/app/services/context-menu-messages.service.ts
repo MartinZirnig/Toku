@@ -3,6 +3,7 @@ import { BehaviorSubject } from 'rxjs';
 import { ContextMenuCoordinatorService } from './context-menu-coordinator.service';
 
 export interface ContextMenuMessagesConfig {
+  //messageId?: number;
   visible: boolean;
   x: number;
   y: number;
@@ -29,7 +30,8 @@ export class ContextMenuMessagesService {
       delete: () => {},
       react: () => {},
       copy: () => {},
-    }
+    },
+   // messageId: 0
   });
 
   config$ = this.configSubject.asObservable();

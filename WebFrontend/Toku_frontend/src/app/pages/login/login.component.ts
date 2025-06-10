@@ -1,7 +1,7 @@
 import { Component, importProvidersFrom, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { Redirecter } from '../../data_managements/redirecter.service';
 import { UserControlService } from '../../data_managements/control-services/user-control-service.service';
 import { Observable } from 'rxjs';
@@ -13,6 +13,7 @@ import { IconComponent } from '../../Components/icon/icon.component';
 import { MessagerService } from '../../data_managements/messager.service';
 import { UserService } from '../../data_managements/services/user.service';
 import { GroupService } from '../../data_managements/services/group-service.service';
+import { ColorTestServiceService } from '../../test_services/color-test-service.service';
 
 @Component({
   selector: 'app-login',
@@ -33,7 +34,9 @@ export class LoginComponent implements OnInit{
     private heart: Heart,
     private messager: MessagerService,
     private userService: UserService,
-    private groupService: GroupService
+    private groupService: GroupService,
+    private colorTest: ColorTestServiceService,
+    private route: ActivatedRoute
   ) {
     this.loginForm = this.fb.group({
       name: ['', Validators.required],
@@ -43,6 +46,16 @@ export class LoginComponent implements OnInit{
 
   ngOnInit(){
     window.history.pushState({}, '', '/login');
+
+    this.route.queryParams.subscribe(params => {
+      const name: string | undefined = params['name'];
+      const pass: string | undefined = params['pass'];
+      const login: string | undefined = params['login'] ?? 'false';
+
+      if (name) this.loginForm.patchValue({ name: name });
+      if (pass) this.loginForm.patchValue({ password: pass });
+      if (login === 'true') this.onLogin();
+    });
   }
 
   printError(message: string) {

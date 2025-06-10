@@ -47,12 +47,12 @@ internal class User
     public uint DomainId { get; set; }
     [ForeignKey("DomainId")]
     public virtual RegisteredDomain Domain { get; set; }
-    /*
+
     [Required]
     public uint ColorSettingsId { get; set; }
     [ForeignKey("ColorSettingsId")]
     public virtual ColorSetting ColorSettings { get; set; }
-    */
+  
     public virtual List<UserLogin> UserLogins { get; set; } = new List<UserLogin>();
     public virtual List<Notification> Notifications { get; set; } = new List<Notification>();
     public virtual List<Client> Clients { get; set; } = new List<Client>();

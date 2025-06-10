@@ -95,7 +95,7 @@ internal class ReservedDomainService : DatabaseServisLifecycle, IReservedDomainS
         return new UserLoginResponseModel(login.SessionId.ToString(), user.LastGroupId, user.UserId);
     }
 
-    public async Task<RequestResultModel> EnsureUserConnectionAsync(UserConnectionModel connection)
+    public async Task<RequestResultModel> EnsureUserConnectionAsync(DomainUserConnectionModel connection)
     {
         await using var transaction = await Context.Database
             .BeginTransactionAsync()
@@ -104,29 +104,23 @@ internal class ReservedDomainService : DatabaseServisLifecycle, IReservedDomainS
         try
         {
             var group = await Context.Groups
-                .AsNoTracking()
                 .Include(g => g.GroupClients)
                     .ThenInclude(gc => gc.Client)
                 .FirstOrDefaultAsync(g =>
                     g.GroupClients.Any(gc =>
-                        gc.Client.UserId == connection.User1)
+                        gc.Client.UserId == connection.Usr1)
                     && g.GroupClients.Any(gc =>
-                        gc.Client.UserId == connection.User2)
+                        gc.Client.UserId == connection.Usr2)
                     )
                 .ConfigureAwait(false);
 
-            var def = await Context.Users
-                .FirstOrDefaultAsync(u => u.UserId == connection.User1)
-                .ConfigureAwait(false)
-                ?? throw new UnauthorizedAccessException();
-
             var u1 = await Context.Users
-                .FirstOrDefaultAsync(u => u.UserId == connection.User1)
+                .FirstOrDefaultAsync(u => u.UserId == connection.Usr1)
                 .ConfigureAwait(false)
                 ?? throw new UnauthorizedAccessException();
 
             var u2 = await Context.Users
-                .FirstOrDefaultAsync(u => u.UserId == connection.User2)
+                .FirstOrDefaultAsync(u => u.UserId == connection.Usr2)
                 .ConfigureAwait(false)
                 ?? throw new UnauthorizedAccessException();
 
@@ -135,7 +129,7 @@ internal class ReservedDomainService : DatabaseServisLifecycle, IReservedDomainS
                 var grpContext = (GroupService)(DatabaseServisLifecycle)this;
                 string name = $"{u1.Name} -> {u2.Name}";
 
-                var newGroup = new Group()
+                group = new Group()
                 {
                     CreatorId = 1,
                     Name = name,
@@ -151,16 +145,15 @@ internal class ReservedDomainService : DatabaseServisLifecycle, IReservedDomainS
                 await Context.Groups.AddAsync(group);
                 await Context.SaveChangesAsync();
 
+                var usr1Add = new GroupAddUserModel(
+                    u1.UserId, group.GroupId, GroupClientPermission.IsAllowedToWrite);
+                await grpContext.AddUserToGroupAsync(usr1Add);
+
+                var usr2Add = new GroupAddUserModel(
+                    u2.UserId, group.GroupId, GroupClientPermission.IsAllowedToWrite);
+                await grpContext.AddUserToGroupAsync(usr2Add);
 
                 await transaction.CommitAsync();
-
-                return new RequestResultModel(
-                    true, group.GroupId.ToString());
-
-
-
-
-
 
             }
 

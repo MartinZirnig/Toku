@@ -191,7 +191,7 @@ Message_senderComponent implements OnInit {
         reply: () => this.onReply(),
         onDeleteMessage: this.onDeleteMessage // <-- přidej callback
       },
-      messageId: this.raw?.messageId
+      messageId: this.raw?.raw.messageId
     } as any);
   }
 
@@ -223,7 +223,7 @@ Message_senderComponent implements OnInit {
         reply: () => this.onReply(),
         onDeleteMessage: this.onDeleteMessage // <-- přidej callback
       },
-      messageId: this.raw?.messageId
+      messageId: this.raw?.raw.messageId
     } as any);
   }
 
@@ -422,6 +422,18 @@ Message_senderComponent implements OnInit {
     
     this.emojiPopupService.openForReaction((emoji: string) => {
       this.reactionsData += emoji;
+
+
+
+      this.messageService.updateMessageReactions((this.raw?.raw.messageId ?? 0), this.reactionsData).subscribe({
+        next: response => {
+          if (!response.success)
+            console.error("cannot update reactions: ", response.description);
+        },
+        error: err => {
+          console.error("cannot update reactions: ", err);
+        }
+      })
     });
   }
 
@@ -475,11 +487,10 @@ Message_senderComponent implements OnInit {
   refreshStatus(data: string) {
     this.messageService.getMessageStatus(Number(this.raw.raw.messageId)).subscribe({
       next: response => {
-        if (response){
+        if (response != null) {
           console.log(this.text ,response);
           this.status = StoredMessageModel.getStatus(response);
         } else {
-          console.warn("response: ", response);
           console.error("cannot refresh status: No response");
         }
       },

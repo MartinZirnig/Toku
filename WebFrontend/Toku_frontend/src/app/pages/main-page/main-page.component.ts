@@ -204,6 +204,7 @@ private setEmptyHintTimeout() {
 
 // Upravte místa, kde se mění messages nebo dummyVisible, aby se znovu nastavilo zpoždění
 private appendMessage(msg: StoredMessageModel, file?: string) {
+  console.log(msg);
   const stat = StoredMessageModel.getStatus(msg.status);
   const sender = StoredMessageModel.isSender(msg.status);
   const message = new MessageFormat(

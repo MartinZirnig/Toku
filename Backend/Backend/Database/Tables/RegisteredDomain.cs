@@ -16,4 +16,8 @@ internal class RegisteredDomain
 
     [Required]
     public bool LimitsUsers { get; set; }
+    [Required]
+    public uint PreselectedColorSettingsId { get; set; }
+    [ForeignKey("PreselectedColorSettingsId")]
+    public virtual ColorSetting PreselectedColorSettings { get; set; }
 }

@@ -69,6 +69,8 @@ internal static class SupportService
             .AsNoTracking()
             .Include(u => u.Picture)
             .Include(u => u.Key)
+            .Include(u => u.Domain)
+            .Include(u => u.ColorSettings)
             .FirstOrDefaultAsync(u => u.UserId == userId)
             .ConfigureAwait(false);
     }

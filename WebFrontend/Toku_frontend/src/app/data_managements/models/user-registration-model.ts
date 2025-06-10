@@ -3,6 +3,7 @@ export class UserRegistrationModel {
       public name: string,
       public email: string,
       public password: string,
-      public timeZone: number
+      public timeZone: number,
+      public domain: number
     ) {}
   }

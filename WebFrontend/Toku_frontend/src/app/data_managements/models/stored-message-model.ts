@@ -15,7 +15,8 @@ export class StoredMessageModel {
     public senderPictureId?: string,
     public hasPinnedFile: boolean = false,
     public filesSize: number = 0,
-    public pngId?: number
+    public pngId?: number,
+    public reactions?: string
   ) {}
 
 

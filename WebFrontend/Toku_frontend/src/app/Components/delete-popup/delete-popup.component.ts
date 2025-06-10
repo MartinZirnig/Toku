@@ -2,12 +2,14 @@ import { Component, Input, ElementRef, AfterViewInit } from '@angular/core';
 import { DeletePopupService } from '../delete-popup/delete-popup.service';
 import { ColorManagerService } from '../../services/color-manager.service';
 import { ColorSettingsModel } from '../../data_managements/models/color-settings-model';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-delete-popup',
   standalone: true,
   templateUrl: './delete-popup.component.html',
-  styleUrl: './delete-popup.component.scss'
+  styleUrl: './delete-popup.component.scss',
+  imports: [CommonModule],
 })
 export class DeletePopupComponent implements AfterViewInit {
   public csm: ColorSettingsModel;

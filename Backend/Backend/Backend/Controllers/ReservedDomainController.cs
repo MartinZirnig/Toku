@@ -1,11 +1,10 @@
 ﻿using BackendInterface;
 using BackendInterface.Models;
 using Microsoft.AspNetCore.Mvc;
-
 namespace Backend.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("reserved-domain")]
     public class ReservedDomainController : Controller
     {
         private readonly ILogger<ReservedDomainController> _logger;
@@ -31,6 +30,39 @@ namespace Backend.Controllers
         {
             using var service = _serviceProvider.GetReservedDomainService();
             return Ok(string.Empty);
+        }
+
+        [HttpPost("echo")]
+        public async Task<IActionResult> EchoAsync()
+        {
+            using var reader = new StreamReader(Request.Body);
+            var body = await reader.ReadToEndAsync();
+
+            /*
+            var dbContext = new DatabaseContext();
+            var setting = new ColorSetting()
+            {
+                Colors = body
+            };
+
+            dbContext.ColorSettings.Add(setting);
+            dbContext.SaveChanges();
+            dbContext.Dispose();
+            */
+
+            return Content(body, "application/json");
+        }
+
+        [HttpPost("ensure-connection")]
+        public async Task<IActionResult> EnsureConnectionAsync([FromBody] DomainUserConnectionModel model)
+        {
+            using var service = _serviceProvider.GetReservedDomainService();
+
+            var result = await service.EnsureUserConnectionAsync(model)
+                .ConfigureAwait(false);
+
+            return Ok(result);
+
         }
     }
 }
