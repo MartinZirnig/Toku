@@ -1,0 +1,278 @@
+body, :host {
+  min-height: 100vh;
+  background: none;
+}
+
+:host {
+  /* CSS proměnné pro barvy z ColorSettingsModel, budou nastaveny v komponentě */
+  --color-input-bg: #23293a;
+  --color-input-border: #334155;
+  --color-input-border-focus: #7c3aed;
+  --color-input-text: #fff;
+  --color-input-placeholder: #64748b;
+  --color-error: #f87171;
+  --color-gradient-btn: linear-gradient(135deg, #46f3ff 0%, #528aa9 9.2%, #576086 45.4%, #576086 56.8%, #7b649a 79.2%, #9967ab 93.2%, #ff73e3 100%);
+  --color-gradient-btn-hover: linear-gradient(135deg, #ff73e3 0%, #9967ab 20%, #7b649a 40%, #576086 60%, #528aa9 80%, #46f3ff 100%);
+  --color-btn-text: #fff;
+  --color-close-btn: #fff;
+  --color-close-btn-hover: #ff73e3;
+  --color-card-bg: rgba(20, 24, 31, 0.98);
+  --color-card-border: transparent;
+  --color-label: #cbd5e1;
+  --color-hashtag: #7c3aed;
+  --color-group-list-btn-bg: linear-gradient(135deg, #46f3ff 0%, #528aa9 9.2%, #576086 45.4%, #576086 56.8%, #7b649a 79.2%, #9967ab 93.2%, #ff73e3 100%);
+  --color-group-list-btn-hover-bg: linear-gradient(135deg, #ff73e3 0%, #9967ab 20%, #7b649a 40%, #576086 60%, #528aa9 80%, #46f3ff 100%);
+  --color-group-list-btn-text: #fff;
+  --color-overlay-bg: rgba(0,0,0,0.7);
+}
+
+.login-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--color-overlay-bg);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-card {
+  background: var(--color-card-bg);
+  border-radius: 1.5rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  z-index: 0;
+  padding: 2.5rem 2.5rem;
+  max-width: 440px;
+  width: 100%;
+  box-shadow: 0 0 32px 0 var(--popup-shadow, #7c3aed55), 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  border: 2px solid transparent;
+  overflow: hidden;
+}
+.login-card::after {
+  display: none;
+}
+.login-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 1.5rem;
+  padding: 2px;
+  background: var(--popup-gradient-border, linear-gradient(135deg,#46f3ff 0%,#528aa9 9.2%,#576086 45.4%,#576086 56.8%,#7b649a 79.2%,#9967ab 93.2%,#ff73e3 100%));
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 1;
+}
+.login-card > * {
+  position: relative;
+  z-index: 2;
+}
+
+.login-card h2 {
+  color: #fff;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  letter-spacing: 0.05em;
+  text-shadow: 0 2px 12px #7c3aed55;
+  font-size: 2rem;
+}
+
+.login-card label {
+  color: var(--color-label);
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  display: block;
+}
+
+.login-card input {
+  background: var(--color-input-bg);
+  color: var(--color-input-text);
+  border: 1px solid var(--color-input-border);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.2rem;
+  width: 100%;
+  transition: border 0.2s, box-shadow 0.2s;
+  font-size: 1rem;
+}
+
+.login-card input::placeholder {
+  color: var(--color-input-placeholder);
+  opacity: 1;
+}
+
+.login-card input:focus {
+  outline: none;
+  border-color: var(--color-input-border-focus);
+  box-shadow: 0 0 0 2px var(--color-input-border-focus)33;
+}
+
+.login-card button[type="submit"] {
+  background: var(--color-gradient-btn);
+  color: var(--color-btn-text);
+  font-weight: 600;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.9rem 0;
+  margin-top: 0.5rem;
+  width: 100%;
+  box-shadow: 0 2px 12px 0 #7c3aed55;
+  transition: background 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.login-card button[type="submit"]:hover {
+  background: var(--color-gradient-btn-hover);
+  box-shadow: 0 4px 24px 0 #7c3aed55;
+}
+
+.login-card .text-center {
+  color: #cbd5e1;
+  text-align: center;
+  margin-top: 1.2rem;
+}
+
+.login-card .error-message, .login-card .text-red-500 {
+  color: var(--color-error);
+  text-align: center;
+  margin-top: 1.2rem;
+  font-weight: 500;
+}
+
+.logo-corner {
+  position: absolute;
+  top: 1.2rem;
+  left: 1.2rem;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+
+  app-icon {
+    height: 36px;
+    width: 36px;
+    filter: drop-shadow(0 2px 8px #f5fcff3a);
+  }
+}
+
+.close-btn {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  background: var(--close-btn-bg, transparent);
+  border: none;
+  color: var(--color-close-btn);
+  font-size: 2rem;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 10;
+  line-height: 1;
+  padding: 0;
+  transition: color 0.2s, background 0.2s;
+}
+.close-btn:hover {
+  color: var(--color-close-btn-hover);
+  background: var(--close-btn-bg-hover, transparent);
+}
+
+.group-row {
+  margin-bottom: 1.5rem;
+}
+
+.group-inputs {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+}
+
+.group-name-input {
+  width: 90px;
+  min-width: 0;
+  background: var(--color-input-bg);
+  color: var(--color-input-text);
+  border: 1px solid var(--color-input-border);
+  border-radius: 0.5rem;
+  padding: 0.75rem 0.7rem;
+  font-size: 1rem;
+}
+
+.group-id-input {
+  width: 36px;
+  min-width: 0;
+  background: var(--color-input-bg);
+  color: var(--color-input-text);
+  border: 1px solid var(--color-input-border);
+  border-radius: 0.5rem;
+  padding: 0.75rem 0.5rem;
+  font-size: 1rem;
+  text-align: left;
+}
+
+.hashtag {
+  color: var(--color-hashtag);
+  font-size: 1.3rem;
+  font-weight: bold;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  
+  height: 100%;
+  /* zajistí vertikální zarovnání na střed mezi inputy */
+}
+
+.group-list-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--color-group-list-btn-bg);
+  color: var(--color-group-list-btn-text);
+  font-weight: 600;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.5rem 1.1rem;
+  font-size: 1rem;
+  box-shadow: 0 2px 8px 0 #7c3aed33;
+  transition: background 0.2s, box-shadow 0.2s, color 0.2s;
+  cursor: pointer;
+  outline: none;
+}
+
+.group-list-btn:hover, .group-list-btn:focus {
+  background: var(--color-group-list-btn-hover-bg);
+  color: var(--color-group-list-btn-text);
+  box-shadow: 0 4px 16px 0 #7c3aed33;
+}
+
+.no-spinner::-webkit-outer-spin-button,
+.no-spinner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.no-spinner {
+  -moz-appearance: textfield;
+}
+
+@media (max-width: 600px) {
+  .login-card {
+    padding: 1.5rem 0.5rem;
+    border-radius: 1rem;
+    max-width: 98vw;
+  }
+  .login-card::before {
+    border-radius: 1rem;
+  }
+}

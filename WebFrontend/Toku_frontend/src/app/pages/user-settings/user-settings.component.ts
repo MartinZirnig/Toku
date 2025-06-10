@@ -8,26 +8,58 @@ import { UserControlService } from '../../data_managements/control-services/user
 import { UserDataModel } from '../../data_managements/models/user-data-model';
 import { PopUpService } from '../../services/pop-up.service';
 import { KnownUserDataModel } from '../../data_managements/models/known-user-data-model';
-import { AreYouSurePopUpService } from '../../Components/are-you-sure-pop-up/are-you-sure-pop-up.service';
-import { AreYouSurePopUpComponent } from '../../Components/are-you-sure-pop-up/are-you-sure-pop-up.component';
-import { AiGroupVisibilityService } from '../../Components/chat-menu-ui/chat-menu-ui.component';
+import { AreYouSurePopUpService } from '../../Components/popups/are-you-sure-pop-up/are-you-sure-pop-up.service';
+import { AreYouSurePopUpComponent } from '../../Components/popups/are-you-sure-pop-up/are-you-sure-pop-up.component';
+import { AiGroupVisibilityService, ChatMenuUiComponent } from '../../Components/menuUis/chat-menu-ui/chat-menu-ui.component';
 import { ProfilePictureCircledComponent } from '../../Components/profile-picture-circled/profile-picture-circled.component';
-import { AddContactPopupComponent } from '../../Components/add-contact-popup/add-contact-popup.component';
+import { AddContactPopupComponent } from '../../Components/popups/add-contact-popup/add-contact-popup.component';
 import { UserService } from '../../data_managements/services/user.service';
 import { FileService } from '../../data_managements/services/file.service';
 import { ContactEditModel } from '../../data_managements/models/contact-edit-model';
 import { SwipeInfoModel } from '../../data_managements/models/swipe-info-model';
 import { Router } from '@angular/router';
 import { use } from 'marked';
+import { ColorPickerComponent } from '../../Components/color-picker/color-picker.component';
+import { ColorManagerService } from '../../services/color-manager.service';
+import { InputUiComponent } from '../../Components/input-ui/input-ui.component';
+import { ArgbColorModel } from '../../data_managements/models/argb-color-model';
+import { GradientArgbColorModel } from '../../data_managements/models/gradient-argb-color-model';
+import { Message_senderComponent } from '../../Components/messages/message_sender/message_sender.component';
+import { MessageAdresatorComponent } from '../../Components/messages/message-adresator/message-adresator.component';
+import { ActiveGroupComponent } from '../../Components/menuUis/chat-menu-ui/active-group/active-group.component';
+import { MenuService } from '../../services/menu.service';
+import { MenuUiComponent } from '../../Components/menuUis/menu-ui/menu-ui.component';
+import { ContextMenuMessagesComponent } from '../../Components/contextMenus/context-menu-messages/context-menu-messages.component';
+import { PopUpComponent } from '../../Components/pop-up/pop-up.component';
+import { ColorBasedPopupComponent } from '../../Components/popups/color-based-popup/color-based-popup.component';
+import { ReactionCounterComponent } from '../../Components/reaction-counter/reaction-counter.component';
 
 export type SwipeAction = 'reply' | 'react' | 'copy' | 'delete' | 'edit';
 
 @Component({
   selector: 'app-user-settings',
-  imports: [NgIf, FormsModule, NgClass, NgFor, AreYouSurePopUpComponent, ProfilePictureCircledComponent, AddContactPopupComponent],
+  imports: [
+    NgIf,
+    FormsModule,
+    NgClass,
+    NgFor,
+    ChatMenuUiComponent,
+    AreYouSurePopUpComponent,
+    ActiveGroupComponent,
+    Message_senderComponent,
+    MessageAdresatorComponent,
+    ProfilePictureCircledComponent,
+    InputUiComponent,
+    AddContactPopupComponent,
+    ColorPickerComponent,
+    MenuUiComponent,
+    PopUpComponent,
+    ColorBasedPopupComponent,
+    ReactionCounterComponent
+  ],
   standalone: true,
   templateUrl: './user-settings.component.html',
-  styleUrls: ['./user-settings.component.scss']
+  styleUrls: ['./user-settings.component.scss'],
 })
 export class UserSettingsComponent {
   userName: string = User.Name;
@@ -49,7 +81,7 @@ export class UserSettingsComponent {
     email: 30,
   };
 
-  selectedTab: 'user' | 'general' | 'contacts' = 'user';
+  selectedTab: 'user' | 'general' | 'contacts' | 'colors' = 'user'; // přidáno 'colors'
 
   originalContacts: KnownUserDataModel[] = [];
   contacts: KnownUserDataModel[] = [];
@@ -58,10 +90,11 @@ export class UserSettingsComponent {
   filteredUsers: KnownUserDataModel[] = [];
   showAddContactInput: boolean = false;
   showAddContactPopup = false;
-
+  showMessageColors: boolean = false;
+  showMessageAdresatorColors: boolean = false;
   invalidEmail: boolean = false;
   invalidPhone: boolean = false;
-
+  showActiveGroupColors: boolean = false;
   showAreYouSure: boolean = false;
   contactToRemove: KnownUserDataModel | null = null;
 
@@ -79,20 +112,93 @@ export class UserSettingsComponent {
 
   @Input() canChangeInformations: boolean = true;
 
+  // Přidejte pole s názvy a indexy pro každý typ
+  argbColorKeys = [
+    'inputBarBackground',
+    'inputBarShadow',
+    'inputBackground',
+    'inputBackgroundFocus',
+    'inputBorder',
+    'inputBorderFocus',
+    'inputText',
+    'inputPlaceholder',
+    'fileCountCircleBackground',
+    'fileCountCircleText',
+    'inputScrollbarTrack',
+    'replyPreviewBarBorder',
+    'replyPreviewBarCloseButton',
+    'replyPreviewBarCloseButtonHover',
+    'inputSpinnerDot',
+    'inputSpinnerText',
+  ];
+
+  gradientColorKeys = ['inputScrollbarThumb', 'inputScrollbarThumbHover'];
+
+  showInputBarColors: boolean = false;
+  showChatMenuUiColors: boolean = false;
+  showMenuUiColors: boolean = false;
+  showContextMenuColors: boolean = false;
+  showPopupColors: boolean = false;
+  showAreYouSurePopupColors: boolean = false;
+  showAddContactPopupColors: boolean = false;
+  showColorBasedPopupColors: boolean = false;
+  showReactionCounterColors: boolean = false;
+  showResetColorsPopup: boolean = false;
+
   constructor(
     private redirecter: Redirecter,
     private sanitizer: DomSanitizer,
+
     private usrCtrl: UserControlService,
     private popupService: PopUpService,
     private areYouSureService: AreYouSurePopUpService,
     private aiGroupVisibility: AiGroupVisibilityService,
     private userService: UserService,
     private fileService: FileService,
-    private router: Router // <-- přidat Router
-  ) {}
+    private router: Router, // <-- přidat Router
+    public colorManager: ColorManagerService, // <-- změna na public
+    public menuService: MenuService
+  ) {
+    // Inicializace všech barev pokud nejsou nastavené
+    this.argbColorKeys.forEach((key) => {
+      if (!(this.colorManager.csm as any)[key]) {
+        (this.colorManager.csm as any)[key] = new ArgbColorModel(0, 0, 0, 255);
+      }
+    });
+    this.gradientColorKeys.forEach((key) => {
+      if (!(this.colorManager.csm as any)[key]) {
+        (this.colorManager.csm as any)[key] = new GradientArgbColorModel(
+          255,
+          0,
+          0,
+          0,
+          255,
+          0,
+          0,
+          0,
+          255,
+          0,
+          0,
+          0,
+          255,
+          0,
+          0,
+          0,
+          255,
+          0,
+          0,
+          0,
+          255,
+          0,
+          0,
+          0
+        );
+      }
+    });
+  }
 
   ngOnInit() {
-    this.canChangeInformations = User.HasControl; 
+    this.canChangeInformations = User.HasControl;
     console.log(this.canChangeInformations);
     this.loadPicture();
     document.body.style.overflow = 'hidden';
@@ -108,19 +214,22 @@ export class UserSettingsComponent {
     this.originalUserPicture = this.userPicture;
   }
 
+  ngAfterViewInit() {
+    this.menuService.isVisible = true;
+  }
   loadContacts() {
     this.usrCtrl.getKnownUsers().subscribe({
       next: (data: KnownUserDataModel[]) => {
         this.contacts = data;
-        this.originalContacts = data.map(c => c); 
+        this.originalContacts = data.map((c) => c);
       },
       error: (error: any) => {
         console.error('Error fetching contacts:', error);
         this.contacts = [];
-      }
+      },
     });
   }
-
+  
   loadAllKnownUsers() {
     this.usrCtrl.getKnownUsers().subscribe({
       next: (data: KnownUserDataModel[]) => {
@@ -130,7 +239,7 @@ export class UserSettingsComponent {
       error: (error: any) => {
         this.allKnownUsers = [];
         this.filteredUsers = [];
-      }
+      },
     });
   }
 
@@ -138,8 +247,12 @@ export class UserSettingsComponent {
     const allowed: SwipeAction[] = ['reply', 'react', 'copy', 'delete', 'edit'];
     const right = User.RightSwipe;
     const left = User.LeftSwipe;
-    this.swipeRightAction = allowed.includes(right as SwipeAction) ? (right as SwipeAction) : 'reply';
-    this.swipeLeftAction = allowed.includes(left as SwipeAction) ? (left as SwipeAction) : 'react';
+    this.swipeRightAction = allowed.includes(right as SwipeAction)
+      ? (right as SwipeAction)
+      : 'reply';
+    this.swipeLeftAction = allowed.includes(left as SwipeAction)
+      ? (left as SwipeAction)
+      : 'react';
   }
 
   saveAndReturn(): void {
@@ -169,39 +282,48 @@ export class UserSettingsComponent {
       return;
     }
 
-    this.usrCtrl.updateUserData(this.userName, this.userEmail, this.userPhone, this.userPictureId ?? undefined)
+    this.usrCtrl
+      .updateUserData(
+        this.userName,
+        this.userEmail,
+        this.userPhone,
+        this.userPictureId ?? undefined
+      )
       .subscribe({
-        next: response => {
+        next: (response) => {
           if (response.success) {
             User.Data = new UserDataModel(
-              this.userName, this.userEmail, this.userPhone, User.Active);
+              this.userName,
+              this.userEmail,
+              this.userPhone,
+              User.Active
+            );
 
-              const model = new SwipeInfoModel(
-                this.swipeLeftAction, this.swipeRightAction
-              )
-              
-              this.userService.setSwipes(model).subscribe({
-                next: response => {
-                    if (response.success){
-                      User.LeftSwipe = this.swipeLeftAction;
-                      User.RightSwipe = this.swipeRightAction;
-                    } else {
-                      console.error("Cannot set swipes: ", response.description);
-                    }
-                },
-                error: err => {
-                  console.error("Cannot set swipes: ", err);
+            const model = new SwipeInfoModel(
+              this.swipeLeftAction,
+              this.swipeRightAction
+            );
+
+            this.userService.setSwipes(model).subscribe({
+              next: (response) => {
+                if (response.success) {
+                  User.LeftSwipe = this.swipeLeftAction;
+                  User.RightSwipe = this.swipeRightAction;
+                } else {
+                  console.error('Cannot set swipes: ', response.description);
                 }
-              })
-
-
+              },
+              error: (err) => {
+                console.error('Cannot set swipes: ', err);
+              },
+            });
           } else {
             console.error('Failed to save changes!', response.description);
           }
         },
-        error: err => {
+        error: (err) => {
           console.error('Error occurred while saving changes:', err);
-        }
+        },
       });
 
     this.originalUserPicture = this.userPicture;
@@ -388,33 +510,31 @@ export class UserSettingsComponent {
   onSearchUserInput(event: Event) {
     const value = (event.target as HTMLInputElement).value.trim().toLowerCase();
     this.searchQuery = value;
-    this.filteredUsers = this.allKnownUsers.filter(user =>
-      user.name.toLowerCase().includes(value) &&
-      !this.contacts.some(c => c.userId === user.userId)
+    this.filteredUsers = this.allKnownUsers.filter(
+      (user) =>
+        user.name.toLowerCase().includes(value) &&
+        !this.contacts.some((c) => c.userId === user.userId)
     );
   }
 
   addContact(user: KnownUserDataModel) {
-    if (this.contacts.some(c => c.userId === user.userId)) {
+    if (this.contacts.some((c) => c.userId === user.userId)) {
       this.closeAddContactInput();
       return;
     }
-    const model = new ContactEditModel(
-          user.userId,
-          true
-        );
+    const model = new ContactEditModel(user.userId, true);
     this.userService.updateContact(model).subscribe({
-      next: response => {
-          if (response.success) {
-            this.contacts = [...this.contacts, user];
-            this.closeAddContactInput();
-          } else {
-            console.error(`Error in adding contact: `, response.description)
-          }
+      next: (response) => {
+        if (response.success) {
+          this.contacts = [...this.contacts, user];
+          this.closeAddContactInput();
+        } else {
+          console.error(`Error in adding contact: `, response.description);
+        }
       },
-      error: err => {
-        console.error(`Error in adding contact: `, err)
-      }
+      error: (err) => {
+        console.error(`Error in adding contact: `, err);
+      },
     });
   }
 
@@ -436,22 +556,19 @@ export class UserSettingsComponent {
   }
 
   removeContact(contact: KnownUserDataModel) {
-    const model = new ContactEditModel(
-      contact.userId,
-      false
-    );
+    const model = new ContactEditModel(contact.userId, false);
     this.userService.updateContact(model).subscribe({
-      next: response => {
-          if (response.success) {
-            this.contacts = this.contacts.filter(c => c.userId !== contact.userId);
-          } else {
-            console.error(`Error in removing contact: `, response.description)
-          }
+      next: (response) => {
+        if (response.success) {
+          this.contacts = this.contacts.filter((c) => c.userId !== contact.userId);
+        } else {
+          console.error(`Error in removing contact: `, response.description);
+        }
       },
-      error: err => {
-        console.error(`Error in removing contact: `, err)
-      }
-    })
+      error: (err) => {
+        console.error(`Error in removing contact: `, err);
+      },
+    });
   }
 
   onAiGroupToggle() {
@@ -485,17 +602,32 @@ export class UserSettingsComponent {
           this.userPictureId = response.description;
           this.originalUserPictureId = response.description;
           this.loadPictureFile(this.userPictureId);
-          this.popupService.showMessage('Profile picture updated successfully!', 2000, '#4ade80', '#fff');
+          this.popupService.showMessage(
+            'Profile picture updated successfully!',
+            2000,
+            '#4ade80',
+            '#fff'
+          );
         } else {
           console.error('Error uploading picture:', response.description);
-          this.popupService.showMessage('Failed to upload picture: ' + response.description, 2000, '#dc2626', '#fff');
+          this.popupService.showMessage(
+            'Failed to upload picture: ' + response.description,
+            2000,
+            '#dc2626',
+            '#fff'
+          );
         }
       },
       error: (error) => {
         console.error('Error uploading picture:', error);
-        this.popupService.showMessage('Error uploading picture: ' + error.message, 2000, '#dc2626', '#fff');
-      }
-    })
+        this.popupService.showMessage(
+          'Error uploading picture: ' + error.message,
+          2000,
+          '#dc2626',
+          '#fff'
+        );
+      },
+    });
   }
 
   triggerPictureInput(input: HTMLInputElement): void {
@@ -527,12 +659,12 @@ export class UserSettingsComponent {
       },
       error: (error) => {
         console.error('Error loading user picture:', error);
-      }
+      },
     });
   }
-  loadPictureFile(picId: string, update?: any) : void {
+  loadPictureFile(picId: string, update?: any): void {
     this.fileService.getUserFile(picId).subscribe({
-      next: file => {
+      next: (file) => {
         const reader = new FileReader();
         reader.onload = () => {
           this.userPicture = reader.result as string;
@@ -544,20 +676,17 @@ export class UserSettingsComponent {
       },
       error: (error) => {
         console.error('Error loading user picture file:', error);
-      }
+      },
     });
   }
-  private isSubsequence(a: any[], b: any[]) : boolean {
-    if (a.length !== b.length)
-      return false;
+  private isSubsequence(a: any[], b: any[]): boolean {
+    if (a.length !== b.length) return false;
 
-    for (let i = 0; i < a.length; i++){
-      if (!b.includes(a[i]))
-        return false;
+    for (let i = 0; i < a.length; i++) {
+      if (!b.includes(a[i])) return false;
     }
-    for (let i = 0; i < a.length; i++){
-      if (!a.includes(b[i]))
-        return false;
+    for (let i = 0; i < a.length; i++) {
+      if (!a.includes(b[i])) return false;
     }
 
     return true;
@@ -582,4 +711,40 @@ export class UserSettingsComponent {
       'No'
     );
   }
+
+  get argbColorModels(): ArgbColorModel[] {
+    return this.argbColorKeys.map((key) => (this.colorManager.csm as any)[key]);
+  }
+  get gradientColorModels(): GradientArgbColorModel[] {
+    return this.gradientColorKeys.map((key) => (this.colorManager.csm as any)[key]);
+  }
+
+  // Handler pro změnu barvy
+  onArgbColorChange(index: number, value: ArgbColorModel) {
+    const key = this.argbColorKeys[index];
+    (this.colorManager.csm as any)[key] = value;
+  }
+  onGradientColorChange(index: number, value: GradientArgbColorModel) {
+    const key = this.gradientColorKeys[index];
+    (this.colorManager.csm as any)[key] = value;
+  }
+
+  resetColors() {
+    this.colorManager.resteColorSettingsModel();
+  }
+
+  onResetColorsClick() {
+    this.showResetColorsPopup = true;
+    this.areYouSureService.open(
+      (result) => {
+        this.showResetColorsPopup = false;
+        if (result === 'yes') {
+          this.resetColors();
+        }
+      },
+      'Do you really want to reset ALL color settings to default?',
+      'Yes',
+      'No'
+    );
+  } 
 }

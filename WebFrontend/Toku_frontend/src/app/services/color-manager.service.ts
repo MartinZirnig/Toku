@@ -15,6 +15,12 @@ export class ColorManagerService {
     this.csm = this.GetDefault();
     // Pokud někdy načítáte csm asynchronně, vždy nastavte synchronně fallback
   }
+
+  public resteColorSettingsModel() : void
+  {
+    // Resetuje csm na výchozí hodnoty
+    this.csm = this.GetDefault();
+  }
     private GetDefault() : ColorSettingsModel
     {
     return new ColorSettingsModel(

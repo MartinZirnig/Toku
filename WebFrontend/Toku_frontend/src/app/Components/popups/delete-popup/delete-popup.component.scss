@@ -1,0 +1,93 @@
+:host {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.popup-overlay {
+  background: var(--popup-overlay-bg, rgba(0,0,0,0.4));
+}
+
+.popup-content {
+  background: var(--popup-bg, #1e293b);
+  border-radius: 1.25rem;
+  box-shadow: 0 8px 40px 0 var(--popup-shadow, #23293a88);
+  position: relative;
+  border: 2px solid transparent;
+  overflow: hidden;
+}
+.popup-content::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 1.25rem;
+  padding: 2px;
+  background: var(--popup-gradient-border, linear-gradient(135deg,#46f3ff 0%,#528aa9 9.2%,#576086 45.4%,#576086 56.8%,#7b649a 79.2%,#9967ab 93.2%,#ff73e3 100%));
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 1;
+}
+.popup-content > * {
+  position: relative;
+  z-index: 2;
+}
+
+.popup-title {
+  color: var(--popup-primary-text);
+}
+
+.popup-desc {
+  color: var(--popup-secondary-text);
+}
+
+.close-btn {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  background: var(--close-btn-bg, transparent);
+  border: none;
+  color: var(--close-btn-icon, #fff);
+  font-size: 2rem;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 10;
+  line-height: 1;
+  padding: 0;
+  transition: color 0.2s, background 0.2s;
+}
+.close-btn:hover {
+  color: var(--close-btn-icon-hover, #ff73e3);
+  background: var(--close-btn-bg-hover, transparent);
+}
+
+.popup-gradient-btn {
+  background: var(--popup-gradient-btn-bg);
+  color: var(--popup-primary-text);
+  border: none;
+  transition: background 0.2s;
+  &:hover {
+    background: var(--popup-gradient-btn-bg-hover);
+  }
+  &:disabled {
+    background: var(--popup-gradient-btn-disabled);
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+}
+
+.popup-delete-gradient-btn {
+  background: var(--popup-delete-gradient-btn-bg);
+  &:hover {
+    background: var(--popup-delete-gradient-btn-bg-hover);
+  }
+  &:disabled {
+    background: var(--popup-delete-gradient-btn-disabled);
+  }
+}

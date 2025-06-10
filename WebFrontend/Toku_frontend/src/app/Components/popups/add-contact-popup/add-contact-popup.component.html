@@ -1,0 +1,42 @@
+<div class="fixed inset-0 flex items-center justify-center z-[99999] popup-overlay">
+  <div class="add-contact-popup relative">
+    <button
+      class="close-btn absolute top-2 right-2 text-xl"
+      (click)="close.emit()"
+      title="Close"
+      type="button"
+    >
+      &times;
+    </button>
+    <h2 class="text-xl font-bold mb-6 text-center tracking-wide popup-title">Add Contact</h2>
+    <input
+      type="text"
+      [(ngModel)]="search"
+      (ngModelChange)="seach()"
+      placeholder="Search by name..."
+      class="w-full mb-4 px-4 py-2 rounded-lg search-input"
+    />
+    <ul class="mb-4 max-h-56 overflow-y-auto rounded-lg user-list">
+      <li
+        *ngFor="let user of usrs"
+        class="flex items-center justify-between px-4 py-2 user-list-item transition cursor-pointer"
+      >
+        <span class="flex items-center gap-3">
+          <app-profile-picture-circled [picture]="''" style="width:2rem;height:2rem;"></app-profile-picture-circled>
+          <span class="flex flex-col">
+            <span class="user-name font-medium truncate">{{ user.name }}</span>
+            <span class="user-id text-xs font-mono">#{{ user.userId }}</span>
+          </span>
+        </span>
+        <button
+          class="ml-2 px-3 py-1 rounded-full gradient-btn text-xs font-semibold transition"
+          type="button"
+          (click)="onAdd(user)"
+        >
+          Add
+        </button>
+      </li>
+    </ul>
+    <div *ngIf="filteredStaticUsers.length === 0" class="no-users text-xs text-center">No users found.</div>
+  </div>
+</div>

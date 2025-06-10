@@ -1,0 +1,171 @@
+:host {
+  --overlay-bg: var(--popup-overlay-bg, rgba(0,0,0,0.4));
+  --popup-bg: var(--popup-bg, #1e293b);
+  --popup-border: var(--popup-border, #fff);
+  --button-shadow: var(--button-shadow, #7c3aed55);
+  --heading-text: var(--heading-text, #fff);
+  --close-btn-bg: var(--close-btn-bg, transparent);
+  --close-btn-bg-hover: var(--close-btn-bg-hover, transparent);
+  --close-btn-icon: var(--close-btn-icon, #fff);
+  --close-btn-icon-hover: var(--close-btn-icon-hover, #ff73e3);
+}
+
+.add-contact-popup {
+  position: relative;
+  background: var(--popup-bg, #23293a);
+  border-radius: 1.25rem;
+  padding: 2rem 1.5rem 1.5rem 1.5rem;
+  min-width: 340px;
+  max-width: 96vw;
+  box-shadow: 0 0 32px 0 var(--button-shadow, #7c3aed55), 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  border: 2px solid transparent;
+  overflow: hidden;
+}
+
+.add-contact-popup::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 1.25rem;
+  padding: 2px;
+  background: var(--popup-gradient-border, linear-gradient(135deg,#46f3ff 0%,#528aa9 9.2%,#576086 45.4%,#576086 56.8%,#7b649a 79.2%,#9967ab 93.2%,#ff73e3 100%));
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.add-contact-popup > * {
+  position: relative;
+  z-index: 2;
+}
+
+.add-contact-popup h2 {
+  color: var(--heading-text, #fff);
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  letter-spacing: 0.05em;
+  font-size: 1.3rem;
+}
+
+.add-contact-popup ul {
+  margin-bottom: 1.5rem;
+}
+
+.add-contact-popup li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.7rem 0.5rem;
+  border-radius: 0.75rem;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+
+.add-contact-popup li:hover {
+  background: var(--highlight-bg, #374151);
+}
+
+.add-contact-popup .gradient-btn {
+  background: var(--gradient-btn-bg, linear-gradient(135deg, #46f3ff 0%, #528aa9 50%, #ff73e3 100%));
+  color: var(--button-text, #fff);
+  font-weight: 600;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.4rem 1.1rem;
+  font-size: 0.95rem;
+  box-shadow: 0 2px 8px 0 var(--button-shadow, #7c3aed33);
+  transition: background 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.add-contact-popup .gradient-btn:hover {
+  background: var(--gradient-btn-bg-hover, linear-gradient(135deg, #ff73e3 0%, #528aa9 50%, #46f3ff 100%));
+  box-shadow: 0 4px 16px 0 var(--button-shadow, #7c3aed33);
+}
+
+.popup-overlay {
+  background: var(--overlay-bg);
+}
+
+.popup-box {
+  background: var(--popup-bg);
+  border: 2px solid var(--popup-border);
+  border-radius: 1.25rem;
+  box-shadow: 0 8px 40px 0 var(--button-shadow);
+  position: relative;
+}
+
+.close-btn {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  background: var(--close-btn-bg);
+  border: none;
+  color: var(--close-btn-icon);
+  font-size: 2rem;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 10;
+  line-height: 1;
+  padding: 0;
+  transition: color 0.2s, background 0.2s;
+}
+.close-btn:hover {
+  color: var(--close-btn-icon-hover);
+  background: var(--close-btn-bg-hover);
+}
+
+.search-input {
+  background: var(--input-bg, #23293a);
+  color: var(--input-text, #fff);
+  border: 1.5px solid var(--input-border, #334155);
+  &::placeholder {
+    color: var(--input-placeholder, #64748b);
+    opacity: 1;
+  }
+  &:focus {
+    background: var(--input-bg-focus, #1e293b);
+    border-color: var(--input-border-focus, #7c3aed);
+  }
+}
+
+.user-list {
+  background: var(--list-bg, #1f2937);
+  border: 1.5px solid var(--list-border, #334155);
+  // divide-y effect
+  > .user-list-item:not(:last-child) {
+    border-bottom: 1px solid var(--list-divider, #374151);
+  }
+}
+
+.user-list-item {
+  background: transparent;
+  &:hover {
+    background: var(--highlight-bg, #374151);
+  }
+}
+
+.user-name {
+  color: var(--primary-text, #fff);
+}
+
+.user-id {
+  color: var(--secondary-text, #cbd5e1);
+}
+
+.no-users {
+  color: var(--muted-text, #9ca3af);
+}
+
+@media (max-width: 600px) {
+  .add-contact-popup {
+    padding: 1rem 0.2rem 1rem 0.2rem;
+    min-width: 90vw;
+    border-radius: 1rem;
+  }
+}

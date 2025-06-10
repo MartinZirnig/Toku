@@ -3,7 +3,6 @@ import { RouterOutlet } from '@angular/router';
 import { PopUpService } from './services/pop-up.service';
 import { PopUpComponent } from './Components/pop-up/pop-up.component';
 import { NgFor } from '@angular/common';
-
 @Component({
   selector: 'app-root',
   standalone: true,

@@ -1,0 +1,107 @@
+<div class="color-based-popup-root">
+  <h2>Example popup</h2>
+  <div class="color-grid">
+    <div *ngFor="let c of colorVars" class="color-sample" [ngStyle]="{'background': c.value}">
+      <span>{{c.name}}</span>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <label class="demo-label" [ngStyle]="{'color': csm.primaryText.toRgbaString()}">Label (primaryText)</label>
+    <input class="demo-input"
+      placeholder="Input (inputBackground, inputText, inputBorder)"
+      [ngStyle]="{
+        'background': csm.inputBackground.toRgbaString(),
+        'color': csm.inputText.toRgbaString(),
+        'border-color': csm.inputBorder.toRgbaString()
+      }"
+    />
+
+    <textarea class="demo-textarea"
+      placeholder="Textarea (inputBackground, inputText, inputBorder)"
+      [ngStyle]="{
+        'background': csm.inputBackground.toRgbaString(),
+        'color': csm.inputText.toRgbaString(),
+        'border-color': csm.inputBorder.toRgbaString()
+      }"
+    ></textarea>
+
+    <select class="demo-select"
+      [ngStyle]="{
+        'background': csm.inputBackground.toRgbaString(),
+        'color': csm.inputText.toRgbaString(),
+        'border-color': csm.inputBorder.toRgbaString()
+      }"
+    >
+      <option>Option 1</option>
+      <option>Option 2</option>
+    </select>
+
+    <button class="demo-btn"
+      [ngStyle]="{
+        'background': csm.gradientButton?.toLinearGradientString(135),
+        'color': csm.buttonText.toRgbaString(),
+        'box-shadow': '0 2px 12px 0 ' + csm.buttonShadow.toRgbaString()
+      }"
+    >Button (gradientButton)</button>
+
+    <button class="demo-btn danger"
+      [ngStyle]="{
+        'background': csm.deleteGradientButton?.toLinearGradientString(135),
+        'color': csm.buttonText.toRgbaString()
+      }"
+    >Danger Button (deleteGradientButton)</button>
+
+    <button class="demo-btn confirm"
+      [ngStyle]="{
+        'background': csm.confirmGradientButton?.toLinearGradientString(135),
+        'color': csm.buttonText.toRgbaString()
+      }"
+    >Confirm Button (confirmGradientButton)</button>
+
+    <div class="demo-popup"
+      [ngStyle]="{
+        'background': csm.popupBackground.toRgbaString(),
+        'border-color': csm.popupBorder.toRgbaString(),
+        'box-shadow': '0 8px 40px 0 ' + csm.popupShadow.toRgbaString()
+      }"
+    >
+      <div class="demo-popup-title" [ngStyle]="{'color': csm.primaryText.toRgbaString()}">Popup Title (primaryText)</div>
+      <div class="demo-popup-desc" [ngStyle]="{'color': csm.secondaryText.toRgbaString()}">Popup Desc (secondaryText)</div>
+      <button class="demo-btn close"
+        [ngStyle]="{
+          'background': csm.closeButtonBackground.toRgbaString(),
+          'color': csm.closeButtonIcon.toRgbaString()
+        }"
+      >×</button>
+    </div>
+
+    <div class="demo-popup-gradient-border"
+      [ngStyle]="{
+        '--popup-bg': csm.popupBackground.toRgbaString(),
+        '--popup-gradient-border': csm.popupGradientBorder?.toLinearGradientString(135) ?? 'none'
+      }"
+    >
+      <div class="demo-popup-gradient-inner">
+        <div class="demo-popup-title" [ngStyle]="{'color': csm.primaryText.toRgbaString()}">Popup with Gradient Border</div>
+        <div class="demo-popup-desc" [ngStyle]="{'color': csm.secondaryText.toRgbaString()}">
+          Background: popupBackground<br>
+          Border: popupGradientBorder (linear-gradient)
+        </div>
+      </div>
+
+
+
+
+
+   
+
+
+
+
+
+
+
+    </div>
+  </div>
+</div>

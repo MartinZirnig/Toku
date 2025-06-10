@@ -1,0 +1,15 @@
+<div class="popup-overlay fixed inset-0 flex items-center justify-center z-[99999]">
+  <div class="popup-content rounded-2xl shadow-xl p-8 max-w-xs w-full text-center border-2 relative">
+    <button class="popup-close close-btn absolute top-2 right-2 text-xl" (click)="close()">&times;</button>
+    <h3 class="popup-title text-lg font-bold mb-4">Odstranit zprávu</h3>
+    <p class="popup-desc mb-6">Jak chcete zprávu odstranit?</p>
+    <div class="flex flex-col gap-4">
+      <button class="popup-gradient-btn px-5 py-2 rounded-lg font-semibold shadow transition"
+        (click)="deleteForMe()">Smazat u mě</button>
+      <button
+        *ngIf="IsAllowedToDeleteMessage"
+        class="popup-gradient-btn popup-delete-gradient-btn px-5 py-2 rounded-lg font-semibold shadow transition"
+        (click)="deleteForAll()">Smazat u všech</button>
+    </div>
+  </div>
+</div>

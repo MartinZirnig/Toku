@@ -1,0 +1,29 @@
+<div class="fixed inset-0 flex items-center justify-center z-[99999] popup-overlay">
+  <div class="group-list-popup relative">
+    <button class="close-btn absolute top-2 right-2 text-xl" (click)="close.emit()">&times;</button>
+    <h2 class="text-xl font-bold mb-6 text-center tracking-wide popup-title">Public Groups</h2>
+    <ul class="mb-4 max-h-56 overflow-y-auto rounded-lg group-list">
+      <li
+        *ngFor="let group of groups"
+        class="flex items-center justify-between px-4 py-2 group-list-item"
+        (click)="select(group)"
+      >
+        <span class="flex items-center gap-3">
+          <app-profile-picture-circled [picture]="group.picture" style="width:2rem;height:2rem;"></app-profile-picture-circled>
+          <span class="flex flex-col">
+            <span class="group-name truncate">{{ group.name }}</span>
+            <span class="group-id text-xs font-mono">#{{ group.id }}</span>
+          </span>
+        </span>
+        <button
+          class="ml-2 px-3 py-1 rounded-full gradient-btn text-xs font-semibold shadow transition"
+          type="button"
+          (click)="select(group); $event.stopPropagation();"
+        >
+          Copy
+        </button>
+      </li>
+    </ul>
+    <div class="text-xs text-center group-list-hint">Click group or "Copy" to fill in group fields</div>
+  </div>
+</div>
