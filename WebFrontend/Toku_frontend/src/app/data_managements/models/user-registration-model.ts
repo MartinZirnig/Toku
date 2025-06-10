@@ -4,6 +4,6 @@ export class UserRegistrationModel {
       public email: string,
       public password: string,
       public timeZone: number,
-      public domain: number
+      public domainId: number
     ) {}
   }
