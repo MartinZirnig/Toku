@@ -25,5 +25,7 @@ public interface IUserService : IDisposable
 
     Task<SwipeInfoModel?> GetSwipesAsync(Guid executor);
     Task<RequestResultModel> SetSwipesAsync(Guid executor, SwipeInfoModel model);
+    Task<RequestResultModel> SetColorsAsync(string value, uint user);
+    Task<string> GetColorsAsync(Guid executor);
 
 }

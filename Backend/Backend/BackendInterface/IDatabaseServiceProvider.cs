@@ -10,4 +10,5 @@ public interface IDatabaseServiceProvider
     IUserService GetUserService();
     IFileService GetFileService();
     IGroupService GetGroupService();
+    IReservedDomainService GetReservedDomainService();
 }

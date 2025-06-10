@@ -37,6 +37,7 @@ internal class DatabaseContext : DbContext
     public DbSet<ExplicitContact> ExplicitContacts { get; set; }
 
     public DbSet<RegisteredDomain> RegisteredDomains { get; set; }
+    public DbSet<ColorSetting> ColorSettings { get; set; }
     #endregion
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

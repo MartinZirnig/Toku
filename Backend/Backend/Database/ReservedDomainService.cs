@@ -1,7 +1,11 @@
-﻿using BackendInterface;
+﻿using BackendEnums;
+using BackendInterface;
 using BackendInterface.Models;
+using Crypto;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using MysqlDatabase.Tables;
+using Org.BouncyCastle.Tls.Crypto;
 
 namespace MysqlDatabase;
 
@@ -11,7 +15,7 @@ internal class ReservedDomainService : DatabaseServisLifecycle, IReservedDomainS
     {
     }
 
-    public async Task<RequestResultModel> RegisterOrCreateDomainUser(DomainLoginCreation model)
+    public async Task<UserLoginResponseModel?> RegisterOrCreateDomainUser(DomainLoginCreation model)
     {
         await using var transaction = await Context.Database
             .BeginTransactionAsync()
@@ -25,27 +29,152 @@ internal class ReservedDomainService : DatabaseServisLifecycle, IReservedDomainS
                 ?? throw new UnauthorizedAccessException();
 
 
-            var user = Context.Users
+            var user = await Context.Users
                 .FirstOrDefaultAsync(u =>
                     u.Name == model.UserName
                     && u.DomainId == domain.Id)
                 .ConfigureAwait(false);
 
+            if (user is null)
+                return await this.RegisterDomainUser(model, domain);
+            return await this.LoginDomainUser(model, domain, user);
+        }
+        catch (Exception ex)
+        {
+            return null;
+        }
+    }
+    private async Task<UserLoginResponseModel> RegisterDomainUser(DomainLoginCreation model, RegisteredDomain domain)
+    {
+        var key = new PPKeyPair(model.UserPassword);
+        var keyRow = new CryptoKey()
+        {
+            PublicKey = key.PublicKey,
+            EncryptedPrivateKey = key.EncryptedPrivateKey,
+            Salt = key.Salt,
+            IV = key.IV,
+            IsSimple = false,
+        };
+        await Context.CryptoKeys.AddAsync(keyRow)
+            .ConfigureAwait(false);
+        await Context.SaveChangesAsync()
+            .ConfigureAwait(false);
+
+        var user = new User()
+        {
+            Name = model.UserName,
+            Email = model.Email,
+            Phone = model.Phone,
+            Password = HashedValue.HashPassword(model.UserPassword),
+            CreatedTime = DateTime.Now,
+            KeyId = keyRow.KeyId,
+            PictureId = 1,
+            LastGroupId = 0
+        };
+        await Context.Users.AddAsync(user)
+            .ConfigureAwait(false);
+        await Context.SaveChangesAsync()
+            .ConfigureAwait(false);
+
+        return await LoginDomainUser(model, domain, user);
+    }
+    private async Task<UserLoginResponseModel> LoginDomainUser(DomainLoginCreation model, RegisteredDomain domain, User user)
+    {
+        var login = new UserLogin()
+        {
+            SessionId = Guid.NewGuid(),
+            UserId = user.UserId,
+            DecryptedKey = ((PPKeyPair)user.Key).DecryptPrivateKey(model.UserPassword),
+            LoggedIn = DateTime.Now,
+            LashHearthBeat = DateTime.Now,
+            TimeZoneOffset = model.TimeZoneOffset
+        };
+        await Context.UserLogins.AddAsync(login);
+        await Context.SaveChangesAsync();
+
+        return new UserLoginResponseModel(login.SessionId.ToString(), user.LastGroupId, user.UserId);
+    }
+
+    public async Task<RequestResultModel> EnsureUserConnectionAsync(UserConnectionModel connection)
+    {
+        await using var transaction = await Context.Database
+            .BeginTransactionAsync()
+            .ConfigureAwait(false);
+
+        try
+        {
+            var group = await Context.Groups
+                .AsNoTracking()
+                .Include(g => g.GroupClients)
+                    .ThenInclude(gc => gc.Client)
+                .FirstOrDefaultAsync(g =>
+                    g.GroupClients.Any(gc =>
+                        gc.Client.UserId == connection.User1)
+                    && g.GroupClients.Any(gc =>
+                        gc.Client.UserId == connection.User2)
+                    )
+                .ConfigureAwait(false);
+
+            var def = await Context.Users
+                .FirstOrDefaultAsync(u => u.UserId == connection.User1)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+            var u1 = await Context.Users
+                .FirstOrDefaultAsync(u => u.UserId == connection.User1)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+            var u2 = await Context.Users
+                .FirstOrDefaultAsync(u => u.UserId == connection.User2)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+            if (group is null)
+            {
+                var grpContext = (GroupService)(DatabaseServisLifecycle)this;
+                string name = $"{u1.Name} -> {u2.Name}";
+
+                var newGroup = new Group()
+                {
+                    CreatorId = 1,
+                    Name = name,
+                    PictureId = 1,
+                    Description = name,
+                    GroupType = GroupType.Private,
+                    TwoUserIdentifier = null,
+                    Password = HashedValue.HashPassword(string.Empty),
+                    CreatedTime = DateTime.UtcNow,
+                    LastOperation = DateTime.UtcNow
+                };
+
+                await Context.Groups.AddAsync(group);
+                await Context.SaveChangesAsync();
 
 
+                await transaction.CommitAsync();
+
+                return new RequestResultModel(
+                    true, group.GroupId.ToString());
+
+
+
+
+
+
+            }
+
+            return new RequestResultModel(
+               true, group!.GroupId.ToString());
 
         }
         catch (Exception ex)
         {
+            await transaction.RollbackAsync()
+                .ConfigureAwait(false);
 
+            return new RequestResultModel(
+                false, ex.Message);
         }
-    }
-    private async Task<RequestResultModel> RegisterDomainUser(DomainLoginCreation model, RegisteredDomain domain, User user)
-    {
-
-    }
-    private async Task<RequestResultModel> CreateDomainUser(DomainLoginCreation model, RegisteredDomain domain)
-    {
-
     }
 }

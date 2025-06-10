@@ -13,7 +13,6 @@ namespace Backend.Controllers;
 [ApiController]
 public sealed class MessageController : ControllerBase
 {
-
     private readonly ILogger<MessageController> _logger;
     private readonly IDatabaseServiceProvider _serviceProvider;
     public MessageController(
@@ -27,6 +26,7 @@ public sealed class MessageController : ControllerBase
 
     [HttpPost("send-message")]
     public async Task<IActionResult> SendMessageAsync([FromBody] MessageModel model)
+
     {
         using var service = _serviceProvider.GetDataService();
         using var groupService = _serviceProvider.GetGroupService();

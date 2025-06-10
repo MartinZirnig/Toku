@@ -134,5 +134,34 @@ namespace Backend.Controllers
 
             return Ok(result);
         }
+        [HttpPatch("update-colors/{userId}")]
+        public async Task<IActionResult> UpdateColorsAsync([FromRoute] uint userId)
+        {
+            using var service = _serviceProvider.GetUserService();
+            var reader = new StreamReader(Request.Body);
+            var data = await reader.ReadToEndAsync()
+                .ConfigureAwait(false);
+
+            var result = await service
+                .SetColorsAsync(data, userId);
+            return Ok(result);
+        }
+        [HttpGet("get-colors")]
+        public async Task<IActionResult> GetColorsAsync()
+        {
+            using var service = _serviceProvider.GetUserService();
+            var reader = new StreamReader(Request.Body);
+            var data = await reader.ReadToEndAsync()
+                .ConfigureAwait(false);
+
+            var executor = (Guid)AuthorizationAttribute.GetUID(HttpContext)!;
+
+            var result = await service
+                .GetColorsAsync(executor);
+            if (result == string.Empty)
+                return NotFound();
+
+            return Content(result, "application/json");
+        }
     }
 }

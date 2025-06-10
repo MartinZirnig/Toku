@@ -1,0 +1,139 @@
+Image:
+# basic formats
+    - .jpg
+    - .jpeg
+    - .png
+    - .gif
+    - .bmp
+    - .tiff
+    - .tif
+    - .webp
+    - .heic
+    - .avif
+    - .ico
+    - .jfif
+# vector formats
+    - .svg
+    - .eps
+    - .pdf
+    - .ai
+    - .cdr
+# raw formats
+    - .cr2
+    - .nef
+    - .arw
+    - .dng
+    - .orf
+    - .rw2
+    - .sr2
+
+
+Video:
+# basic formats
+    - .mp4
+    - .mkv
+    - .mov
+    - .avi
+    - .flv
+    - .wmv
+    - .webm
+    - .ogv
+# editing formats
+    - .mxf
+    - .prores
+    - .r3d
+    - .dnxhd
+# legacy formats
+    - .3gp
+    - .mpg
+    - .mpeg
+    - .m4v
+    - .ts
+    - .vob
+    - .divx
+    - .asf
+
+Audio:
+# basic formats
+    - .mp3
+    - .wav
+    - .aac
+    - .flac
+    - .ogg
+    - .m4a
+    - .wma
+    - .opus
+# lossless formats
+    - .flac
+    - .alac
+    - .wav
+    - .ape
+# high-res formats
+    - .dsd
+    - .aiff
+
+Document:
+# word processing formats
+    - .doc
+    - .docx
+    - .odt
+    - .rtf
+# spreadsheets formats
+    - .xls
+    - .xlsx
+    - .ods
+    - .csv
+# presentation formats
+    - .ppt
+    - .pptx
+    - .odp
+# portable document formats
+    - .pdf
+    - .xps
+# ebook formats
+    - .epub
+    - .mobi
+    - .azw
+    - .fb2
+
+Archive:
+# basic formats
+    - .zip
+    - .rar
+    - .7z
+    - .tar
+    - .gz
+    - .bz2
+    - .xz
+# combined formats
+    - .tar.gz
+    - .tar.bz2
+    - .tar.xz
+# image formats
+    - .iso
+    - .img
+
+Text:
+# standard formats
+    - .txt
+    - .log
+    - .md
+    - .csv
+    - .tsv
+    - .ini
+    - .conf
+    - .json
+    - .xml
+    - .yaml
+    - .yml
+# code formats
+    - .c
+    - .cpp
+    - .h
+    - .py
+    - .js
+    - .cs
+    - .java
+    - .sh
+    - .bat
+    - .asm

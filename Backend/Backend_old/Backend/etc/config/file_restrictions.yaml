@@ -1,0 +1,7 @@
+Default: $ExeDir$\Storage\public_files\default\
+
+PublicUser: $ExeDir$\Storage\public_files\user\{$UserId}\
+PrivateUser: $ExeDir$\Storage\encrypted_files\user\{$UserId}\
+
+PublicGroup: $ExeDir$\Storage\public_files\group\{$GroupId}\
+PrivateGroup: $ExeDir$\Storage\encrypted_class\group\{$GroupId}\

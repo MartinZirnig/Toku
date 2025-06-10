@@ -2,7 +2,8 @@
 
 namespace BackendInterface;
 
-public interface IReservedDomainService
+public interface IReservedDomainService: IDisposable
 {
-    Task<RequestResultModel> RegisterOrCreateDomainUser(DomainLoginCreation model);
+    Task<UserLoginResponseModel?> RegisterOrCreateDomainUser(DomainLoginCreation model);
+    Task<RequestResultModel> EnsureUserConnectionAsync(UserConnectionModel connection);
 }

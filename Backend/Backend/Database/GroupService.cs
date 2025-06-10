@@ -48,7 +48,7 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
                 false, ex.Message);
         }
     }
-    private async Task<LoggedUserData> GetLoggedUserDataAsync(Guid userId)
+    internal async Task<LoggedUserData> GetLoggedUserDataAsync(Guid userId)
     {
         var user = await SupportService.GetUserDataAsync(
             userId, Context);
@@ -56,7 +56,7 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
             throw new UnauthorizedAccessException();
         return user;
     }
-    private async Task<Group> InsertNewGroupAsync(
+    internal async Task<Group> InsertNewGroupAsync(
         GroupCreationModel model, LoggedUserData user)
     {
         var group = new Group()
@@ -115,7 +115,7 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
                 false, ex.Message);
         }
     }
-    private async Task<uint> InsertNewClientAsync(GroupAddUserModel model)
+    internal async Task<uint> InsertNewClientAsync(GroupAddUserModel model)
     {
         var user = await SupportService
             .GetUserById(model.userId, Context)!

@@ -82,6 +82,11 @@ public sealed class MysqlDatabaseManager
         return new GroupService(this);
     }
 
+    public IReservedDomainService GetReservedDomainService()
+    {
+        return new ReservedDomainService(this);
+    }
+
     #endregion
 
 

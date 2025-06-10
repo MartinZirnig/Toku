@@ -67,9 +67,12 @@ export class LoginComponent implements OnInit{
 
   private manageLoginResponse(
     request: Observable<UserLoginResponseModel>): void {
+    console.log("sus");
+
     request.subscribe({
         next: response => {
           if (response.userIdentification.trim()) {
+    console.log("sus");
             User.Id = response.userIdentification;
             User.InnerId = String(response.userId);
             this.loadUserData();
@@ -79,8 +82,10 @@ export class LoginComponent implements OnInit{
 
             this.markAsReceived();
           }
-          else 
+          else {
             this.printError('cannot login user, user data is not valid');
+            console.error("error in user loading: No response");
+          }
       },
       error: err => {
         console.error("error in user loading: ", err);

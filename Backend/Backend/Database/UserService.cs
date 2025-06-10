@@ -103,9 +103,6 @@ internal class UserService : DatabaseServisLifecycle, IUserService
             return new UserLoginResponseModel(
                 string.Empty, 0, 0);
         }
-        ;
-
-
     }
     private async Task<User?> FindUserAsync(UserLoginModel model)
     {
@@ -666,6 +663,79 @@ internal class UserService : DatabaseServisLifecycle, IUserService
 
             return new RequestResultModel(
                 false, ex.Message);
+        }
+    }
+
+    public async Task<RequestResultModel> SetColorsAsync(string value, uint user)
+    {
+        await using var transaction = await Context.Database
+            .BeginTransactionAsync()
+            .ConfigureAwait(false);
+
+        try
+        {
+
+            /*
+            var usrs = await Context.Users
+                .Include(u => u.ColorSettings)
+                .FirstOrDefaultAsync(u => u.UserId == user)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+            
+            var setting = usrs.ColorSettings;
+            if (setting is null)
+            {
+                var cs = new ColorSetting()
+                {
+                    Colors = value
+                };
+                await Context.ColorSettings.AddAsync(cs);
+            }
+            else
+            {
+                setting.Colors = value;
+            }
+            */
+            await Context.SaveChangesAsync() 
+                .ConfigureAwait(false);
+            await transaction.CommitAsync()
+                .ConfigureAwait(false);
+            
+            return new RequestResultModel(
+                true, string.Empty);
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync()
+                .ConfigureAwait(false);
+
+            return new RequestResultModel(
+                false, ex.Message);
+        }
+    }
+
+    public async Task<string> GetColorsAsync(Guid executor)
+    {
+        try
+        {
+            /*
+            var login = await SupportService
+                .GetUserDataAsync(executor, Context)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+            var usrs = await Context.Users
+                .Include(u => u.ColorSettings)
+                .FirstOrDefaultAsync(u => u.UserId == login.UserId)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+            */
+
+            return string.Empty;//usrs.ColorSettings.Colors;
+        }
+        catch
+        {
+            return string.Empty;
         }
     }
 }
