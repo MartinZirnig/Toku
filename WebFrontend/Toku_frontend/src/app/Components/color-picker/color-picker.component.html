@@ -8,9 +8,23 @@
        (colorPickerChange)="onSingleColorChange()"
        style="width: 32px; height: 32px; border-radius: 6px; border: none; background: none; padding: 0;"/>
 
+<div *ngIf="!isGradient && rgbaColor != 'undefined'" style="display: flex; align-items: center; gap: 8px;">
+  <input 
+         [style.background]="rgbaColor"
+         [cpOutputFormat]="'rgba'"
+         [cpEyeDropper]="true"
+         [cpSaveClickOutside]="true"
+         [(colorPicker)]="rgbaColor"
+         (colorPickerChange)="onSingleColorChange()"
+         style="width: 32px; height: 32px; border-radius: 6px; border: none; background: none; padding: 0;"/>
+  <div style="color: gray;">
+    {{ label }}
+  </div>
+</div>
+
 <div *ngIf="isGradient" style="display: flex; align-items: center; gap: 8px;">
   <div [style.background]="gradientString"
-       style="width: 32px; height: 32px; border-radius: 6px; border: 1px solid #ccc; margin-right: 8px;">
+       style="width: 32px; height: 32px; border-radius: 6px; border: 1px solid #ffffff; margin-right: 8px;">
   </div>
   <input [cpOutputFormat]="'rgba'"
          
@@ -61,12 +75,4 @@
          [(colorPicker)]="rgbaColors[5]"
          (colorPickerChange)="updateGradientString()"
          style="width: 32px; height: 32px; border-radius: 6px; border: none; background: none; padding: 0;"/>
-</div>
-<div style="display: flex; align-items: center; gap: 8px;">
-  <input type="text"
-         [(ngModel)]="label"
-         (ngModelChange)="labelChange.emit(label)"
-         placeholder="Název barvy"
-         style="width: 120px; border-radius: 6px; border: 1px solid #ccc; padding: 4px 8px; margin-right: 8px;"/>
-
 </div>
