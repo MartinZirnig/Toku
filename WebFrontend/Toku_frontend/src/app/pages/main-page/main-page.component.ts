@@ -166,6 +166,9 @@ ngOnInit(): void {
 
   // Odstraňte toto volání z ngOnInit:
   // this.setEmptyHintTimeout();
+
+  // Scroll to bottom after init
+  this.scrollDown();
 }
 
 // Přidejte tuto novou metodu pro správné resetování timeru po změně chatu
@@ -220,6 +223,9 @@ private appendMessage(msg: StoredMessageModel, file?: string) {
 
   this.messages.push(message);
   this.setEmptyHintTimeout();
+  if (message.isSender) {
+    this.scrollDown();
+  }
 }
 
 onDeleteMessage(index: number): void {
@@ -359,11 +365,11 @@ private addMessage(msg: StoredMessageModel): void {
 }
 
 
-private scrollDown(){
+private scrollDown() {
   setTimeout(() => {
     const container = document.querySelector('.main-page-inner');
     if (container) {
-      container.scrollTop = container.scrollHeight;
+      (container as HTMLElement).scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
     } else {
       window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     }

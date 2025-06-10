@@ -11,7 +11,7 @@ internal class DatabaseContext : DbContext
         "server=mysqlstudenti.litv.sssvt.cz;" +
         "database=3b2_zirnigmartin_db2;" +
         "user=zirnigmartin;" +
-        "password=123456;" +
+        "password=SilneHeslo1;" +
         "charset=utf8mb4";
     #region DbSets
     public DbSet<Client> Clients { get; set; }

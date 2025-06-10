@@ -1,78 +1,68 @@
-<input *ngIf="!isGradient && rgbaColor != 'undefined'"
-       
-       [style.background]="rgbaColor"
-       [cpOutputFormat]="'rgba'"
-       [cpEyeDropper]="true"
-       [cpSaveClickOutside]="true"
-       [(colorPicker)]="rgbaColor"
-       (colorPickerChange)="onSingleColorChange()"
-       style="width: 32px; height: 32px; border-radius: 6px; border: none; background: none; padding: 0;"/>
-
-<div *ngIf="!isGradient && rgbaColor != 'undefined'" style="display: flex; align-items: center; gap: 8px;">
-  <input 
-         [style.background]="rgbaColor"
-         [cpOutputFormat]="'rgba'"
-         [cpEyeDropper]="true"
-         [cpSaveClickOutside]="true"
-         [(colorPicker)]="rgbaColor"
-         (colorPickerChange)="onSingleColorChange()"
-         style="width: 32px; height: 32px; border-radius: 6px; border: none; background: none; padding: 0;"/>
-  <div style="color: gray;">
-    {{ label }}
-  </div>
-</div>
-
-<div *ngIf="isGradient" style="display: flex; align-items: center; gap: 8px;">
-  <div [style.background]="gradientString"
-       style="width: 32px; height: 32px; border-radius: 6px; border: 1px solid #ffffff; margin-right: 8px;">
-  </div>
-  <input [cpOutputFormat]="'rgba'"
-         
-         [style.background]="rgbaColors[0]"
-         [cpEyeDropper]="true"
-         [cpSaveClickOutside]="true"
-         [(colorPicker)]="rgbaColors[0]"
-         (colorPickerChange)="updateGradientString()"
-         style="width: 32px; height: 32px; border-radius: 6px; border: none; background: none; padding: 0;"/>
-  <input [cpOutputFormat]="'rgba'"
-         
-
-         [style.background]="rgbaColors[1]"
-         [cpEyeDropper]="true"
-         [cpSaveClickOutside]="true"
-         [(colorPicker)]="rgbaColors[1]"
-         (colorPickerChange)="updateGradientString()"
-         style="width: 32px; height: 32px; border-radius: 6px; border: none; background: none; padding: 0;"/>
-  <input [cpOutputFormat]="'rgba'"
-         
-         [style.background]="rgbaColors[2]"
-         [cpEyeDropper]="true"
-         [cpSaveClickOutside]="true"
-         [(colorPicker)]="rgbaColors[2]"
-         (colorPickerChange)="updateGradientString()"
-         style="width: 32px; height: 32px; border-radius: 6px; border: none; background: none; padding: 0;"/>
-  <input [cpOutputFormat]="'rgba'"
-         
-         [style.background]="rgbaColors[3]"
-         [cpEyeDropper]="true"
-         [cpSaveClickOutside]="true"
-         [(colorPicker)]="rgbaColors[3]"
-         (colorPickerChange)="updateGradientString()"
-         style="width: 32px; height: 32px; border-radius: 6px; border: none; background: none; padding: 0;"/>
-  <input [cpOutputFormat]="'rgba'"
-         
-         [style.background]="rgbaColors[4]"
-         [cpEyeDropper]="true"
-         [cpSaveClickOutside]="true"
-         [(colorPicker)]="rgbaColors[4]"
-         (colorPickerChange)="updateGradientString()"
-         style="width: 32px; height: 32px; border-radius: 6px; border: none; background: none; padding: 0;"/>
-  <input [cpOutputFormat]="'rgba'"
-         
-         [style.background]="rgbaColors[5]"
-         [cpEyeDropper]="true"
-         [cpSaveClickOutside]="true"
-         [(colorPicker)]="rgbaColors[5]"
-         (colorPickerChange)="updateGradientString()"
-         style="width: 32px; height: 32px; border-radius: 6px; border: none; background: none; padding: 0;"/>
+<div *ngIf="!isGradient && rgbaColor != 'undefined'" >
+              <div class="flex items-center gap-3">
+              <input 
+              class="color-square"
+              [style.background]="rgbaColor"
+              [cpOutputFormat]="'rgba'"
+              [cpEyeDropper]="true"
+              [cpSaveClickOutside]="true"
+              [(colorPicker)]="rgbaColor"
+              (colorPickerChange)="onSingleColorChange()"
+              />
+              <div class="color-label">
+              {{ label }}
+              </div>
+              </div>
+       </div>
+<div *ngIf="isGradient && rgbaColor == 'undefined'" class="color-picker-row" >
+       <div [style.background]="gradientString" class="rounded">
+              <input [cpOutputFormat]="'rgba'"
+                     
+                     [style.background]="rgbaColors[0]"
+                     [cpEyeDropper]="true"
+                     [cpSaveClickOutside]="true"
+                     [(colorPicker)]="rgbaColors[0]"
+                     (colorPickerChange)="updateGradientString()"
+                     class="color-square"/>
+              <input [cpOutputFormat]="'rgba'"
+                     [style.background]="rgbaColors[1]"
+                     [cpEyeDropper]="true"
+                     [cpSaveClickOutside]="true"
+                     [(colorPicker)]="rgbaColors[1]"
+                     (colorPickerChange)="updateGradientString()"
+                     class="color-square"/>
+              <input [cpOutputFormat]="'rgba'"
+                     
+                     [style.background]="rgbaColors[2]"
+                     [cpEyeDropper]="true"
+                     [cpSaveClickOutside]="true"
+                     [(colorPicker)]="rgbaColors[2]"
+                     (colorPickerChange)="updateGradientString()"
+                     class="color-square"/>
+              <input [cpOutputFormat]="'rgba'"
+                     
+                     [style.background]="rgbaColors[3]"
+                     [cpEyeDropper]="true"
+                     [cpSaveClickOutside]="true"
+                     [(colorPicker)]="rgbaColors[3]"
+                     (colorPickerChange)="updateGradientString()"
+                     class="color-square"/>
+              <input [cpOutputFormat]="'rgba'"
+                     [style.background]="rgbaColors[4]"
+                     [cpEyeDropper]="true"
+                     [cpSaveClickOutside]="true"
+                     [(colorPicker)]="rgbaColors[4]"
+                     (colorPickerChange)="updateGradientString()"
+                     class="color-square"/>
+              <input [cpOutputFormat]="'rgba'"
+                     [style.background]="rgbaColors[5]"
+                     [cpEyeDropper]="true"
+                     [cpSaveClickOutside]="true"
+                     [(colorPicker)]="rgbaColors[5]"
+                     (colorPickerChange)="updateGradientString()"
+                     class="color-square"/>
+       </div>
+       <div class="color-label">
+              {{ label }}
+       </div>
 </div>

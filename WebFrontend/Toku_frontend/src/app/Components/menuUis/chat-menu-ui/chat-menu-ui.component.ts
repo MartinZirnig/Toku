@@ -1,4 +1,4 @@
-import { Component, HostListener, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
+import { Component, HostListener, ViewChild, ElementRef, ChangeDetectorRef, Input } from '@angular/core';
 import { OpenAndcloseMenuService } from '../../../services/open-andclose-menu.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -31,6 +31,7 @@ export class AiGroupVisibilityService {
   styleUrl: './chat-menu-ui.component.scss'
 })
 export class ChatMenuUiComponent {
+  @Input() ForcedOpen: boolean = false; // Přidej input pro zobrazení headeru
   items: AvailableGroupsModel[] = []; // <-- oprav deklaraci na pole
   filteredItems: AvailableGroupsModel[] = [];
   search: string = '';
@@ -40,7 +41,7 @@ export class ChatMenuUiComponent {
   showAiGroup = true;
   
   aiGroup : AvailableGroupsModel = new AvailableGroupsModel(
-  0, 'AI bot', 'Talk to your AI assistant!', '', ''
+  0, 'TokuAi', 'Try our AI assistant', '', ''
   );
   
   /*{
@@ -104,6 +105,7 @@ public csm; // přidej csm
   ngOnInit() {
     this.showAiGroup = this.aiGroupVisibility.visible;
     this.reload();
+    
   }
 
   ngAfterViewInit() {

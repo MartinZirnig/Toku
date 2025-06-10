@@ -53,13 +53,9 @@ export class MenuUiComponent implements AfterViewInit {
   }
 
   showMenu() {
-    if (!this.menuService.isVisible) {
+    
       this.menuService.toggleDropdownMenu();
-    }
-    else {
-      
-      this.menuService.toggleDropdownMenu();
-    }
+    
   }
 
 
