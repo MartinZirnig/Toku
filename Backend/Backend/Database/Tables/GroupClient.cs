@@ -19,5 +19,8 @@ internal class GroupClient
     public virtual Group Group { get; set; }
 
     [Required]
-    public GroupClientPermission Permission { get; set; } 
+    public GroupClientPermission Permission { get; set; }
+
+    [Required]
+    public bool Muted { get; set; }
 }

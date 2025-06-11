@@ -18,7 +18,10 @@ internal abstract class DatabaseServisLifecycle(MysqlDatabaseManager creator) : 
 
         if (disposing)
         {
-            Context.SaveChanges();
+            try
+            {
+                Context.SaveChanges();
+            } catch { }
             Context.Dispose();
         }
 

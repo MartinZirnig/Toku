@@ -134,25 +134,24 @@ namespace Backend.Controllers
 
             return Ok(result);
         }
-        [HttpPatch("update-colors/{userId}")]
-        public async Task<IActionResult> UpdateColorsAsync([FromRoute] uint userId)
+        [HttpPatch("update-colors")]
+        public async Task<IActionResult> UpdateColorsAsync()
         {
             using var service = _serviceProvider.GetUserService();
+            var executor = (Guid)AuthorizationAttribute.GetUID(HttpContext)!;
+
             var reader = new StreamReader(Request.Body);
             var data = await reader.ReadToEndAsync()
                 .ConfigureAwait(false);
 
             var result = await service
-                .SetColorsAsync(data, userId);
+                .SetColorsAsync(data, executor);
             return Ok(result);
         }
         [HttpGet("get-colors")]
         public async Task<IActionResult> GetColorsAsync()
         {
             using var service = _serviceProvider.GetUserService();
-            var reader = new StreamReader(Request.Body);
-            var data = await reader.ReadToEndAsync()
-                .ConfigureAwait(false);
 
             var executor = (Guid)AuthorizationAttribute.GetUID(HttpContext)!;
 
@@ -162,6 +161,17 @@ namespace Backend.Controllers
                 return NotFound();
 
             return Content(result, "application/json");
+        }
+        [HttpDelete("delete")]
+        public async Task<IActionResult> DeleteUserAsync()
+        {
+            using var service = _serviceProvider.GetUserService();
+            var executor = (Guid)AuthorizationAttribute.GetUID(HttpContext)!;
+
+            var result = await service.DeleteUserAsync(executor)
+                .ConfigureAwait(false);
+
+            return Ok(result);
         }
     }
 }

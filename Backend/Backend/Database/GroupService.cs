@@ -188,14 +188,16 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
             var user = await SupportService.GetUserDataAsync(userId, Context).ConfigureAwait(false);
             if (user is null) return [];
 
-            var clientIds = (await Context.Clients
+            var clients = (await Context.Clients
+                .Include(c => c.GroupRelations)
                 .AsNoTracking()
                 .Where(c => c.UserId == user.UserId)
                 .ToListAsync()
-                .ConfigureAwait(false))
-                .Select(c => c.ClientId);
+                .ConfigureAwait(false));
 
-            if (!clientIds.Any()) return [];
+            if (clients.Count == 0) return [];
+
+            var clientIds = clients.Select(c => c.ClientId);
 
             var groups = await Context.GroupClients
                 .AsNoTracking()
@@ -212,7 +214,8 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
             {
                 var lastMessage = await DecryptLastMessageAsync(userId, g.GroupId).ConfigureAwait(false);
                 return new AvailableGroupsModel(
-                    g.GroupId, g.Name, lastMessage, g.PictureStoredFile.FilePath, GetCorrectTimeFormat(g.LastOperation));
+                    g.GroupId, g.Name, lastMessage, g.PictureStoredFile.FilePath, GetCorrectTimeFormat(g.LastOperation),
+                    clients.Any(c => c.GroupRelations.Any(gr => gr.GroupId == g.GroupId && gr.Muted)));
             });
 
             return await Task.WhenAll(tasks).ConfigureAwait(false);
@@ -225,19 +228,27 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
     }
     private static async Task<string> DecryptLastMessageAsync(Guid uid, uint groupId)
     {
-        var dataService = new DataService(null!);
-        var context = dataService.GetContextAsync();
+        try
+        {
+            var dataService = new DataService(null!);
+            var context = dataService.GetContextAsync();
 
-        var last = await context.Messages
-                .Where(m => m.DeletedTime == null)
-                .OrderByDescending(m => m.CreatedTime)
-                .FirstOrDefaultAsync(m => m.GroupId == groupId)
-                .ConfigureAwait(false);
+            var last = await context.Messages
+                    .Where(m => m.DeletedTime == null)
+                    .OrderByDescending(m => m.CreatedTime)
+                    .FirstOrDefaultAsync(m => m.GroupId == groupId)
+                    .ConfigureAwait(false);
 
-        if (last is null) return string.Empty;
+            if (last is null) return string.Empty;
 
-        var msg = await dataService.GetMessageAsync(uid, last.MessageId);
-        return msg?.MessageContent ?? "";
+            var msg = await dataService.GetMessageAsync(uid, last.MessageId);
+            return msg?.MessageContent ?? "";
+        }
+        catch
+        {
+            return string.Empty;
+        }
+
     }
     public static string GetCorrectTimeFormat(DateTime time)
     {
@@ -984,6 +995,60 @@ internal class GroupService : DatabaseServisLifecycle, IGroupService
         catch
         {
             return [];
+        }
+    }
+
+    public async Task<RequestResultModel> MuteAsync(MuteModel model, Guid executor)
+    {
+        await using var transaction = await Context.Database
+            .BeginTransactionAsync()
+            .ConfigureAwait(false);
+
+        try
+        {
+            var login = await SupportService
+                .GetUserDataAsync(executor, Context)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+            var clientId = await Context.Clients
+                .Where(c => c.UserId == login.UserId
+                        && c.GroupRelations[0].GroupId == model.GroupId)
+                .Select(c => c.ClientId)
+                .FirstOrDefaultAsync()
+                .ConfigureAwait(false);
+
+
+            var groupClients = await Context.GroupClients
+              .Where(gc => gc.GroupId == model.GroupId && gc.ClientId == clientId)
+              .ToListAsync()
+              .ConfigureAwait(false);
+
+            foreach (var groupClient in groupClients)
+            {
+                groupClient.Muted = model.Muted;
+            }
+
+
+            await Context.SaveChangesAsync().ConfigureAwait(false);
+
+
+
+            await Context.SaveChangesAsync()
+                .ConfigureAwait(false);
+            await transaction.CommitAsync()
+                .ConfigureAwait(false);
+
+            return new RequestResultModel(
+                true, string.Empty);
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync()
+                .ConfigureAwait(false);
+
+            return new RequestResultModel(
+                false, ex.Message);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using BackendInterface;
 using BackendInterface.Models;
 using Microsoft.AspNetCore.Mvc;
+using MysqlDatabase;
 namespace Backend.Controllers
 {
     [ApiController]
@@ -38,17 +39,16 @@ namespace Backend.Controllers
             using var reader = new StreamReader(Request.Body);
             var body = await reader.ReadToEndAsync();
 
-            /*
-            var dbContext = new DatabaseContext();
-            var setting = new ColorSetting()
-            {
-                Colors = body
-            };
 
-            dbContext.ColorSettings.Add(setting);
-            dbContext.SaveChanges();
-            dbContext.Dispose();
-            */
+            //var dbContext = new DatabaseContext();
+            //var setting = new MysqlDatabase.Tables.ColorSetting()
+            //{
+            //    Colors = body
+            //};
+
+            //dbContext.ColorSettings.Add(setting);
+            //dbContext.SaveChanges();
+            //dbContext.Dispose();
 
             return Content(body, "application/json");
         }

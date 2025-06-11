@@ -33,6 +33,7 @@ import { ContextMenuMessagesComponent } from '../../Components/contextMenus/cont
 import { PopUpComponent } from '../../Components/pop-up/pop-up.component';
 import { ColorBasedPopupComponent } from '../../Components/popups/color-based-popup/color-based-popup.component';
 import { ReactionCounterComponent } from '../../Components/reaction-counter/reaction-counter.component';
+import { UserFinderComponent } from "../../Components/user-finder/user-finder.component";
 
 export type SwipeAction = 'reply' | 'react' | 'copy' | 'delete' | 'edit';
 
@@ -55,8 +56,9 @@ export type SwipeAction = 'reply' | 'react' | 'copy' | 'delete' | 'edit';
     MenuUiComponent,
     PopUpComponent,
     ColorBasedPopupComponent,
-    ReactionCounterComponent
-  ],
+    ReactionCounterComponent,
+    UserFinderComponent
+],
   standalone: true,
   templateUrl: './user-settings.component.html',
   styleUrls: ['./user-settings.component.scss'],
@@ -157,7 +159,7 @@ export class UserSettingsComponent {
     private fileService: FileService,
     private router: Router, // <-- přidat Router
     public colorManager: ColorManagerService, // <-- změna na public
-    public menuService: MenuService
+    public menuService: MenuService,
   ) {
     // Inicializace všech barev pokud nejsou nastavené
     this.argbColorKeys.forEach((key) => {
@@ -332,6 +334,8 @@ export class UserSettingsComponent {
   }
 
   closeWithoutSave(): void {
+    this.colorManager.save();
+
     const changed =
       this.userName !== this.originalName ||
       this.userPhone !== this.originalPhone ||
@@ -702,8 +706,25 @@ export class UserSettingsComponent {
       (result) => {
         this.showAreYouSure = false;
         if (result === 'yes') {
-          // TODO: Implement actual delete logic here
-          console.log('Account deletion confirmed');
+          this.userService.deleteUser().subscribe({
+            next: response => {
+              if (response.success) {
+                this.usrCtrl.logout().subscribe({
+                  next: _ => {
+                      this.redirecter.Login();
+                  },
+                  error: err => {
+                    console.error("cannot logout user: ", err);
+                  }
+                })
+              } else {
+                console.error("cannot delete user: ", response.description);
+              }
+            },
+            error: err => {
+              console.error("cannot delete user: ", err);
+            }
+          })
         }
       },
       `You want to delete your account? ALL YOUR DATA WILL BE LOST PERMANENTLY!`,

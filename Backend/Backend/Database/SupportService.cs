@@ -86,7 +86,7 @@ internal static class SupportService
             .Include(c => c.User)
                 .ThenInclude(u => u.Picture)
             .Where(c => c.GroupRelations
-                .Any(r => r.GroupId == groupId))
+                .Any(r => r.GroupId == groupId && !r.Muted))
             .Select(c => c.User)
             .ToListAsync()
             .ConfigureAwait(false);

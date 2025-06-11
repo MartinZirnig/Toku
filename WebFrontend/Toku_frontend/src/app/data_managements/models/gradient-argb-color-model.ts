@@ -37,6 +37,19 @@ constructor(
         public b6: number
     ) {}
 
+    static fromObject(data: Partial<GradientArgbColorModel>): GradientArgbColorModel {
+        return Object.assign(
+            new GradientArgbColorModel(
+                data.a1 ?? 0, data.r1 ?? 0, data.g1 ?? 0, data.b1 ?? 0,
+                data.a2 ?? 0, data.r2 ?? 0, data.g2 ?? 0, data.b2 ?? 0,
+                data.a3 ?? 0, data.r3 ?? 0, data.g3 ?? 0, data.b3 ?? 0,
+                data.a4 ?? 0, data.r4 ?? 0, data.g4 ?? 0, data.b4 ?? 0,
+                data.a5 ?? 0, data.r5 ?? 0, data.g5 ?? 0, data.b5 ?? 0,
+                data.a6 ?? 0, data.r6 ?? 0, data.g6 ?? 0, data.b6 ?? 0
+            ), data
+        );
+    }
+
     toLinearGradientString(degree: number): string {
         const stops = [
             { a: this.a1, r: this.r1, g: this.g1, b: this.b1, p: '0%' },

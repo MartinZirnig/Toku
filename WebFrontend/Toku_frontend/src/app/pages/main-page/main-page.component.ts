@@ -212,7 +212,6 @@ private setEmptyHintTimeout() {
 
 // Upravte místa, kde se mění messages nebo dummyVisible, aby se znovu nastavilo zpoždění
 private appendMessage(msg: StoredMessageModel, file?: string) {
-  console.log(msg);
   const stat = StoredMessageModel.getStatus(msg.status);
   const sender = StoredMessageModel.isSender(msg.status);
   const message = new MessageFormat(
@@ -297,7 +296,6 @@ initializeMessages(group: number): void {
     next: response => {
       this.rawMessages = response;
       this.messages = [];
-      console.log(response);
       response.forEach(msg => {
         this.rawMessages = response;
         this.appendMessage(msg);
@@ -394,7 +392,6 @@ private addMessage(msg: StoredMessageModel): void {
 
 private loadMessage(msg: StoredMessageModel) : void {
   if (msg.pngId){
-    console.log(msg);
     this.fileService.getGroupSecret(String(msg.pngId)).subscribe({
       next: response => {
           if (response) {

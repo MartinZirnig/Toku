@@ -24,14 +24,12 @@
     "bootstrap": "^5.3.3",
     "dompurify": "^3.2.6",
     "emoji-picker-element": "^1.26.3",
+    "exit": "^0.1.2",
     "install": "^0.13.0",
     "marked": "^15.0.12",
     "ng-emoji-picker": "^6.0.1",
-<<<<<<< HEAD
-    "npm": "^11.4.1",
-=======
     "ngx-color-picker": "^12.0.1",
->>>>>>> origin/final_fina_final_final_už_ani_nevím_kolikátá
+    "npm": "^11.4.1",
     "postcss": "^8.5.3",
     "react-gcolor-picker-2": "^0.0.9",
     "rxjs": "~7.8.0",
@@ -42,10 +40,7 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^19.2.3",
-<<<<<<< HEAD
-=======
     "@angular/cli": "^19.2.14",
->>>>>>> origin/final_fina_final_final_už_ani_nevím_kolikátá
     "@angular/compiler-cli": "^19.2.3",
     "@types/dompurify": "^3.2.0",
     "@types/google.accounts": "^0.0.15",

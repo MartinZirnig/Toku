@@ -10,6 +10,7 @@ import { UserPermissionModel } from '../models/user-permission-model';
 import { ContactEditModel } from '../models/contact-edit-model';
 import { SwipeAction } from '../../pages/user-settings/user-settings.component';
 import { SwipeInfoModel } from '../models/swipe-info-model';
+import { ColorSettingsModel } from '../models/color-settings-model';
 
 @Injectable({
   providedIn: 'root'
@@ -77,5 +78,22 @@ export class UserService {
     const path: string = this.url + "/get-swipes";  
 
     return this.http.get<SwipeInfoModel>(path);
+  }
+
+  public deleteUser() : Observable<RequestResultModel> {
+    const path: string = this.url + "/delete";  
+    
+    return this.http.delete<RequestResultModel>(path);
+  }
+
+  public getColorSettings() : Observable<ColorSettingsModel> {
+    const path: string = this.url + "/get-colors";
+    
+    return this.http.get<ColorSettingsModel>(path);
+  }
+  public setColorSettings(model: ColorSettingsModel) : Observable<RequestResultModel> {
+    const path: string = this.url + "/update-colors";
+    
+    return this.http.patch<RequestResultModel>(path, model);
   }
 }

@@ -715,3 +715,9 @@
 
 <app-are-you-sure-pop-up *ngIf="showAreYouSure"></app-are-you-sure-pop-up>
 <app-are-you-sure-pop-up *ngIf="showResetColorsPopup"></app-are-you-sure-pop-up>
+<app-add-contact-popup 
+  *ngIf="showAddContactPopup"
+    [existingContacts]="contacts"
+    (close)="onAddContactPopupClose()"
+    (addContact)="onAddContactSelected($event)"
+  ></app-add-contact-popup >

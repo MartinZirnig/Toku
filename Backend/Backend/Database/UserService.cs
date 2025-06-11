@@ -33,6 +33,7 @@ internal class UserService : DatabaseServisLifecycle, IUserService
             await CopyDomainColorSettingsAsync(UserId);
 
             await transaction.CommitAsync();
+
             return new RequestResultModel(true, UserId.ToString());
         }
         catch (Exception ex)
@@ -87,13 +88,14 @@ internal class UserService : DatabaseServisLifecycle, IUserService
     }
     private async Task CopyDomainColorSettingsAsync(uint userId)
     {
-        var user = await SupportService
-            .GetUserById(userId, Context)
-            .ConfigureAwait(false)
+        var user = await Context.Users
+            .Include(u => u.Domain)
+                .ThenInclude(d => d.PreselectedColorSettings)
+            .FirstOrDefaultAsync(u => u.UserId == userId)
             ?? throw new ArgumentException(nameof(userId));
 
         var newColors = new ColorSetting()
-            { Colors = user.ColorSettings.Colors };
+        { Colors = user.Domain.PreselectedColorSettings.Colors };
 
         await Context.ColorSettings
             .AddAsync(newColors)
@@ -138,7 +140,9 @@ internal class UserService : DatabaseServisLifecycle, IUserService
         var user = await Context.Users
             .AsNoTracking()
             .Include(u => u.Key)
-            .FirstOrDefaultAsync(u => u.Name == model.UserName);
+            .FirstOrDefaultAsync(
+                u => u.Name == model.UserName
+                && u.DeletedTime == null);
 
         if (user is null) return null;
         if (user.Password.VerifyPassword(model.Password))
@@ -341,7 +345,7 @@ internal class UserService : DatabaseServisLifecycle, IUserService
                 .Include(u => u.Domain)
                 .FirstOrDefaultAsync(u =>
                     u.UserId == login.UserId)
-                .ConfigureAwait (false)
+                .ConfigureAwait(false)
                 ?? throw new UnauthorizedAccessException();
 
 
@@ -695,7 +699,7 @@ internal class UserService : DatabaseServisLifecycle, IUserService
         }
     }
 
-    public async Task<RequestResultModel> SetColorsAsync(string value, uint user)
+    public async Task<RequestResultModel> SetColorsAsync(string value, Guid executor)
     {
         await using var transaction = await Context.Database
             .BeginTransactionAsync()
@@ -703,28 +707,41 @@ internal class UserService : DatabaseServisLifecycle, IUserService
 
         try
         {
-
-            /*
-            var usrs = await Context.Users
-                .Include(u => u.ColorSettings)
-                .FirstOrDefaultAsync(u => u.UserId == user)
+            var login = await SupportService
+                .GetUserDataAsync(executor, Context)
                 .ConfigureAwait(false)
                 ?? throw new UnauthorizedAccessException();
 
-            var setting = usrs.ColorSettings;
+
+            var usrs = await Context.Users
+                .FirstOrDefaultAsync(u => u.UserId == login.UserId)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+            var setting = (await Context.Users
+                .Include(u => u.Picture)
+                .FirstOrDefaultAsync(u => u.UserId == login.UserId)
+                .ConfigureAwait(false))
+                ?.ColorSettings;
             if (setting is null)
             {
                 var cs = new ColorSetting()
                 {
                     Colors = value
                 };
-                await Context.ColorSettings.AddAsync(cs);
+
+                await Context.ColorSettings.AddAsync(cs)
+                    .ConfigureAwait(false);
+                await Context.SaveChangesAsync()
+                    .ConfigureAwait(false);
+
+                usrs.ColorSettingsId = cs.Id;
             }
             else
             {
                 setting.Colors = value;
             }
-            */
+
             await Context.SaveChangesAsync()
                 .ConfigureAwait(false);
             await transaction.CommitAsync()
@@ -747,7 +764,6 @@ internal class UserService : DatabaseServisLifecycle, IUserService
     {
         try
         {
-            /*
             var login = await SupportService
                 .GetUserDataAsync(executor, Context)
                 .ConfigureAwait(false)
@@ -758,13 +774,66 @@ internal class UserService : DatabaseServisLifecycle, IUserService
                 .FirstOrDefaultAsync(u => u.UserId == login.UserId)
                 .ConfigureAwait(false)
                 ?? throw new UnauthorizedAccessException();
-            */
 
-            return string.Empty;//usrs.ColorSettings.Colors;
+            return usrs.ColorSettings.Colors;
         }
         catch
         {
             return string.Empty;
+        }
+    }
+
+    public async Task<RequestResultModel> DeleteUserAsync(Guid executor)
+    {
+        using var off = new ConstraintOff(Context);
+
+        await using var transaction = await Context.Database
+             .BeginTransactionAsync()
+             .ConfigureAwait(false);
+
+        try
+        {
+            var login = await SupportService
+                .GetUserDataAsync(executor, Context)
+                .ConfigureAwait(false)
+                ?? throw new UnauthorizedAccessException();
+
+            var user = await Context.Users
+                .FirstOrDefaultAsync(u =>
+                    u.UserId == login.UserId)
+                ?? throw new UnauthorizedAccessException();
+
+            user.DeletedTime = DateTime.UtcNow;
+
+            var clients = await Context.Clients
+                .Where(c => c.UserId == login.UserId)
+                .Select(c => c.ClientId)
+                .ToArrayAsync()
+                .ConfigureAwait(false);
+
+            var ids = string.Join(",", clients.Select(id => $"'{id}'"));
+            await Context.Database.ExecuteSqlAsync($@"
+                DELETE FROM GroupClients
+                WHERE ClientId IN ({ids})
+                ")
+                .ConfigureAwait(false);
+
+
+            await Context.SaveChangesAsync()
+                .ConfigureAwait(false);
+            await transaction.CommitAsync()
+                .ConfigureAwait(false);
+
+            return new RequestResultModel(
+                true, string.Empty);
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync()
+                .ConfigureAwait(false);
+
+            return new RequestResultModel(
+                false, ex.Message);
         }
     }
 }

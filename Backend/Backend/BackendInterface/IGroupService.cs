@@ -29,5 +29,6 @@ public interface IGroupService : IDisposable
     Task<RequestResultModel> ReceiveMessagesAsync(Guid executor);
     Task<IEnumerable<Guid>> GetConnectedCoGroupersAsync(Guid executor);
     Task<IEnumerable<Guid>> GetConnectedUsersInGroup(uint groupId);
+    Task<RequestResultModel> MuteAsync(MuteModel model, Guid executor);
 
 }

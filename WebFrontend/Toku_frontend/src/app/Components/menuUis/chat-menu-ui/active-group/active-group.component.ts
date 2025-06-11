@@ -11,6 +11,9 @@ import { ProfilePictureCircledComponent } from '../../../profile-picture-circled
 import { ColorManagerService } from '../../../../services/color-manager.service';
 import { ColorSettingsModel } from '../../../../data_managements/models/color-settings-model';
 import { AiService } from '../../../../data_managements/services/ai-service.service';
+import { GroupService } from '../../../../data_managements/services/group-service.service';
+import { MuteModel } from '../../../../data_managements/models/mute-model';
+import { PopUpService } from '../../../../services/pop-up.service';
 
 
 @Component({
@@ -47,7 +50,9 @@ export class ActiveGroupComponent implements AfterViewInit {
     private el: ElementRef,
     private colorManager: ColorManagerService,
     private ai: AiService,
-    private messager: MessagerService
+    private messager: MessagerService,
+    private groupService: GroupService,
+    private popuService: PopUpService
   ) { 
     this.csm = this.colorManager.csm;
     this.messager.appendCallback("new-message", this.onMessage.bind(this));
@@ -145,7 +150,25 @@ export class ActiveGroupComponent implements AfterViewInit {
   muteGroup() {
     if (this.disableContextMenu) return;
     this.IsMuted = !this.IsMuted; // přepnutí stavu
-    alert(this.IsMuted ? 'Skupina ztišena!' : 'Skupina odtišena!');
+    const event = this.IsMuted
+      ? "Group muted"
+      : "Group unmuted";
+
+    const model = new MuteModel(
+      this.groupId, this.IsMuted
+    )
+    this.groupService.muteGroup(model).subscribe({
+      next: response => {
+        if (response.success){
+          this.popuService.showMessage(`Skupina ${event}`);
+        } else {
+          console.error("cannot change mute state: ", response.description);
+        }
+      },
+      error: err => {
+        console.error("cannot change mute state: ", err);
+      }
+    })
   }
 
   onGroupMenuClick(item: any, event: MouseEvent) {

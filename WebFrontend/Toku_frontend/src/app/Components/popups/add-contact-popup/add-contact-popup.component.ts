@@ -24,16 +24,7 @@ export class AddContactPopupComponent implements OnInit {
   search: string = '';
   usrs: KnownUserDataModel[] = [];
 
-  // Statické záznamy pro fallback, pokud není předán žádný seznam
-  staticUsers: KnownUserDataModel[] = [
-    /*
-    { userId: 1, name: 'Alice Example' },
-    { userId: 2, name: 'Bob Demo' },
-    { userId: 3, name: 'Charlie Test' },
-    { userId: 4, name: 'Diana Sample' },
-    { userId: 5, name: 'Eve Static' }
-    */
-    ];
+  staticUsers: KnownUserDataModel[] = [];
 
   public csm: ColorSettingsModel;
 
@@ -94,13 +85,6 @@ export class AddContactPopupComponent implements OnInit {
   }
 
   get filteredStaticUsers(): KnownUserDataModel[] {
-    /*
-    const q = (this.search || '').trim().toLowerCase();
-    return this.staticUsers.filter(u =>
-      (!q || (u.name && u.name.toLowerCase().includes(q))) &&
-      !this.existingContacts.some(c => c.userId === u.userId)
-    );
-    */
    return this.allUsers;
   }
 

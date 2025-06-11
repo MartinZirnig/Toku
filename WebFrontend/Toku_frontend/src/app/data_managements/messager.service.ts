@@ -71,7 +71,6 @@ export class MessagerService {
       for (let i = 0; i < 15; i++) {
         message[i] = i;
       }
-      console.log("pinging socket");
       this.writeSocket(message.buffer);
     }, 30000);
   }
@@ -84,8 +83,6 @@ export class MessagerService {
   }
 
   appendCallback(code: string, operation: (data: string) => void) {
-
-    console.log("adding: ", code);
     if (this.callbackMap.has(code)){
       this.callbackMap.get(code)?.push(operation);
     } else {
@@ -102,7 +99,6 @@ export class MessagerService {
   }
 
   closeSocket() {
-    console.log("socket closing");
     this.stopPeriodicBinaryMessages();
     if (this.socket) {
       this.socket.close(1000, "Normal closure");

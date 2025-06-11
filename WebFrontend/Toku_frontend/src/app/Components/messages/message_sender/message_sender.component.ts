@@ -95,8 +95,6 @@ Message_senderComponent implements OnInit {
   private isDragging = false; // Dragging state
 
   ngOnInit(): void {
-
-    console.log("init: ", this.text);
     this.messager.appendCallback("refresh-statuses", data => this.refreshStatus(data));
 
     this.isLongText = this.text.length > 50; // Adjust threshold as needed
@@ -488,7 +486,6 @@ Message_senderComponent implements OnInit {
     this.messageService.getMessageStatus(Number(this.raw.raw.messageId)).subscribe({
       next: response => {
         if (response != null) {
-          console.log(this.text ,response);
           this.status = StoredMessageModel.getStatus(response);
         } else {
           console.error("cannot refresh status: No response");

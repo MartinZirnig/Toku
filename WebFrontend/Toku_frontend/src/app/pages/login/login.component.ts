@@ -14,6 +14,7 @@ import { MessagerService } from '../../data_managements/messager.service';
 import { UserService } from '../../data_managements/services/user.service';
 import { GroupService } from '../../data_managements/services/group-service.service';
 import { ColorTestServiceService } from '../../test_services/color-test-service.service';
+import { ColorManagerService } from '../../services/color-manager.service';
 
 @Component({
   selector: 'app-login',
@@ -36,7 +37,8 @@ export class LoginComponent implements OnInit{
     private userService: UserService,
     private groupService: GroupService,
     private colorTest: ColorTestServiceService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private colorManager: ColorManagerService
   ) {
     this.loginForm = this.fb.group({
       name: ['', Validators.required],
@@ -44,7 +46,21 @@ export class LoginComponent implements OnInit{
     });
   }
 
+private clearNg(): void {
+  const code = "ng_refresh_request";
+  const value = localStorage.getItem(code);
+
+  if (!value) {
+    localStorage.setItem(code, '1');
+    window.location.reload();
+  } else {
+    localStorage.removeItem(code);
+  }
+}
+
   ngOnInit(){
+    this.clearNg();
+
     window.history.pushState({}, '', '/login');
 
     this.route.queryParams.subscribe(params => {
@@ -80,18 +96,17 @@ export class LoginComponent implements OnInit{
 
   private manageLoginResponse(
     request: Observable<UserLoginResponseModel>): void {
-    console.log("sus");
 
     request.subscribe({
         next: response => {
           if (response.userIdentification.trim()) {
-    console.log("sus");
             User.Id = response.userIdentification;
             User.InnerId = String(response.userId);
             this.loadUserData();
             this.redirecter.Group(response.lastGroupId);
             this.heart.startBeat();
             this.messager.openSocket();
+            this.colorManager.load();
 
             this.markAsReceived();
           }

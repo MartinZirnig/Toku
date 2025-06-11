@@ -6,5 +6,6 @@ export class AvailableGroupsModel {
       public lastDecryptedMessage: string,
       public picturePath: string,
       public lastOperation: string,
+      public muted: boolean
     ) {}
   }

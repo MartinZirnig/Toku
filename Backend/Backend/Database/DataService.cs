@@ -329,8 +329,6 @@ internal class DataService : DatabaseServisLifecycle, IDataService
 
     private static async Task<MessageStatusCode?> GetMessageStatusAsync(uint messageId, DatabaseContext context)
     {
-        Debug.Assert(messageId != 339);
-
         var stat = await context.MessageStatuses
             .AsNoTracking()
             .Where(ms => ms.MessageId == messageId)
@@ -346,7 +344,7 @@ internal class DataService : DatabaseServisLifecycle, IDataService
         var statuses = stat
             .Select(ms => ms.StatusCode);
 
-        if (statuses.Count() == 0) return null;
+        if (!statuses.Any()) return null;
 
         if (statuses.Contains(MessageStatusCode.Sent))
             return MessageStatusCode.Sent;
@@ -725,8 +723,12 @@ internal class DataService : DatabaseServisLifecycle, IDataService
                 .ConfigureAwait(false)
                 ?? throw new UnauthorizedAccessException();
 
-            return (uint)await GetMessageStatusAsync(messageId, Context);
 
+            var result = await GetMessageStatusAsync(messageId, Context)
+                ?? MessageStatusCode.Sent;
+
+
+            return (uint)result;
         }
         catch
         {

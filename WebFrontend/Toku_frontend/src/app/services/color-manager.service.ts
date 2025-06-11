@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { ColorSettingsModel } from '../data_managements/models/color-settings-model';
 import { ArgbColorModel } from '../data_managements/models/argb-color-model';
 import { GradientArgbColorModel } from '../data_managements/models/gradient-argb-color-model';
+import { UserService } from '../data_managements/services/user.service';
 
 
 @Injectable({
@@ -10,10 +11,39 @@ import { GradientArgbColorModel } from '../data_managements/models/gradient-argb
 export class ColorManagerService {
   public csm: ColorSettingsModel;
 
-  constructor() { 
+  constructor(
+    private userService: UserService
+  ) { 
     // Oprava: vždy nastav csm na platný model
     this.csm = this.GetDefault();
     // Pokud někdy načítáte csm asynchronně, vždy nastavte synchronně fallback
+  }
+
+  public save() : void {
+    this.userService.setColorSettings(this.csm).subscribe({
+      next: response => {
+        if (!response.success) {
+          console.error("cannot save color settings: ", response.description);
+        }
+      },
+      error: err => {
+        console.error("cannot save color settings: ", err);
+      }
+    });
+  }
+  public load() : void {
+    this.userService.getColorSettings().subscribe({
+      next: response => {
+        if (response){
+          this.csm = ColorSettingsModel.fromObject(response);
+        } else {
+          console.error("cannot save color settings: No response");
+        }
+      },
+      error: err => {
+        console.error("cannot save color settings: ", err);
+      }
+    })
   }
 
   public resteColorSettingsModel() : void

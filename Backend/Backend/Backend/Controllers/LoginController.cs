@@ -47,11 +47,11 @@ public sealed class LoginController : ControllerBase
     }
 
     [HttpPost("logout")]
+    [Authorization]
     public async Task<IActionResult> LogoutAsync()
     {
         using var service = _serviceProvider.GetUserService();
-        var uid = (string)HttpContext.Items[AuthorizationAttribute.UserIdentificationKey]!;
-        Guid uIdentification = Guid.Parse(uid);
+        Guid uIdentification = (Guid)AuthorizationAttribute.GetUID(HttpContext)!;
         if (SocketController.TryGetController<MessagerSocketController>(uIdentification, out var controller))
         {
             await controller!.CloseAsync();

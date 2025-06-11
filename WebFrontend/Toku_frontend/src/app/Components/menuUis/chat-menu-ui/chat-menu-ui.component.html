@@ -42,7 +42,8 @@
         (click)="setActiveGroup(item.groupId)"
         [disableContextMenu]="item.groupId === 0"
         [hideMenuDots]="item.groupId === 0"
-        [picture]="item.picture">
+        [picture]="item.picture"
+        [IsMuted]="item.muted">
       </app-active-group>
     </div>
   </div>

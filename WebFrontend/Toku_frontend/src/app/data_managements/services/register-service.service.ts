@@ -10,7 +10,7 @@ import { RequestResultModel } from '../models/result-model';
 })
 export class RegisterService {
 
-  private readonly url: string = Server.Url + "/register"; 
+  private readonly url: string = Server.Url + "/register/register"; 
 
   constructor(
     private http: HttpClient

@@ -16,6 +16,7 @@ import { GroupRemoveUserModel } from '../models/group-remove-user-model';
 import { GroupPictureModel } from '../models/group-picture-model';
 import { GroupJoinModel } from '../models/group-join-model';
 import { PublicGroupInfoModel } from '../models/public-group-info-model';
+import { MuteModel } from '../models/mute-model';
 
 @Injectable({
   providedIn: 'root'
@@ -114,5 +115,9 @@ export class GroupService {
 
   receiveMessages() : Observable<RequestResultModel> {
     return this.http.patch<RequestResultModel>(`${this.baseUrl}/receive-messages`, null);
+  }
+
+  muteGroup(model: MuteModel) : Observable<RequestResultModel> {
+    return this.http.patch<RequestResultModel>(`${this.baseUrl}/mute`, model)
   }
 }

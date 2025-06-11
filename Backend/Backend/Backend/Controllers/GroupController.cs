@@ -3,8 +3,10 @@ using Backend.Controllers.WebSockets;
 using Backend.Controllers.WebSockets.Management;
 using BackendInterface;
 using BackendInterface.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Mysqlx.Prepare;
+using System.Diagnostics;
 
 namespace Backend.Controllers;
 
@@ -76,6 +78,7 @@ public sealed class GroupController : ControllerBase
 
         var result = await service.GetAvailableGroupsAsync((Guid)executor)
             .ConfigureAwait(false);
+
         return Ok(result);
     }
     [HttpPatch("update-last-group")]
@@ -250,6 +253,18 @@ public sealed class GroupController : ControllerBase
 
 
 
+
+        return Ok(result);
+    }
+    [HttpPatch("mute")]
+    public async Task<IActionResult> MuteAsync([FromBody] MuteModel model)
+    {
+        using var service = _serviceProvider.GetGroupService();
+        var executor = (Guid)AuthorizationAttribute.GetUID(HttpContext)!;
+
+        var result = await service
+            .MuteAsync(model, executor)
+            .ConfigureAwait(false);
 
         return Ok(result);
     }

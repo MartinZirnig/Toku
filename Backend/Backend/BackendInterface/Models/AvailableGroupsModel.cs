@@ -4,6 +4,7 @@ public record AvailableGroupsModel(
     string GroupName,
     string LastDecryptedMessage,
     string PicturePath,
-    string LastOperation
+    string LastOperation,
+    bool Muted
     );
 

@@ -41,7 +41,7 @@ export class ChatMenuUiComponent {
   showAiGroup = true;
   
   aiGroup : AvailableGroupsModel = new AvailableGroupsModel(
-  0, 'TokuAi', 'Try our AI assistant', '', ''
+  0, 'TokuAi', 'Try our AI assistant', '', '', false
   );
   
   /*{
